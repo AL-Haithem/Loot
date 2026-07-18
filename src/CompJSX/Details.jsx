@@ -48,7 +48,7 @@ export default function DetailsPage() {
             setError("")
 
             try {
-                const res = await axios.get(`http://localhost:1111/api/public/games/${appId}`)
+                const res = await axios.get(`https://loot-api.alhaithem.site/api/public/games/${appId}`)
                 if (isMounted) {
                     setGame(res.data.data)
                 }

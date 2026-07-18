@@ -27,7 +27,7 @@ export default function GamesPage() {
             setError("")
 
             try {
-                const res = await axios.get("http://localhost:1111/api/public/games", {
+                const res = await axios.get("https://loot-api.alhaithem.site/api/public/games", {
                     params: { page: 1, filter: activeFilter?.filter }
                 })
 
