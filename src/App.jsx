@@ -1,9 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import './App.css'
+
 import LandingPage from './CompJSX/Landing.jsx'
 import GamesPage from './CompJSX/Games.jsx'
 import CartPage from './CompJSX/Cart.jsx'
 import DetailsPage from './CompJSX/Details.jsx'
+import NotFound from './NotFound.jsx'
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
           <Route path=":appId" element={<DetailsPage />} />
           <Route path="buy" element={<GamesPage />} />
         </Route>
+
+        <Route path="*" element={<NotFound />} />
 
       </Routes>
     </BrowserRouter>
