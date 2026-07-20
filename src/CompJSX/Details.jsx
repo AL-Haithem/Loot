@@ -4,6 +4,7 @@ import axios from "axios"
 import logo from "../assets/imgs/logo.png"
 import "../CompCss/Details.css"
 import { steamAssetUrl } from "../StandardComp/GameCard.jsx"
+import { API_BASE } from "../api.js"
 
 function formatPrice(price) {
     if (!price?.final || price.final <= 0) return "Unavailable"
@@ -57,7 +58,7 @@ export default function DetailsPage() {
             setError("")
 
             try {
-                const res = await axios.get(`https://loot-api.alhaithem.site/api/public/games/${appId}`)
+                const res = await axios.get(`${API_BASE}/api/public/games/${appId}`)
                 if (isMounted) {
                     setGame(res.data.data)
                 }

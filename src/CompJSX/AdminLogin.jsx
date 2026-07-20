@@ -1,8 +1,7 @@
 import { useState, useCallback } from 'react'
 import '../CompCss/AdminLogin.css'
+import { API_BASE } from '../api.js'
 
-// ─── Constants ───────────────────────────────────────────────────────────────
-const API_BASE  = import.meta.env.VITE_API_URL ?? 'http://localhost:2222'
 const LOGIN_URL = `${API_BASE}/api/vv/adm/login`
 
 // ─── Validation helpers (mirrors Joi schema from backend AuthValidator.js) ───

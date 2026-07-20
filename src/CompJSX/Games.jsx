@@ -5,6 +5,7 @@ import "../CompCss/Games.css"
 import { FilterButton, NavButton } from "../StandardComp/Buttons.jsx"
 import { GameCard } from "../StandardComp/GameCard.jsx"
 import { FiltersObjs, NavBarObjs } from "../StateTemps.js"
+import { API_BASE } from "../api.js"
 
 export default function GamesPage() {
     const [filters, setFilters] = useState(FiltersObjs)
@@ -27,7 +28,7 @@ export default function GamesPage() {
             setError("")
 
             try {
-                const res = await axios.get("https://loot-api.alhaithem.site/api/public/games", {
+                const res = await axios.get(`${API_BASE}/api/public/games`, {
                     params: { page: 1, filter: activeFilter?.filter }
                 })
 
