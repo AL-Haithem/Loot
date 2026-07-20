@@ -30,21 +30,30 @@ export default function DetailsPage() {
     const { appId } = useParams()
     const location = useLocation()
     const stateGame = location.state?.game
-    const [game, setGame] = useState(stateGame || null)
-    const [isLoading, setIsLoading] = useState(!stateGame)
+    // Start with stateGame if available so the UI renders immediately;
+    // the background fetch will update/confirm the data.
+    const [game, setGame] = useState(stateGame ?? null)
+    // Always show a loader on first mount; if stateGame exists we still
+    // fetch to get the freshest data but keep the old game visible.
+    const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState("")
 
     useEffect(() => {
         let isMounted = true
 
-        if (stateGame?.steam_appid === Number(appId) && game?.steam_appid !== stateGame.steam_appid) {
+        // If we already have matching stateGame data, show it instantly
+        // while the network request runs in the background.
+        if (stateGame?.steam_appid === Number(appId)) {
             setGame(stateGame)
             setIsLoading(false)
             setError("")
         }
 
         async function fetchGame() {
-            setIsLoading(!stateGame)
+            // Only show skeleton when we have nothing to display yet
+            if (!stateGame || stateGame.steam_appid !== Number(appId)) {
+                setIsLoading(true)
+            }
             setError("")
 
             try {
@@ -54,7 +63,10 @@ export default function DetailsPage() {
                 }
             } catch (err) {
                 if (isMounted) {
-                    setGame(null)
+                    // Only clear game if we never had one for this appId
+                    if (!stateGame || stateGame.steam_appid !== Number(appId)) {
+                        setGame(null)
+                    }
                     setError(err?.response?.status === 404 ? "Game not found" : "Unable to load game details")
                 }
             } finally {
@@ -64,7 +76,7 @@ export default function DetailsPage() {
 
         fetchGame()
         return () => { isMounted = false }
-    }, [appId, stateGame])
+    }, [appId])
 
     const usPrice = game?.Price?.US
     const priceText = useMemo(() => formatPrice(usPrice), [usPrice])

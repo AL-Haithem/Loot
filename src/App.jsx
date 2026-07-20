@@ -6,6 +6,7 @@ import GamesPage from './CompJSX/Games.jsx'
 import CartPage from './CompJSX/Cart.jsx'
 import DetailsPage from './CompJSX/Details.jsx'
 import NotFound from './NotFound.jsx'
+import AdminLogin from './CompJSX/AdminLogin.jsx'
 
 function App() {
   return (
@@ -20,6 +21,8 @@ function App() {
           <Route path=":appId" element={<DetailsPage />} />
           <Route path="buy" element={<GamesPage />} />
         </Route>
+
+        <Route path="/admin/login" element={<AdminLogin />} />
 
         <Route path="*" element={<NotFound />} />
 
