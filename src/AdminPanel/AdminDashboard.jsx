@@ -97,9 +97,7 @@ export default function AdminDashboard() {
   if (!authChecked) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center', alignItems: 'center', background: '#0f172a', color: '#fff' }}>
-        <i className="fas fa-spinner" style={{ animation: 'spin 1s linear infinite', fontSize: '2rem', marginBottom: '16px', color: 'var(--accent-clr)' }} />
-        Verifying session...
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        {/* Intentionally blank to avoid flashing text before returning NotFound */}
       </div>
     )
   }

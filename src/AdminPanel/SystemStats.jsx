@@ -6,8 +6,6 @@ export default function SystemStats({ isActive }) {
   const [connectionStatus, setConnectionStatus] = useState('connecting') // connecting, connected, error
 
   useEffect(() => {
-    if (!isActive) return;
-
     let sse;
     try {
       setConnectionStatus('connecting');
@@ -35,9 +33,11 @@ export default function SystemStats({ isActive }) {
     }
 
     return () => {
-      if (sse) sse.close();
+      if (sse) {
+        sse.close();
+      }
     };
-  }, [isActive]);
+  }, []); // Run once on mount
 
   if (!isActive) return null;
 
@@ -89,9 +89,38 @@ function renderMetricContent(value) {
   }
   
   if (typeof value === 'object' && !Array.isArray(value)) {
-    return Object.entries(value).map(([k, v]) => (
-      <StatCard key={k} label={k.replace(/_/g, ' ')} value={typeof v === 'number' ? v.toFixed(2) : String(v)} />
-    ));
+    return Object.entries(value).map(([k, v]) => {
+      let formattedValue = String(v);
+      if (typeof v === 'number') {
+        formattedValue = v % 1 !== 0 ? v.toFixed(2) : String(v);
+      }
+      
+      // If the value itself is an object (like RAM, Heap, StatusCodes)
+      if (typeof v === 'object' && v !== null) {
+        return (
+          <div key={k} style={{ gridColumn: '1 / -1', background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px', marginBottom: '8px' }}>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'capitalize' }}>{k}</div>
+            <div className="stats-mini-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))' }}>
+              {Object.entries(v).map(([subK, subV]) => {
+                let subFormatted = String(subV);
+                if (typeof subV === 'number') {
+                  subFormatted = subV % 1 !== 0 ? subV.toFixed(2) : String(subV);
+                }
+                // Formatting RAM/Heap to MB/GB could be done here if needed
+                if (['Used', 'Free', 'Total', 'RSS'].includes(subK) || ['Used', 'Free', 'Total', 'RSS'].includes(k)) {
+                   if (typeof subV === 'number' && subV > 1024) {
+                     subFormatted = (subV / 1024 / 1024).toFixed(2) + ' MB';
+                   }
+                }
+                return <StatCard key={subK} label={subK.replace(/_/g, ' ')} value={subFormatted} />
+              })}
+            </div>
+          </div>
+        )
+      }
+
+      return <StatCard key={k} label={k.replace(/_/g, ' ')} value={formattedValue} />
+    });
   }
   
   return <StatCard label="Value" value={String(value)} />;
