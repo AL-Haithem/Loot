@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router'
 import '../CompCss/AdminLogin.css'
 import { API_BASE } from '../api.js'
+import { csrfStore } from '../csrfStore.js'
 
 const LOGIN_URL = `${API_BASE}/api/vv/adm/login`
 
@@ -20,6 +22,7 @@ function validatePassword(val) {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function AdminLogin() {
+  const navigate = useNavigate()
   const [form, setForm]       = useState({ email: '', password: '' })
   const [errors, setErrors]   = useState({ email: '', password: '' })
   const [globalErr, setGlobalErr]   = useState('')
@@ -68,18 +71,22 @@ export default function AdminLogin() {
       const data = await res.json().catch(() => ({}))
 
       if (res.ok) {
-        setSuccessMsg('تم تسجيل الدخول بنجاح ✓ جارٍ التوجيه...')
-        // TODO: Navigate to admin dashboard after login
-        // navigate('/admin/dashboard')
+        // ── Save CSRF token in memory (never in localStorage) ──
+        if (data?.csrfToken) {
+          csrfStore.set(data.csrfToken)
+        }
+        setSuccessMsg('Login successful — redirecting...')
+        // Short delay so the user sees the success message
+        setTimeout(() => navigate('/admin/dashboard', { replace: true }), 600)
       } else if (res.status === 429) {
-        setGlobalErr('تم تجاوز الحد المسموح من المحاولات. يرجى الانتظار قليلاً.')
+        setGlobalErr('Too many attempts. Please wait a moment and try again.')
       } else if (res.status === 401 || res.status === 403) {
-        setGlobalErr('البريد الإلكتروني أو كلمة المرور غير صحيحة.')
+        setGlobalErr('Invalid email or password.')
       } else {
-        setGlobalErr(data?.message ?? 'حدث خطأ غير متوقع. يرجى المحاولة مجدداً.')
+        setGlobalErr(data?.message ?? 'An unexpected error occurred. Please try again.')
       }
     } catch {
-      setGlobalErr('تعذّر الاتصال بالخادم. يرجى التحقق من الاتصال بالإنترنت.')
+      setGlobalErr('Unable to reach the server. Please check your connection.')
     } finally {
       setLoading(false)
     }

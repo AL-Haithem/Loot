@@ -7,6 +7,7 @@ import CartPage from './CompJSX/Cart.jsx'
 import DetailsPage from './CompJSX/Details.jsx'
 import NotFound from './NotFound.jsx'
 import AdminLogin from './CompJSX/AdminLogin.jsx'
+import AdminDashboard from './AdminPanel/AdminDashboard.jsx'
 
 function App() {
   return (
@@ -22,7 +23,8 @@ function App() {
           <Route path="buy" element={<GamesPage />} />
         </Route>
 
-        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/login"     element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
         <Route path="*" element={<NotFound />} />
 
