@@ -65,12 +65,12 @@ export default function CacheStats({ isActive }) {
                 <i className="fas fa-chart-pie"></i> Overview
               </div>
               <div className="stats-mini-grid">
-                <StatCard label="Current Storage" value={data.current_storage ?? '0'} />
-                <StatCard label="Monthly Storage" value={data.total_monthly_storage ?? '0'} />
-                <StatCard label="Monthly Bandwidth" value={data.total_monthly_bandwidth ?? '0'} />
-                <StatCard label="Monthly Requests" value={data.total_monthly_requests ?? '0'} />
-                <StatCard label="Daily Requests" value={data.dailyrequests ?? '0'} />
-                <StatCard label="Daily Billing" value={data.dailybilling ?? '$0.00'} />
+                <StatCard label="Current Storage" value={extractValue(data.current_storage, true)} />
+                <StatCard label="Monthly Storage" value={extractValue(data.total_monthly_storage, true)} />
+                <StatCard label="Monthly Bandwidth" value={extractValue(data.total_monthly_bandwidth, true)} />
+                <StatCard label="Monthly Requests" value={extractValue(data.total_monthly_requests)} />
+                <StatCard label="Daily Requests" value={extractSum(data.dailyrequests)} />
+                <StatCard label="Daily Billing" value={'$' + extractSum(data.dailybilling)} />
               </div>
             </div>
 
@@ -79,9 +79,9 @@ export default function CacheStats({ isActive }) {
                 <i className="fas fa-hdd"></i> Usage
               </div>
               <div className="stats-mini-grid">
-                <StatCard label="Disk Usage" value={data.diskusage ?? '0'} />
-                <StatCard label="Daily Bandwidth" value={data.dailybandwidth ?? '0'} />
-                <StatCard label="Daily Requests" value={data.dailyrequests ?? '0'} />
+                <StatCard label="Disk Usage" value={extractValue(data.diskusage, true)} />
+                <StatCard label="Daily Bandwidth" value={extractValue(data.dailybandwidth, true)} />
+                <StatCard label="Daily Requests" value={extractSum(data.dailyrequests)} />
               </div>
             </div>
           </div>
@@ -93,22 +93,22 @@ export default function CacheStats({ isActive }) {
                 <i className="fas fa-exchange-alt"></i> Traffic
               </div>
               <div className="stats-mini-grid">
-                <StatCard label="Daily Read Req." value={data.daily_read_requests ?? '0'} />
-                <StatCard label="Daily Write Req." value={data.daily_write_requests ?? '0'} />
-                <StatCard label="Monthly Read Req." value={data.total_monthly_read_requests ?? '0'} />
-                <StatCard label="Monthly Write Req." value={data.total_monthly_write_requests ?? '0'} />
+                <StatCard label="Daily Read Req." value={extractValue(data.daily_read_requests)} />
+                <StatCard label="Daily Write Req." value={extractValue(data.daily_write_requests)} />
+                <StatCard label="Monthly Read Req." value={extractValue(data.total_monthly_read_requests)} />
+                <StatCard label="Monthly Write Req." value={extractValue(data.total_monthly_write_requests)} />
               </div>
             </div>
 
             <div className="card-glass dashboard-group">
               <div className="group-title">
-                <i className="fas fa-bolt"></i> Cache Hits & Misses
+                <i className="fas fa-bolt"></i> Cache Hit Rates (Latest)
               </div>
               <div className="stats-mini-grid">
-                <StatCard label="Hits" value={data.hits ?? '0'} />
-                <StatCard label="Misses" value={data.misses ?? '0'} />
-                <StatCard label="Read Operations" value={data.read ?? '0'} />
-                <StatCard label="Write Operations" value={data.write ?? '0'} />
+                <StatCard label="Hits/sec" value={extractValue(data.hits)} />
+                <StatCard label="Misses/sec" value={extractValue(data.misses)} />
+                <StatCard label="Reads/sec" value={extractValue(data.read)} />
+                <StatCard label="Writes/sec" value={extractValue(data.write)} />
               </div>
             </div>
           </div>
@@ -120,9 +120,9 @@ export default function CacheStats({ isActive }) {
                 <i className="fas fa-database"></i> Database Keys
               </div>
               <div className="stats-mini-grid">
-                <StatCard label="Keyspace" value={data.keyspace ?? '0'} />
-                <StatCard label="Active Connections" value={data.connection_count ?? '0'} />
-                <StatCard label="REST Connections" value={data.rest_conn_count ?? '0'} />
+                <StatCard label="Keyspace" value={extractValue(data.keyspace)} />
+                <StatCard label="Active Connections" value={extractValue(data.connection_count)} />
+                <StatCard label="REST Connections" value={extractValue(data.rest_conn_count)} />
               </div>
             </div>
 
@@ -131,16 +131,16 @@ export default function CacheStats({ isActive }) {
                 <i className="fas fa-terminal"></i> Commands
               </div>
               <div className="stats-mini-grid" style={{ gridTemplateColumns: '1fr' }}>
-                <StatCard label="Daily Net Commands" value={data.daily_net_commands ?? '0'} />
+                <StatCard label="Daily Net Commands" value={extractValue(data.daily_net_commands)} />
                 
-                {data.command_counts && typeof data.command_counts === 'object' && (
+                {Array.isArray(data.command_counts) && data.command_counts.length > 0 && (
                   <div style={{ marginTop: '10px' }}>
-                    <div className="group-title" style={{ fontSize: '0.85rem', marginBottom: '8px', borderBottom: 'none' }}>Command Breakdown</div>
+                    <div className="group-title" style={{ fontSize: '0.85rem', marginBottom: '8px', borderBottom: 'none' }}>Command Breakdown (Latest Rate)</div>
                     <div className="stats-mini-grid">
-                      {Object.entries(data.command_counts).map(([cmd, count]) => (
-                        <div key={cmd} className="stat-card-modern">
-                          <span className="label" style={{ textTransform: 'uppercase' }}>{cmd}</span>
-                          <span className="value" style={{ fontSize: '1rem' }}>{count}</span>
+                      {data.command_counts.map((cmdObj, i) => (
+                        <div key={i} className="stat-card-modern">
+                          <span className="label" style={{ textTransform: 'uppercase' }}>{cmdObj.metric_identifier || 'CMD'}</span>
+                          <span className="value" style={{ fontSize: '1rem' }}>{extractValue(cmdObj.data_points)}</span>
                         </div>
                       ))}
                     </div>
@@ -153,6 +153,38 @@ export default function CacheStats({ isActive }) {
       )}
     </div>
   )
+}
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+// Extracts the latest 'y' value from Upstash time-series array, or formats a plain number
+function extractValue(val, isBytes = false) {
+  let num = 0
+  if (typeof val === 'number') {
+    num = val
+  } else if (Array.isArray(val) && val.length > 0) {
+    const last = val[val.length - 1]
+    if (last && typeof last.y === 'number') num = last.y
+  } else if (typeof val === 'string') {
+    num = parseFloat(val) || 0
+  }
+
+  if (isBytes) {
+    if (num === 0) return '0 B'
+    const k = 1024
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
+    const i = Math.floor(Math.log(num) / Math.log(k))
+    return parseFloat((num / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  }
+
+  return Number.isInteger(num) ? num.toString() : parseFloat(num.toFixed(2)).toString()
+}
+
+// Sums all 'y' values in an Upstash time-series array
+function extractSum(val) {
+  if (typeof val === 'number') return val.toString()
+  if (!Array.isArray(val)) return '0'
+  const sum = val.reduce((acc, curr) => acc + (curr.y || 0), 0)
+  return Number.isInteger(sum) ? sum.toString() : parseFloat(sum.toFixed(2)).toString()
 }
 
 function StatCard({ label, value }) {
