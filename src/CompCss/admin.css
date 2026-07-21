@@ -5,7 +5,6 @@
   background: var(--body-bg); color: #f3f4f6; font-family: var(--font-body); font-size: 14px; min-height: 100vh; overflow-x: hidden; line-height: 1.6;
 
   .bg-glow{position:fixed;top:0;left:0;width:200%;height:200%;background:radial-gradient(circle at 70% 30%,rgba(0,242,254,0.08) 0%,transparent 40%),radial-gradient(circle at 30% 70%,rgba(139,92,246,0.05) 0%,transparent 40%);z-index:-1;animation:pulseGlow 15s infinite alternate ease-in-out}
-  @keyframes pulseGlow{from{transform:translate(-25%,-25%) scale(1)}to{transform:translate(-10%,-10%) scale(1.1)}}
   
   /* Sidebar */
   .sidebar{position:fixed;top:1.5rem;right:1.5rem;bottom:1.5rem;width:260px;background:var(--sidebar-bg);backdrop-filter:blur(var(--blur-val));border:1px solid var(--glass-border);border-radius:var(--radius-lg);display:flex;flex-direction:column;padding:1.5rem;z-index:100;box-shadow:var(--glass-shadow)}
@@ -26,7 +25,6 @@
   .main-content{margin-right:310px;padding:2rem;padding-left:1.5rem}
   .section{display:none;animation:sectionIn .4s ease-out forwards}
   .section.active{display:block}
-  @keyframes sectionIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
   .section-header{margin-bottom:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
   .section-header h2{font-family:var(--font-head);font-size:1.8rem;font-weight:700;color:#fff;display:flex;flex-direction:column;gap:2px}
   .section-header h2 i{color:var(--accent-clr)}
@@ -117,7 +115,6 @@
   .game-detail{font-size:.78rem;color:#94a3b8;margin-top:4px}
   .status-indicator{width:10px;height:10px;border-radius:50%;background:#64748b;transition:all .3s}
   .status-indicator.active{background:var(--accent-clr);box-shadow:0 0 12px var(--accent-glow);animation:pulse 2s infinite}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
   
   /* Settings */
   .settings-grid-layout{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-base)}
@@ -191,7 +188,6 @@
   .settings-message.success{background:rgba(16,185,129,0.15);color:#6ee7b7;border:1px solid rgba(16,185,129,0.3)}
   .settings-message.error{background:rgba(248,113,113,0.15);color:#fca5a5;border:1px solid rgba(248,113,113,0.3)}
   .settings-message.warning{background:rgba(251,191,36,0.15);color:#fde68a;border:1px solid rgba(251,191,36,0.3)}
-  @keyframes slideDown{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
   .status-badge{font-size:.82rem;color:#94a3b8}
   .loading-shimmer{padding:1rem;color:#64748b;text-align:center;font-style:italic}
   
@@ -547,3 +543,10 @@
       }
   }
 }
+
+
+/* Extracted Keyframes */
+  @keyframes pulseGlow{from{transform:translate(-25%,-25%) scale(1)}to{transform:translate(-10%,-10%) scale(1.1)}}
+  @keyframes sectionIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  @keyframes slideDown{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
