@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import '../CompCss/AdminLogin.css'
 import { API_BASE } from '../api.js'
@@ -29,6 +29,23 @@ export default function AdminLogin() {
   const [successMsg, setSuccessMsg] = useState('')
   const [loading, setLoading]       = useState(false)
   const [showPw, setShowPw]         = useState(false)
+
+  // ── On mount: check if already logged in ────────────────────────────────
+  useEffect(() => {
+    fetch(LOGIN_URL, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}) // empty body to trigger GuestOnly middleware
+    })
+      .then(res => res.json().then(data => ({ status: res.status, data })))
+      .then(({ status, data }) => {
+        if (status === 401 && data?.message === 'ALREADY_LOGGED_IN') {
+          navigate('/admin/dashboard', { replace: true })
+        }
+      })
+      .catch(() => {})
+  }, [navigate])
 
   // ── Field change ──────────────────────────────────────────────────────────
   const handleChange = useCallback((e) => {
