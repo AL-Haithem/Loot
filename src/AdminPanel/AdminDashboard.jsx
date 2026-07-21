@@ -21,10 +21,10 @@ import '../CompCss/admin.css'
 
 // ─── Auth guard ───────────────────────────────────────────────────────────────
 async function revalidateSession() {
-  // The backend /api/vv/adm/csrf endpoint:
+  // The backend /api/auth/csrf endpoint:
   // - Requires a valid JWT cookie (Protection middleware)
   // - Returns { csrfToken } on success, or 401/403 on failure
-  const res = await fetch(`${API_BASE}/api/vv/adm/csrf`, {
+  const res = await fetch(`${API_BASE}/api/auth/csrf`, {
     credentials: 'include',
   })
   if (!res.ok) throw new Error('Not authenticated')
