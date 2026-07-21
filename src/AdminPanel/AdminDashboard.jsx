@@ -10,12 +10,13 @@ import { csrfStore } from '../csrfStore.js'
 
 import { ToastProvider } from './Toast.jsx'
 import Sidebar      from './Sidebar.jsx'
-import Dashboard    from './Dashboard.jsx'
 import Crawler      from './Crawler.jsx'
 import CacheStats   from './CacheStats.jsx'
+import SystemStats  from './SystemStats.jsx'
 import Settings     from './Settings.jsx'
 import DataManager  from './DataManager.jsx'
 import Logs         from './Logs.jsx'
+import NotFound     from '../NotFound.jsx'
 
 // Admin panel CSS (copied from Temp)
 import '../CompCss/admin.css'
@@ -38,6 +39,7 @@ export default function AdminDashboard() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [authChecked, setAuthChecked] = useState(false)
+  const [authFailed, setAuthFailed] = useState(false)
 
   // Default to 'dashboard' if no tab is in the URL
   const activeSection = searchParams.get('tab') || 'dashboard'
@@ -61,9 +63,9 @@ export default function AdminDashboard() {
         setAuthChecked(true)
       })
       .catch(() => {
-        // Not authenticated → send to login
+        // Not authenticated → pretend route doesn't exist
         csrfStore.clear()
-        navigate('/admin/login', { replace: true })
+        setAuthFailed(true)
       })
   }, [navigate])
 
@@ -118,6 +120,10 @@ export default function AdminDashboard() {
     )
   }
 
+  if (authFailed) {
+    return <NotFound />
+  }
+
   // ── Admin Panel UI ──────────────────────────────────────────────────────────
   return (
     <ToastProvider>
@@ -132,6 +138,7 @@ export default function AdminDashboard() {
 
         <div className="main-content">
           <Dashboard    isActive={activeSection === 'dashboard'} />
+          <SystemStats  isActive={activeSection === 'system'}    />
           <Crawler      isActive={activeSection === 'crawler'}   />
           <CacheStats   isActive={activeSection === 'cache'}     />
           <Settings     isActive={activeSection === 'settings'}  />

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { API_BASE } from '../api.js'
 import { csrfStore } from '../csrfStore.js'
 import { useToast } from './Toast.jsx'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
 
 export default function CacheStats({ isActive }) {
   const [data, setData] = useState(null)
@@ -90,7 +91,7 @@ export default function CacheStats({ isActive }) {
           <div className="dashboard-grid">
             <div className="card-glass dashboard-group">
               <div className="group-title">
-                <i className="fas fa-exchange-alt"></i> Traffic
+                <i className="fas fa-exchange-alt"></i> Traffic Overview
               </div>
               <div className="stats-mini-grid">
                 <StatCard label="Daily Read Req." value={extractValue(data.daily_read_requests)} />
@@ -102,13 +103,36 @@ export default function CacheStats({ isActive }) {
 
             <div className="card-glass dashboard-group">
               <div className="group-title">
-                <i className="fas fa-bolt"></i> Cache Hit Rates (Latest)
+                <i className="fas fa-chart-area"></i> Traffic History
               </div>
-              <div className="stats-mini-grid">
-                <StatCard label="Hits/sec" value={extractValue(data.hits)} />
-                <StatCard label="Misses/sec" value={extractValue(data.misses)} />
-                <StatCard label="Reads/sec" value={extractValue(data.read)} />
-                <StatCard label="Writes/sec" value={extractValue(data.write)} />
+              <div style={{ width: '100%', height: '160px', marginTop: '10px' }}>
+                <TimeSeriesChart data={data.dailyrequests} color="#00f2fe" name="Requests" />
+              </div>
+            </div>
+          </div>
+
+          <div className="dashboard-grid">
+            <div className="card-glass dashboard-group" style={{ gridColumn: 'span 2' }}>
+              <div className="group-title">
+                <i className="fas fa-bolt"></i> Cache Hit Rates (Over Time)
+              </div>
+              <div className="stats-mini-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
+                <div>
+                  <div className="rates-section-title">Hits/sec</div>
+                  <div style={{ height: '120px' }}><TimeSeriesChart data={data.hits} color="#10b981" name="Hits" /></div>
+                </div>
+                <div>
+                  <div className="rates-section-title">Misses/sec</div>
+                  <div style={{ height: '120px' }}><TimeSeriesChart data={data.misses} color="#f87171" name="Misses" /></div>
+                </div>
+                <div>
+                  <div className="rates-section-title">Reads/sec</div>
+                  <div style={{ height: '120px' }}><TimeSeriesChart data={data.read} color="#38bdf8" name="Reads" /></div>
+                </div>
+                <div>
+                  <div className="rates-section-title">Writes/sec</div>
+                  <div style={{ height: '120px' }}><TimeSeriesChart data={data.write} color="#fbbf24" name="Writes" /></div>
+                </div>
               </div>
             </div>
           </div>
@@ -193,5 +217,44 @@ function StatCard({ label, value }) {
       <span className="label">{label}</span>
       <span className="value">{value}</span>
     </div>
+  )
+}
+
+function TimeSeriesChart({ data, color, name }) {
+  if (!Array.isArray(data) || data.length === 0) {
+    return <div style={{ fontSize: '0.8rem', color: '#64748b' }}>No data</div>
+  }
+
+  // Parse dates to a shorter format for X axis
+  const parsedData = data.map(d => {
+    let shortTime = d.x;
+    try {
+      if (d.x.includes(' ')) {
+        const timePart = d.x.split(' ')[1]; // "13:44:00.000"
+        shortTime = timePart.split('.')[0]; // "13:44:00"
+      }
+    } catch(e) {}
+    return { ...d, time: shortTime, value: typeof d.y === 'number' ? Number(d.y.toFixed(2)) : 0 }
+  })
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <AreaChart data={parsedData} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
+        <defs>
+          <linearGradient id={`color${name}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor={color} stopOpacity={0.3}/>
+            <stop offset="95%" stopColor={color} stopOpacity={0}/>
+          </linearGradient>
+        </defs>
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+        <XAxis dataKey="time" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
+        <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
+        <Tooltip 
+          contentStyle={{ backgroundColor: 'rgba(17,24,39,0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+          itemStyle={{ color: '#fff' }}
+        />
+        <Area type="monotone" dataKey="value" name={name} stroke={color} strokeWidth={2} fillOpacity={1} fill={`url(#color${name})`} />
+      </AreaChart>
+    </ResponsiveContainer>
   )
 }
