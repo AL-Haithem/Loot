@@ -10,6 +10,7 @@ import { csrfStore } from '../csrfStore.js'
 
 import { ToastProvider } from './Toast.jsx'
 import Sidebar      from './Sidebar.jsx'
+import Dashboard    from './Dashboard.jsx'
 import Crawler      from './Crawler.jsx'
 import CacheStats   from './CacheStats.jsx'
 import SystemStats  from './SystemStats.jsx'
@@ -88,40 +89,19 @@ export default function AdminDashboard() {
     }
   }
 
-  // ── Loading state (checking auth) ───────────────────────────────────────────
+  // ── Render ──────────────────────────────────────────────────────────────────
+  if (authFailed) {
+    return <NotFound />
+  }
+
   if (!authChecked) {
     return (
-      <div
-        style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'var(--body-bg, #030712)',
-          color: '#94a3b8',
-          fontFamily: 'Inter, sans-serif',
-          gap: '12px',
-          fontSize: '0.9rem',
-        }}
-      >
-        <span
-          style={{
-            width: '18px', height: '18px',
-            border: '2px solid rgba(0,242,254,0.2)',
-            borderTop: '2px solid #00f2fe',
-            borderRadius: '50%',
-            animation: 'spin 0.7s linear infinite',
-            display: 'inline-block',
-          }}
-        />
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center', alignItems: 'center', background: '#0f172a', color: '#fff' }}>
+        <i className="fas fa-spinner" style={{ animation: 'spin 1s linear infinite', fontSize: '2rem', marginBottom: '16px', color: 'var(--accent-clr)' }} />
         Verifying session...
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     )
-  }
-
-  if (authFailed) {
-    return <NotFound />
   }
 
   // ── Admin Panel UI ──────────────────────────────────────────────────────────
