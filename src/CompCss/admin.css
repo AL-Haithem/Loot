@@ -25,10 +25,11 @@
   .main-content{margin-right:310px;padding:2rem;padding-left:1.5rem}
   .section{display:none;animation:sectionIn .4s ease-out forwards}
   .section.active{display:block}
-  .section-header{margin-bottom:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
-  .section-header h2{font-family:var(--font-head);font-size:1.8rem;font-weight:700;color:#fff;display:flex;flex-direction:column;gap:2px}
-  .section-header h2 i{color:var(--accent-clr)}
-  .section-header .subtitle{font-size:.85rem;color:#64748b;font-weight:400}
+  .section-header{margin-bottom:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;background:var(--glass-bg);padding:1.5rem 2rem;border-radius:var(--radius-lg);border:1px solid var(--glass-border);box-shadow:var(--glass-shadow);backdrop-filter:blur(var(--blur-val))}
+  .section-header h2{font-family:var(--font-head);font-size:1.6rem;font-weight:700;color:#fff;display:flex;align-items:center;gap:14px;margin:0}
+  .section-header h2 i{color:var(--accent-clr);background:rgba(0,242,254,0.1);width:45px;height:45px;display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:1.2rem;box-shadow:0 0 15px rgba(0,242,254,0.15)}
+  .section-header .subtitle{display:block;font-size:.85rem;color:#94a3b8;font-weight:400;margin-top:4px;font-family:var(--font-body)}
+  .header-titles {display: flex; flex-direction: column;}
   
   /* Glass Cards */
   .card-glass{background:var(--glass-bg);backdrop-filter:blur(var(--blur-val));border:1px solid var(--glass-border);border-radius:var(--radius-lg);box-shadow:var(--glass-shadow);transition:transform .3s ease,box-shadow .3s ease,border-color .3s ease}
