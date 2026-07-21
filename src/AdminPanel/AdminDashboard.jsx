@@ -154,11 +154,11 @@ export default function AdminDashboard() {
         <div className="main-content">
           <Dashboard    isActive={activeSection === 'dashboard'} />
           <SystemStats  isActive={activeSection === 'system'} metrics={systemMetrics} connectionStatus={sseStatus} />
-          <Crawler      isActive={activeSection === 'crawler'}   />
-          <CacheStats   isActive={activeSection === 'cache'}     />
-          <Settings     isActive={activeSection === 'settings'}  />
-          <DataManager  isActive={activeSection === 'data'}      />
-          <Logs         isActive={activeSection === 'logs'}      />
+          <Crawler      isActive={activeSection === 'crawler'} metrics={systemMetrics} />
+          <CacheStats   isActive={activeSection === 'cache'}     metrics={systemMetrics} />
+          <Settings     isActive={activeSection === 'settings'} metrics={systemMetrics} />
+          <DataManager  isActive={activeSection === 'data'}     metrics={systemMetrics} />
+          <Logs         isActive={activeSection === 'logs'}     metrics={systemMetrics} />
         </div>
       </div>
     </ToastProvider>

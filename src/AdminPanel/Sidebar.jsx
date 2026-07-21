@@ -3,12 +3,12 @@ import { useState } from 'react'
 
 const navItems = [
   { id: 'dashboard', icon: 'fas fa-chart-pie',    label: 'Dashboard' },
-  { id: 'system',    icon: 'fas fa-microchip',     label: 'System' },
-  { id: 'crawler',   icon: 'fas fa-robot',         label: 'Data Crawler' },
-  { id: 'cache',     icon: 'fas fa-server',        label: 'ذاكرة التخزين المؤقت' },
-  { id: 'settings',  icon: 'fas fa-sliders-h',     label: 'Settings' },
-  { id: 'data',      icon: 'fas fa-database',      label: 'إدارة البيانات' },
-  { id: 'logs',      icon: 'fas fa-history',       label: 'السجلات' },
+  { id: 'system',    icon: 'fas fa-microchip',    label: 'System' },
+  { id: 'crawler',   icon: 'fas fa-robot',        label: 'Data Crawler' },
+  { id: 'cache',     icon: 'fas fa-server',       label: 'Cache Memory' },
+  { id: 'settings',  icon: 'fas fa-sliders-h',    label: 'Settings' },
+  { id: 'data',      icon: 'fas fa-database',     label: 'Data Management' },
+  { id: 'logs',      icon: 'fas fa-history',      label: 'Logs' },
 ]
 
 export default function Sidebar({ activeSection, onSectionChange, onLogout }) {
@@ -42,7 +42,7 @@ export default function Sidebar({ activeSection, onSectionChange, onLogout }) {
       <div className={`sidebar ${mobileOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <i className="fas fa-shield-halved" style={{ fontSize: '1.4rem', color: 'var(--accent-clr)' }} />
-          <h3>لوحة التحكم</h3>
+          <h3>Admin Panel</h3>
         </div>
 
         <div className="nav-group">

@@ -1,8 +1,5 @@
-// Dashboard section — adapted from Temp/Dashboard.jsx
-// Uses API_BASE + csrfStore instead of BASE_URL from helpers
 import { useState, useEffect, useRef } from 'react'
 import { API_BASE } from '../api.js'
-import { csrfStore } from '../csrfStore.js'
 
 function sizeFormat(bytes) {
   if (!bytes || bytes === 0) return '0 B'
@@ -20,54 +17,41 @@ function timeFormat(ms) {
   return `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`
 }
 
-export default function Dashboard({ isActive }) {
-  const [stats, setStats]   = useState(null)
-  const [error, setError]   = useState(false)
+export default function Dashboard({ isActive, metrics }) {
   const [uptime, setUptime] = useState('00:00:00')
   const chartRef      = useRef(null)
   const chartInstance = useRef(null)
 
-  const loadDashboardData = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/api/vv/adm/dashboard`, {
-        credentials: 'include',
-        headers: { 'X-CSRF-Token': csrfStore.get() ?? '' },
-      })
-      if (!res.ok) throw new Error('Server ERROR')
-      const data = await res.json()
-      setStats(data)
-      setError(false)
-    } catch {
-      setError(true)
-    }
-  }
-
+  const sys = metrics?.System || {}
+  const dash = metrics?.Dashboard || {}
+  const httpStats = metrics?.Http || {}
+  
+  // Real-time uptime counter
   useEffect(() => {
-    if (isActive) {
-      loadDashboardData()
-      const interval = setInterval(loadDashboardData, 5000)
-      return () => clearInterval(interval)
-    }
-  }, [isActive])
+    // If backend provides ServerStartTime, use it for exact uptime. Otherwise use process.uptime if provided (in seconds)
+    const startTimeMs = dash.ServerStartTime ? new Date(dash.ServerStartTime).getTime() : 
+                        sys.Uptime ? Date.now() - (sys.Uptime * 1000) : null;
+                        
+    if (!startTimeMs) return;
 
-  useEffect(() => {
-    if (!stats?.ServerStartTime) return
     const interval = setInterval(() => {
-      setUptime(timeFormat(Date.now() - stats.ServerStartTime))
+      setUptime(timeFormat(Date.now() - startTimeMs))
     }, 1000)
-    setUptime(timeFormat(Date.now() - stats.ServerStartTime))
+    setUptime(timeFormat(Date.now() - startTimeMs))
     return () => clearInterval(interval)
-  }, [stats?.ServerStartTime])
+  }, [dash.ServerStartTime, sys.Uptime])
 
+  // Chart setup
   useEffect(() => {
-    if (stats?.chartData && chartRef.current && window.Chart) {
+    const chartData = dash.chartData || metrics?.chartData;
+    if (chartData && chartRef.current && window.Chart) {
       if (chartInstance.current) {
-        chartInstance.current.data = stats.chartData
+        chartInstance.current.data = chartData
         chartInstance.current.update()
       } else {
         chartInstance.current = new window.Chart(chartRef.current, {
           type: 'line',
-          data: stats.chartData,
+          data: chartData,
           options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -80,77 +64,75 @@ export default function Dashboard({ isActive }) {
         })
       }
     }
-  }, [stats])
+  }, [dash.chartData, metrics?.chartData])
 
-  const total       = stats?.TotalGames || 0
-  const dataSize    = stats ? sizeFormat(stats.DBStorageSize) : '0 B'
-  const startTimeStr = stats?.ServerStartTime ? new Date(stats.ServerStartTime).toLocaleString() : '--'
+  const total       = dash.TotalGames || 0
+  const dataSize    = sizeFormat(dash.DBStorageSize || 0)
+  const startTimeStr = dash.ServerStartTime ? new Date(dash.ServerStartTime).toLocaleString() : '--'
+  
+  const cpu = sys.CPU || 0;
+  const ramPercent = sys.RAM?.Percent || 0;
+  const ramUsed = sizeFormat(sys.RAM?.Used || 0);
+  const ramTotal = sizeFormat(sys.RAM?.Total || 0);
+
+  if (!isActive) return null;
 
   return (
-    <div id="dashboard" className={`section ${isActive ? 'active' : ''}`}>
+    <div id="dashboard" className="section active">
       <div className="section-header">
         <h2>
-          <i className="fas fa-home" /> Dashboard
-          <span className="subtitle">نظرة عامة على النظام</span>
+          <i className="fas fa-chart-pie" /> System Overview
         </h2>
-        <button className="btn btn-info btn-xs" onClick={loadDashboardData}>
-          <i className="fas fa-sync-alt" /> تحديث
-        </button>
       </div>
 
       <div className="dashboard-grid">
-        {/* أداء الموارد والأجهزة */}
+        {/* Hardware & Resources */}
         <div className="dashboard-group stats-group-card card-glass">
-          <h3 className="group-title"><i className="fas fa-microchip" /> أداء الموارد والأجهزة</h3>
+          <h3 className="group-title"><i className="fas fa-microchip" /> Hardware & Resources</h3>
           <div className="stats-mini-grid">
-            {!stats ? (
+            {!metrics ? (
               <div className="stat-placeholder">
-                <i className="fas fa-spinner fa-pulse" /> جاري التحميل...
+                <i className="fas fa-spinner fa-pulse" /> Waiting for data...
               </div>
             ) : (
               <>
                 <div className="stat-card-modern" style={{ gridColumn: 'span 2' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span className="label">CPU Usage:</span>
-                    <span className="value">{stats.ServerHealth?.CPU || 0}%</span>
+                    <span className="value">{cpu}%</span>
                   </div>
                   <div className="progress-mini" style={{ height: '6px', marginTop: '8px' }}>
-                    <div className="progress-mini-fill" style={{ width: `${stats.ServerHealth?.CPU || 0}%`, background: 'var(--accent-clr)' }} />
+                    <div className="progress-mini-fill" style={{ width: `${cpu}%`, background: 'var(--accent-clr)' }} />
                   </div>
                 </div>
 
                 <div className="stat-card-modern" style={{ gridColumn: 'span 2' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span className="label">RAM Usage:</span>
-                    <span className="value">{stats.ServerHealth?.RAM?.percent || 0}%</span>
+                    <span className="value">{ramPercent}%</span>
                   </div>
                   <div className="progress-mini" style={{ height: '6px', marginTop: '8px' }}>
-                    <div className="progress-mini-fill" style={{ width: `${stats.ServerHealth?.RAM?.percent || 0}%`, background: 'var(--success-clr)' }} />
+                    <div className="progress-mini-fill" style={{ width: `${ramPercent}%`, background: 'var(--success-clr)' }} />
                   </div>
                   <span className="label" style={{ fontSize: '0.7rem', marginTop: '6px', display: 'block' }}>
-                    {sizeFormat(stats.ServerHealth?.RAM?.used || 0)} / {sizeFormat(stats.ServerHealth?.RAM?.total || 0)}
+                    {ramUsed} / {ramTotal}
                   </span>
-                </div>
-
-                <div className="stat-card-modern" style={{ gridColumn: 'span 2' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span className="label">Network Rate:</span>
-                    <span className="value" style={{ color: 'var(--info-clr)' }}>{stats.ServerHealth?.Network || '0 KB/s'}</span>
-                  </div>
                 </div>
               </>
             )}
           </div>
         </div>
 
-        {/* حالة الاتصال والنشاط */}
+        {/* Network & Connection */}
         <div className="dashboard-group server-group-card card-glass">
-          <h3 className="group-title"><i className="fas fa-network-wired" /> حالة الاتصال والنشاط</h3>
+          <h3 className="group-title"><i className="fas fa-network-wired" /> Network & Connection</h3>
           <div className="stats-mini-grid">
-            {stats ? (
+            {!metrics ? (
+               <div className="stat-placeholder"><i className="fas fa-spinner fa-pulse" /> Waiting for data...</div>
+            ) : (
               <>
                 <div className="stat-card-modern">
-                  <span className="label">Connection</span>
+                  <span className="label">Status</span>
                   <span className="value" style={{ color: '#10b981' }}>
                     <i className="fas fa-check-circle" /> Online
                   </span>
@@ -166,36 +148,30 @@ export default function Dashboard({ isActive }) {
                 <div className="stat-card-modern">
                   <span className="label">HTTP Requests</span>
                   <span className="value" style={{ color: 'var(--accent-clr)' }}>
-                    {stats.ServerHealth?.HttpRequests?.toLocaleString() || 0}
+                    {httpStats.Requests?.toLocaleString() || 0}
                   </span>
                 </div>
                 <div className="stat-card-modern">
-                  <span className="label">RX / TX</span>
-                  <span className="value" style={{ fontSize: '0.78rem', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                    <span><i className="fas fa-arrow-down" style={{ color: 'var(--success-clr)', marginLeft: '4px', fontSize: '0.7rem' }} />RX: {sizeFormat(stats.ServerHealth?.BytesReceived || 0)}</span>
-                    <span><i className="fas fa-arrow-up" style={{ color: 'var(--accent-clr)', marginLeft: '4px', fontSize: '0.7rem' }} />TX: {sizeFormat(stats.ServerHealth?.BytesSent || 0)}</span>
+                  <span className="label">Active Requests</span>
+                  <span className="value" style={{ color: 'var(--warning-clr)' }}>
+                    {httpStats.ActiveRequests || 0}
                   </span>
                 </div>
-              </>
-            ) : (
-              <>
-                <div className="stat-item"><span className="label">Connection</span><span className="value">{error ? 'Offline' : 'Connecting...'}</span></div>
-                <div className="stat-item"><span className="label">Uptime</span><span className="value">00:00:00</span></div>
               </>
             )}
           </div>
         </div>
 
-        {/* التخزين وقاعدة البيانات */}
+        {/* Storage & Database */}
         <div className="dashboard-group storage-group-card card-glass">
-          <h3 className="group-title"><i className="fas fa-database" /> التخزين وقاعدة البيانات</h3>
+          <h3 className="group-title"><i className="fas fa-database" /> Storage & Database</h3>
           <div className="stats-mini-grid">
-            {!stats ? (
-              <div className="stat-placeholder"><i className="fas fa-spinner fa-pulse" /> جاري التحميل...</div>
+            {!metrics ? (
+              <div className="stat-placeholder"><i className="fas fa-spinner fa-pulse" /> Waiting for data...</div>
             ) : (
               <>
                 <div className="stat-card-modern" style={{ gridColumn: 'span 2' }}>
-                  <span className="label">DB Size</span>
+                  <span className="label">DB Storage Size</span>
                   <span className="value" style={{ color: 'var(--accent-clr)' }}>{dataSize}</span>
                 </div>
                 <div className="stat-card-modern" style={{ gridColumn: 'span 2' }}>
@@ -210,7 +186,7 @@ export default function Dashboard({ isActive }) {
 
       <div className="dashboard-lower-grid" style={{ gridTemplateColumns: '1fr' }}>
         <div className="compact-card chart-card card-glass">
-          <h3 className="group-title"><i className="fas fa-chart-line" /> Crawler Performance</h3>
+          <h3 className="group-title"><i className="fas fa-chart-line" /> Performance Chart</h3>
           <div className="chart-container">
             <canvas ref={chartRef} />
           </div>

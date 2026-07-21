@@ -1,5 +1,4 @@
-// DataManager section — adapted from Temp/DataManager.jsx
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { useToast } from './Toast.jsx'
 import { API_BASE } from '../api.js'
 import { csrfStore } from '../csrfStore.js'
@@ -16,11 +15,9 @@ const currencyNames = {
   GBP: 'British Pound', CAD: 'Canadian Dollar', AUD: 'Australian Dollar'
 }
 
-export default function DataManager({ isActive }) {
+export default function DataManager({ isActive, metrics }) {
   const showMessage = useToast()
-  const [backups, setBackups]                   = useState([])
-  const [exchangeRates, setExchangeRates]       = useState(null)
-  const [priorityCurrencies, setPriorityCurrencies] = useState([])
+  
   const [showAllRates, setShowAllRates]         = useState(false)
   const [searchQuery, setSearchQuery]           = useState('')
   const [updatingRates, setUpdatingRates]       = useState(false)
@@ -34,30 +31,16 @@ export default function DataManager({ isActive }) {
     ...extra,
   })
 
-  useEffect(() => {
-    if (isActive) { loadExchangeRates(); loadBackupsList() }
-  }, [isActive])
+  // Extract data from SSE metrics
+  const exchangeRates = metrics?.ExchangeRates || metrics?.DataManager?.exchangeRates || null;
+  const backups = metrics?.Backups || metrics?.DataManager?.backups || [];
+  const settingsCountries = metrics?.Settings?.COUNTRIES || [];
 
-  const loadExchangeRates = async () => {
-    try {
-      const settingsRes = await fetch(`${API_BASE}/api/siri0/settings`, {
-        credentials: 'include', headers: { 'X-CSRF-Token': csrfStore.get() ?? '' },
-      })
-      if (settingsRes.ok) {
-        const s = await settingsRes.json()
-        const pC = (s.COUNTRIES || []).map(c => countryToCurrency[c]).filter(Boolean)
-        if (!pC.includes('DZD')) pC.push('DZD')
-        if (!pC.includes('USD')) pC.push('USD')
-        setPriorityCurrencies(pC)
-      }
-      const ratesRes = await fetch(`${API_BASE}/api/siri0/exchange-rates`, {
-        credentials: 'include', headers: { 'X-CSRF-Token': csrfStore.get() ?? '' },
-      })
-      if (ratesRes.status === 404) { setExchangeRates(null); return }
-      if (!ratesRes.ok) throw new Error('Failed')
-      setExchangeRates(await ratesRes.json())
-    } catch (err) { console.error(err) }
-  }
+  // Determine priority currencies based on settings
+  const pC = settingsCountries.map(c => countryToCurrency[c]).filter(Boolean)
+  if (!pC.includes('DZD')) pC.push('DZD')
+  if (!pC.includes('USD')) pC.push('USD')
+  const priorityCurrencies = pC;
 
   const updateExchangeRates = async () => {
     setUpdatingRates(true)
@@ -66,7 +49,7 @@ export default function DataManager({ isActive }) {
         method: 'POST', credentials: 'include', headers: csrfHeader(),
       })
       const data = await res.json()
-      if (data.success) { showMessage('Exchange rates updated successfully'); setExchangeRates(data.rates) }
+      if (data.success) { showMessage('Exchange rates updated successfully (waiting for stream update...)'); }
       else showMessage('Update failed: ' + (data.error || 'Unknown error'), 'error')
     } catch { showMessage('Server connection error', 'error') }
     finally { setUpdatingRates(false) }
@@ -77,23 +60,13 @@ export default function DataManager({ isActive }) {
   const others = currencies.filter(c => !priorityCurrencies.includes(c))
   const filterCurrency = (cur) => !searchQuery || cur.toUpperCase().includes(searchQuery.toUpperCase())
 
-  const loadBackupsList = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/api/siri0/data/backups`, {
-        credentials: 'include', headers: { 'X-CSRF-Token': csrfStore.get() ?? '' },
-      })
-      if (!res.ok) throw new Error('Failed')
-      setBackups(await res.json())
-    } catch (err) { console.error(err) }
-  }
-
   const backupData = async () => {
     try {
       const res = await fetch(`${API_BASE}/api/siri0/data/backup`, {
         method: 'POST', credentials: 'include', headers: csrfHeader(),
       })
       const data = await res.json()
-      if (data.success) { showMessage('Backup created successfully'); await loadBackupsList() }
+      if (data.success) { showMessage('Backup requested (waiting for stream update...)'); }
       else showMessage('Backup failed: ' + data.error, 'error')
     } catch (err) { showMessage('Error: ' + err.message, 'error') }
   }
@@ -110,7 +83,7 @@ export default function DataManager({ isActive }) {
         body: JSON.stringify({ filename }),
       })
       const data = await res.json()
-      if (data.success) { showMessage('Backup deleted'); await loadBackupsList() }
+      if (data.success) { showMessage('Backup deleted (waiting for stream update...)'); }
       else showMessage('Delete failed: ' + data.error, 'error')
     } catch (err) { showMessage('Error: ' + err.message, 'error') }
   }
@@ -168,12 +141,13 @@ export default function DataManager({ isActive }) {
     )
   }
 
+  if (!isActive) return null;
+
   return (
-    <div id="data" className={`section ${isActive ? 'active' : ''}`}>
+    <div id="data" className="section active">
       <div className="section-header">
         <h2>
           <i className="fas fa-database" /> Data Management
-          <span className="subtitle">الأدوات، النسخ الاحتياطي، والعملات</span>
         </h2>
       </div>
 
@@ -189,7 +163,9 @@ export default function DataManager({ isActive }) {
             </div>
             <div className="exchange-content-area">
               {!exchangeRates ? (
-                <p style={{ color: '#64748b', textAlign: 'center' }}>No rates stored yet. Update rates below.</p>
+                <div style={{ color: '#64748b', textAlign: 'center', margin: '20px 0' }}>
+                  <i className="fas fa-spinner fa-pulse" /> Waiting for rates stream...
+                </div>
               ) : (
                 <>
                   <div className="rates-header"><span>Last updated: {exchangeRates.date || 'Unknown'}</span></div>
@@ -228,8 +204,10 @@ export default function DataManager({ isActive }) {
           <div className="card-title"><i className="fas fa-shield-alt" /> Data Security & Backups</div>
           <div className="card-body">
             <div className="backups-scroll-list">
-              {backups.length === 0 ? (
-                <div className="backup-item">No backups yet.</div>
+              {!metrics ? (
+                <div className="backup-item" style={{justifyContent: 'center'}}><i className="fas fa-spinner fa-pulse" /> Waiting for stream...</div>
+              ) : backups.length === 0 ? (
+                <div className="backup-item" style={{justifyContent: 'center'}}>No backups available.</div>
               ) : (
                 backups.map(b => (
                   <div key={b.name} className="backup-item">
@@ -280,7 +258,8 @@ export default function DataManager({ isActive }) {
         isOpen={modalOpen}
         onClose={() => { setModalOpen(false); setRestoreFilename(null) }}
         filename={restoreFilename}
-        onRestoreComplete={loadBackupsList}
+        // Instead of triggering a GET load, we just wait for SSE to stream it.
+        onRestoreComplete={() => { showMessage('Restore command sent', 'success') }}
       />
     </div>
   )

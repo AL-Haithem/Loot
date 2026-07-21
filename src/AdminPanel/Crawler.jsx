@@ -1,16 +1,15 @@
 // Crawler section — adapted from Temp/Crawler.jsx
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { API_BASE } from '../api.js'
 import { csrfStore } from '../csrfStore.js'
 
-export default function Crawler({ isActive }) {
+export default function Crawler({ isActive, metrics }) {
   const [isRunning, setIsRunning]   = useState(false)
   const [crawlerMode, setCrawlerMode] = useState('both')
   const [progress, setProgress]     = useState(0)
   const [timeText, setTimeText]     = useState('-- remaining')
   const [statusMsg, setStatusMsg]   = useState('Ready to start...')
   const [logs, setLogs]             = useState([])
-  const eventSourceRef              = useRef(null)
   const [stats, setStats] = useState({
     total: 0, filled: 0, remaining: 0,
     totalApps: 0, comingSoon: 0, freeGames: 0, paidGames: 0
@@ -18,82 +17,64 @@ export default function Crawler({ isActive }) {
 
   const csrfHeader = () => ({ 'X-CSRF-Token': csrfStore.get() ?? '' })
 
-  const connectSSE = useCallback(() => {
-    if (eventSourceRef.current) return
-    const es = new EventSource(`${API_BASE}/api/siri0/games/start`, { withCredentials: true })
-    eventSourceRef.current = es
+  // ── Sync with global SSE metrics ──
+  useEffect(() => {
+    if (!metrics) return;
 
-    es.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data)
-        if (data.eventType === 'status') {
-          if (data.type === 'crawler') {
-            setProgress(data.prog || 0)
-            setTimeText(`${data.eta} remaining`)
-            setStatusMsg(`Crawling: ${data.details}`)
-          } else if (data.type === 'sync') {
-            setStatusMsg(data.text)
-          }
-        } else {
-          setProgress(data.prog || 0)
-          setTimeText(data.time || '-- remaining')
-          setStatusMsg(`Processing: ${data.name}`)
-          setLogs(prev => [{ ...data, id: data.id || 'SYNC' }, ...prev].slice(0, 100))
-        }
-      } catch (err) {
-        console.warn('Invalid crawler data:', event.data, err)
+    // The backend might send Crawler or Sync data in the future.
+    // We handle it gracefully if it exists.
+    const crawlerData = metrics.Crawler || metrics.crawler || metrics.CrawlerData;
+    
+    if (crawlerData) {
+      setStats(prev => ({
+        total: crawlerData.Total ?? prev.total,
+        filled: crawlerData.Filled ?? prev.filled,
+        remaining: crawlerData.Remaining ?? prev.remaining,
+        totalApps: crawlerData.totalApps ?? prev.totalApps,
+        comingSoon: crawlerData.comingSoon ?? prev.comingSoon,
+        freeGames: crawlerData.freeGames ?? prev.freeGames,
+        paidGames: crawlerData.paidGames ?? prev.paidGames
+      }));
+
+      if (crawlerData.isRunning !== undefined) {
+        setIsRunning(crawlerData.isRunning);
+      }
+
+      if (crawlerData.prog !== undefined) setProgress(crawlerData.prog);
+      if (crawlerData.eta !== undefined) setTimeText(`${crawlerData.eta} remaining`);
+      
+      if (crawlerData.details) setStatusMsg(`Crawling: ${crawlerData.details}`);
+      else if (crawlerData.text) setStatusMsg(crawlerData.text);
+
+      // If there's a new log entry
+      if (crawlerData.log) {
+        setLogs(prev => {
+          // avoid duplicate logs if the SSE pushes the same state multiple times
+          if (prev.length > 0 && prev[0].id === crawlerData.log.id && prev[0].prog === crawlerData.log.prog) return prev;
+          return [{ ...crawlerData.log, id: crawlerData.log.id || 'SYNC' }, ...prev].slice(0, 100);
+        });
       }
     }
-
-    es.onerror = () => {
-      setStatusMsg('❌ Connection error!')
-      es.close()
-      eventSourceRef.current = null
-      setIsRunning(false)
-    }
-  }, [])
+  }, [metrics]);
 
   const startCrawler = useCallback(() => {
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close()
-      eventSourceRef.current = null
+    if (isRunning) {
       setIsRunning(false)
       fetch(`${API_BASE}/api/siri0/games/stop`, {
         method: 'POST', credentials: 'include',
         headers: csrfHeader()
-      })
+      }).catch(() => {})
       return
     }
+    
     setIsRunning(true)
     fetch(`${API_BASE}/api/siri0/games/start`, {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json', ...csrfHeader() },
       body: JSON.stringify({ mode: crawlerMode })
-    })
-      .then(() => connectSSE())
-      .catch(() => setIsRunning(false))
-  }, [crawlerMode, connectSSE])
-
-  useEffect(() => {
-    const fetchStats = () => {
-      fetch(`${API_BASE}/api/siri0/games/progress`, { credentials: 'include', headers: csrfHeader() })
-        .then(res => res.json())
-        .then(data => {
-          setStats({
-            total: data.Total || 0, filled: data.Filled || 0, remaining: data.Remaining || 0,
-            totalApps: data.totalApps || 0, comingSoon: data.comingSoon || 0,
-            freeGames: data.freeGames || 0, paidGames: data.paidGames || 0
-          })
-          if (data.isRunning) { setIsRunning(true); connectSSE() }
-        })
-        .catch(() => {})
-    }
-    fetchStats()
-    let interval = null
-    if (isRunning) interval = setInterval(fetchStats, 5000)
-    return () => { if (interval) clearInterval(interval) }
-  }, [isRunning, connectSSE])
+    }).catch(() => setIsRunning(false))
+  }, [crawlerMode, isRunning])
 
   const clearLogs = () => setLogs([])
 
@@ -155,7 +136,7 @@ export default function Crawler({ isActive }) {
                     { key: 'both',  icon: 'fas fa-layer-group', label: 'All' },
                     { key: 'price', icon: 'fas fa-tags',        label: 'Price' },
                     { key: 'data',  icon: 'fas fa-database',    label: 'Data' },
-                  ].map(({ key, icon, label }, idx) => (
+                  ].map(({ key, icon, label }) => (
                     <div
                       key={key}
                       className={`segment ${crawlerMode === key ? 'active' : ''}`}

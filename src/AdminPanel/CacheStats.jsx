@@ -1,63 +1,23 @@
-import { useState, useEffect } from 'react'
-import { API_BASE } from '../api.js'
-import { csrfStore } from '../csrfStore.js'
-import { useToast } from './Toast.jsx'
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
-export default function CacheStats({ isActive }) {
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const { showToast } = useToast()
+export default function CacheStats({ isActive, metrics }) {
+  const data = metrics?.Cache || null;
 
-  const fetchCacheStats = async () => {
-    try {
-      setLoading(true)
-      // Sending GET request without body to get the full fallback payload from RedisCon.js
-      const res = await fetch(`${API_BASE}/api/vv/adm/dashboard/cach`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'X-CSRF-Token': csrfStore.get() || ''
-        }
-      })
-      
-      if (!res.ok) throw new Error('Failed to fetch cache stats')
-      const jsonData = await res.json()
-      setData(jsonData)
-    } catch (err) {
-      console.error(err)
-      showToast('Error loading cache stats', 'error')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    if (isActive && !data && !loading) {
-      fetchCacheStats()
-    }
-  }, [isActive])
-
-  if (!isActive) return null
+  if (!isActive) return null;
 
   return (
-    <div className="section active">
+    <div id="cache" className="section active">
       <div className="section-header">
         <h2>
-          <i className="fas fa-server"></i>
-          Redis Cache Statistics
-          <span className="subtitle">Real-time memory and traffic statistics for the Redis server</span>
+          <i className="fas fa-server"></i> Redis Cache Statistics
         </h2>
-        <button className="btn btn-outline" onClick={fetchCacheStats} disabled={loading}>
-          <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i> 
-          {loading ? 'Refreshing...' : 'Refresh'}
-        </button>
       </div>
 
-      {!data && loading && <div className="loading-shimmer">Loading cache data...</div>}
-      {!data && !loading && <div className="settings-message error" style={{position:'static', transform:'none', margin:'20px 0'}}>No data available. Try refreshing.</div>}
-
-      {data && (
+      {!data ? (
+        <div className="settings-message" style={{position:'static', transform:'none', margin:'20px 0'}}>
+          <i className="fas fa-spinner fa-pulse" style={{marginRight: '8px'}} /> Waiting for Cache metrics stream...
+        </div>
+      ) : (
         <>
           {/* Section 1 & 2: Overview and Usage */}
           <div className="dashboard-grid">
@@ -159,7 +119,7 @@ export default function CacheStats({ isActive }) {
                 
                 {Array.isArray(data.command_counts) && data.command_counts.length > 0 && (
                   <div style={{ marginTop: '10px' }}>
-                    <div className="group-title" style={{ fontSize: '0.85rem', marginBottom: '8px', borderBottom: 'none' }}>Command Breakdown (Latest Rate)</div>
+                    <div className="group-title" style={{ fontSize: '0.85rem', marginBottom: '8px', borderBottom: 'none' }}>Command Breakdown</div>
                     <div className="stats-mini-grid">
                       {data.command_counts.map((cmdObj, i) => (
                         <div key={i} className="stat-card-modern">
@@ -180,7 +140,6 @@ export default function CacheStats({ isActive }) {
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
-// Extracts the latest 'y' value from Upstash time-series array, or formats a plain number
 function extractValue(val, isBytes = false) {
   let num = 0
   if (typeof val === 'number') {
@@ -203,7 +162,6 @@ function extractValue(val, isBytes = false) {
   return Number.isInteger(num) ? num.toString() : parseFloat(num.toFixed(2)).toString()
 }
 
-// Sums all 'y' values in an Upstash time-series array
 function extractSum(val) {
   if (typeof val === 'number') return val.toString()
   if (!Array.isArray(val)) return '0'
@@ -225,7 +183,6 @@ function TimeSeriesChart({ data, color, name }) {
     return <div style={{ fontSize: '0.8rem', color: '#64748b' }}>No data</div>
   }
 
-  // Parse dates to a shorter format for X axis
   const parsedData = data.map(d => {
     let shortTime = d.x;
     try {
