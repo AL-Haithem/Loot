@@ -41,6 +41,10 @@ export default function AdminDashboard() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [authChecked, setAuthChecked] = useState(false)
   const [authFailed, setAuthFailed] = useState(false)
+  
+  // Global SSE metrics state
+  const [systemMetrics, setSystemMetrics] = useState(null)
+  const [sseStatus, setSseStatus] = useState('connecting')
 
   // Default to 'dashboard' if no tab is in the URL
   const activeSection = searchParams.get('tab') || 'dashboard'
@@ -69,6 +73,39 @@ export default function AdminDashboard() {
         setAuthFailed(true)
       })
   }, [navigate])
+
+  // ── Global SSE Connection ───────────────────────────────────────────────────
+  useEffect(() => {
+    if (!authChecked || authFailed) return;
+
+    let sse;
+    setSseStatus('connecting');
+    
+    try {
+      sse = new EventSource(`${API_BASE}/api/vv/adm/dashboard`, { withCredentials: true });
+      
+      sse.onopen = () => setSseStatus('connected');
+      
+      sse.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          setSystemMetrics(data);
+        } catch (e) {
+          console.error('SSE Parse Error:', e);
+        }
+      };
+      
+      sse.onerror = (err) => {
+        setSseStatus('error');
+      };
+    } catch (err) {
+      setSseStatus('error');
+    }
+
+    return () => {
+      if (sse) sse.close();
+    };
+  }, [authChecked, authFailed]);
 
   // ── Logout ──────────────────────────────────────────────────────────────────
   const handleLogout = async () => {
@@ -116,7 +153,7 @@ export default function AdminDashboard() {
 
         <div className="main-content">
           <Dashboard    isActive={activeSection === 'dashboard'} />
-          <SystemStats  isActive={activeSection === 'system'}    />
+          <SystemStats  isActive={activeSection === 'system'} metrics={systemMetrics} connectionStatus={sseStatus} />
           <Crawler      isActive={activeSection === 'crawler'}   />
           <CacheStats   isActive={activeSection === 'cache'}     />
           <Settings     isActive={activeSection === 'settings'}  />

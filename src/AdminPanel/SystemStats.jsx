@@ -1,43 +1,6 @@
-import { useState, useEffect } from 'react'
-import { API_BASE } from '../api.js'
+import React from 'react'
 
-export default function SystemStats({ isActive }) {
-  const [metrics, setMetrics] = useState(null)
-  const [connectionStatus, setConnectionStatus] = useState('connecting') // connecting, connected, error
-
-  useEffect(() => {
-    let sse;
-    try {
-      setConnectionStatus('connecting');
-      sse = new EventSource(`${API_BASE}/api/vv/adm/dashboard`, { withCredentials: true });
-      
-      sse.onopen = () => {
-        setConnectionStatus('connected');
-      };
-
-      sse.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          setMetrics(data);
-        } catch (e) {
-          console.error('Failed to parse SSE data', e);
-        }
-      };
-
-      sse.onerror = (err) => {
-        console.error('SSE Error', err);
-        setConnectionStatus('error');
-      };
-    } catch (err) {
-      setConnectionStatus('error');
-    }
-
-    return () => {
-      if (sse) {
-        sse.close();
-      }
-    };
-  }, []); // Run once on mount
+export default function SystemStats({ isActive, metrics, connectionStatus }) {
 
   if (!isActive) return null;
 
@@ -67,16 +30,21 @@ export default function SystemStats({ isActive }) {
 
       {metrics && (
         <div className="dashboard-grid">
-          {Object.entries(metrics).map(([key, value]) => (
-            <div key={key} className="card-glass dashboard-group">
-              <div className="group-title" style={{ textTransform: 'capitalize' }}>
-                <i className="fas fa-chart-bar"></i> {key.replace(/_/g, ' ')}
+          {Object.entries(metrics).map(([key, value]) => {
+            // Optional: Skip time if you don't want a card for it, though rendering it is fine.
+            if (key === 'Time') return null;
+
+            return (
+              <div key={key} className="card-glass dashboard-group">
+                <div className="group-title" style={{ textTransform: 'capitalize' }}>
+                  <i className="fas fa-chart-bar"></i> {key.replace(/_/g, ' ')}
+                </div>
+                <div className="stats-mini-grid" style={{ gridTemplateColumns: typeof value === 'object' && value !== null ? 'repeat(auto-fit, minmax(140px, 1fr))' : '1fr' }}>
+                  {renderMetricContent(value)}
+                </div>
               </div>
-              <div className="stats-mini-grid" style={{ gridTemplateColumns: typeof value === 'object' && value !== null ? 'repeat(auto-fit, minmax(140px, 1fr))' : '1fr' }}>
-                {renderMetricContent(value)}
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
@@ -89,14 +57,21 @@ function renderMetricContent(value) {
   }
   
   if (typeof value === 'object' && !Array.isArray(value)) {
+    // If the object is empty, show N/A
+    if (Object.keys(value).length === 0) {
+      return <StatCard label="Status" value="Waiting for data..." />;
+    }
+
     return Object.entries(value).map(([k, v]) => {
       let formattedValue = String(v);
       if (typeof v === 'number') {
         formattedValue = v % 1 !== 0 ? v.toFixed(2) : String(v);
       }
       
-      // If the value itself is an object (like RAM, Heap, StatusCodes)
+      // If the value itself is a nested object (like Http.StatusCodes or System.RAM)
       if (typeof v === 'object' && v !== null) {
+        if (Object.keys(v).length === 0) return null; // hide empty nested objects
+
         return (
           <div key={k} style={{ gridColumn: '1 / -1', background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px', marginBottom: '8px' }}>
             <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'capitalize' }}>{k}</div>
@@ -106,7 +81,7 @@ function renderMetricContent(value) {
                 if (typeof subV === 'number') {
                   subFormatted = subV % 1 !== 0 ? subV.toFixed(2) : String(subV);
                 }
-                // Formatting RAM/Heap to MB/GB could be done here if needed
+                // Format bytes to MB for known RAM/Heap properties
                 if (['Used', 'Free', 'Total', 'RSS'].includes(subK) || ['Used', 'Free', 'Total', 'RSS'].includes(k)) {
                    if (typeof subV === 'number' && subV > 1024) {
                      subFormatted = (subV / 1024 / 1024).toFixed(2) + ' MB';
