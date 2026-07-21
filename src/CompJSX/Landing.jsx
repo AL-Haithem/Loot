@@ -69,7 +69,16 @@ export default function LandingPage() {
                 <img src={BGlogoLink} className="bg-image" alt="Gaming setup background" />
             </div>
 
-            <div className="glass-container">
+            <div className="glass-container" style={{ position: 'relative' }}>
+                <div className="auth-btn-group" style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', zIndex: 10 }}>
+                    <Link to="/login?view=login" className="btn auth-btn-outline auth-btn-small">
+                        Sign In
+                    </Link>
+                    <Link to="/login?view=register" className="btn auth-btn-primary auth-btn-small">
+                        Register
+                    </Link>
+                </div>
+
                 <HeroSection />
 
                 <CardSection

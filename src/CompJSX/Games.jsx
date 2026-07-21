@@ -65,7 +65,12 @@ export default function GamesPage() {
 
                 <nav>{navFilter.map((item) => (<NavButton key={item.id} {...item} />))}</nav>
 
-                <div className="sidebar-footer"><p>Version v1.0.0</p></div>
+                <div className="sidebar-footer">
+                    <a href="/login" className="btn auth-btn-primary" style={{width: '100%', marginBottom: '15px', justifyContent: 'center'}}>
+                        <i className="fa-solid fa-user"></i> My Account
+                    </a>
+                    <p>Version v1.0.0</p>
+                </div>
             </div>
 
             <header className="header">
@@ -95,7 +100,10 @@ export default function GamesPage() {
                     </div>
                 </div>
 
-                <div className="header-right">
+                <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <a href="/login" className="user-icon-btn" style={{ color: '#fff', fontSize: '0.95rem', transition: 'color 0.2s', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', fontWeight: 600 }} title="Account">
+                        <i className="fas fa-user" style={{ fontSize: '1.1rem' }}></i> <span className="account-text">My Account</span>
+                    </a>
                     <button className="menu-btn" onClick={toggleMenu}>☰</button>
                 </div>
             </header>

@@ -8,6 +8,7 @@ import DetailsPage from './CompJSX/Details.jsx'
 import NotFound from './NotFound.jsx'
 import AdminLogin from './CompJSX/AdminLogin.jsx'
 import AdminDashboard from './AdminPanel/AdminDashboard.jsx'
+import ClientAuth from './CompJSX/ClientAuth.jsx'
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/home" element={<Navigate to="/" replace />} />
         <Route path="/cart" element={<CartPage />} />
+        <Route path="/login" element={<ClientAuth />} />
 
         <Route path="/games" >
           <Route index element={<GamesPage />} />

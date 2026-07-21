@@ -97,10 +97,15 @@ export default function DetailsPage() {
                     <img src={logo} className="header-logo" alt="Logo" />
                 </div>
 
-                <Link to="/cart" className="cart-icon-link">
-                    <i className="fas fa-shopping-cart"></i>
-                    <span id="cartBadge" className="cart-badge">0</span>
-                </Link>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
+                    <Link to="/login" className="user-icon-link" style={{ color: '#fff', fontSize: '0.95rem', transition: 'color 0.2s', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', fontWeight: 600 }}>
+                        <i className="fas fa-user" style={{ fontSize: '1.1rem' }}></i> <span className="account-text">My Account</span>
+                    </Link>
+                    <Link to="/cart" className="cart-icon-link">
+                        <i className="fas fa-shopping-cart"></i>
+                        <span id="cartBadge" className="cart-badge">0</span>
+                    </Link>
+                </div>
             </header>
 
             <main className="main-container">

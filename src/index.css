@@ -21,3 +21,48 @@ body {
     overflow-x: hidden;
     min-height: 100vh;
 }
+
+/* Auth Shared Buttons */
+
+.auth-btn-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.auth-btn-small {
+    height: 42px !important;
+    padding: 0 24px !important;
+    font-size: 0.95rem !important;
+    min-width: 125px;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+}
+
+.auth-btn-primary {
+    background: linear-gradient(135deg, #6366f1, #d946ef) !important;
+    color: #ffffff !important;
+    border: 2px solid transparent !important;
+    box-shadow: 0 8px 20px rgba(217, 70, 239, 0.3) !important;
+}
+
+.auth-btn-primary:hover {
+    box-shadow: 0 10px 25px rgba(217, 70, 239, 0.5) !important;
+    color: #fff !important;
+}
+
+.auth-btn-outline {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 2px solid rgba(255, 255, 255, 0.15) !important;
+    color: var(--text-primary) !important;
+    backdrop-filter: blur(12px) !important;
+}
+
+.auth-btn-outline:hover {
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4) !important;
+}
