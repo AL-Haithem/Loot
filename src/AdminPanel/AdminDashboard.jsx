@@ -3,7 +3,7 @@
 //             If that fails (401/403/network) → redirect to /admin/login
 // • Renders the full admin UI (Sidebar + sections) using the Temp design
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 
 import { API_BASE }  from '../api.js'
 import { csrfStore } from '../csrfStore.js'
@@ -12,6 +12,7 @@ import { ToastProvider } from './Toast.jsx'
 import Sidebar      from './Sidebar.jsx'
 import Dashboard    from './Dashboard.jsx'
 import Crawler      from './Crawler.jsx'
+import CacheStats   from './CacheStats.jsx'
 import Settings     from './Settings.jsx'
 import DataManager  from './DataManager.jsx'
 import Logs         from './Logs.jsx'
@@ -35,8 +36,15 @@ async function revalidateSession() {
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function AdminDashboard() {
   const navigate = useNavigate()
-  const [authChecked, setAuthChecked] = useState(false) // false = still checking
-  const [activeSection, setActiveSection] = useState('dashboard')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [authChecked, setAuthChecked] = useState(false)
+
+  // Default to 'dashboard' if no tab is in the URL
+  const activeSection = searchParams.get('tab') || 'dashboard'
+
+  const handleSectionChange = (section) => {
+    setSearchParams({ tab: section })
+  }
 
   // ── Session guard on mount ──────────────────────────────────────────────────
   useEffect(() => {
@@ -118,13 +126,14 @@ export default function AdminDashboard() {
 
         <Sidebar
           activeSection={activeSection}
-          onSectionChange={setActiveSection}
+          onSectionChange={handleSectionChange}
           onLogout={handleLogout}
         />
 
         <div className="main-content">
           <Dashboard    isActive={activeSection === 'dashboard'} />
           <Crawler      isActive={activeSection === 'crawler'}   />
+          <CacheStats   isActive={activeSection === 'cache'}     />
           <Settings     isActive={activeSection === 'settings'}  />
           <DataManager  isActive={activeSection === 'data'}      />
           <Logs         isActive={activeSection === 'logs'}      />

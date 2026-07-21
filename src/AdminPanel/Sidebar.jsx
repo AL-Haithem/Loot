@@ -4,6 +4,7 @@ import { useState } from 'react'
 const navItems = [
   { id: 'dashboard', icon: 'fas fa-chart-pie',    label: 'Dashboard' },
   { id: 'crawler',   icon: 'fas fa-robot',         label: 'Data Crawler' },
+  { id: 'cache',     icon: 'fas fa-server',        label: 'ذاكرة التخزين المؤقت' },
   { id: 'settings',  icon: 'fas fa-sliders-h',     label: 'Settings' },
   { id: 'data',      icon: 'fas fa-database',      label: 'إدارة البيانات' },
   { id: 'logs',      icon: 'fas fa-history',       label: 'السجلات' },
