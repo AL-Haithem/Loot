@@ -69,6 +69,20 @@ function renderMetricContent(value) {
         formattedValue = v % 1 !== 0 ? v.toFixed(2) : String(v);
       }
       
+      // Formatting for top-level keys inside sections (System.Uptime, Http.AverageResponseTime, etc)
+      if (k === 'Uptime' && typeof v === 'number') {
+        const h = Math.floor(v / 3600);
+        const m = Math.floor((v % 3600) / 60);
+        const s = Math.floor(v % 60);
+        formattedValue = `${h > 0 ? h + 'h ' : ''}${m > 0 ? m + 'm ' : ''}${s}s`;
+      } else if (k === 'CPU' && typeof v === 'number') {
+        formattedValue = `${v.toFixed(1)}%`;
+      } else if (k === 'AverageResponseTime') {
+        formattedValue = `${typeof v === 'number' ? v.toFixed(2) : v} ms`;
+      } else if (k === 'RSS' && typeof v === 'number') {
+        formattedValue = (v / 1024 / 1024).toFixed(2) + ' MB';
+      }
+      
       // If the value itself is a nested object (like Http.StatusCodes or System.RAM)
       if (typeof v === 'object' && v !== null) {
         if (Object.keys(v).length === 0) return null; // hide empty nested objects
@@ -87,8 +101,11 @@ function renderMetricContent(value) {
                 if (typeof subV === 'number') {
                   subFormatted = subV % 1 !== 0 ? subV.toFixed(2) : String(subV);
                 }
-                // Format bytes to MB for known RAM/Heap properties
-                if (['Used', 'Free', 'Total', 'RSS'].includes(subK) || ['Used', 'Free', 'Total', 'RSS'].includes(k)) {
+                
+                // Special formatting for sub-keys
+                if (subK === 'Percent' && typeof subV === 'number') {
+                  subFormatted = `${subV.toFixed(1)}%`;
+                } else if (['Used', 'Free', 'Total', 'RSS'].includes(subK) || ['Used', 'Free', 'Total', 'RSS'].includes(k)) {
                    if (typeof subV === 'number' && subV > 1024) {
                      subFormatted = (subV / 1024 / 1024).toFixed(2) + ' MB';
                    }

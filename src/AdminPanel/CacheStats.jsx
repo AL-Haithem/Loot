@@ -125,20 +125,41 @@ export default function CacheStats({ isActive, metrics }) {
               <div className="group-title"><i className="fas fa-hand-pointer"></i> Traffic (Read vs Write)</div>
               
               <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginTop: '10px' }}>
-                <div style={{ flex: 1, height: '200px' }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie data={[
-                        { name: 'Reads', value: processedData.reads },
-                        { name: 'Writes', value: processedData.writes }
-                      ]} innerRadius={50} outerRadius={80} paddingAngle={5} dataKey="value">
-                        <Cell fill="#00f0ff" />
-                        <Cell fill="#ff0055" />
-                      </Pie>
-                      <RechartsTooltip contentStyle={{ backgroundColor: 'rgba(13,17,30,0.9)', borderColor: 'rgba(255,255,255,0.1)' }} />
-                    </PieChart>
-                  </ResponsiveContainer>
+                
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                  <div style={{ height: '140px', position: 'relative' }}>
+                    <div style={{ position: 'absolute', top: 5, left: 10, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Daily</div>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie data={[
+                          { name: 'Reads', value: processedData.reads },
+                          { name: 'Writes', value: processedData.writes }
+                        ]} innerRadius={40} outerRadius={60} paddingAngle={5} dataKey="value">
+                          <Cell fill="#00f0ff" />
+                          <Cell fill="#ff0055" />
+                        </Pie>
+                        <RechartsTooltip contentStyle={{ backgroundColor: 'rgba(13,17,30,0.9)', borderColor: 'rgba(255,255,255,0.1)' }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  
+                  <div style={{ height: '140px', position: 'relative' }}>
+                    <div style={{ position: 'absolute', top: 5, left: 10, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Monthly</div>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie data={[
+                          { name: 'M. Reads', value: extractValue(data.total_monthly_read_requests) },
+                          { name: 'M. Writes', value: extractValue(data.total_monthly_write_requests) }
+                        ]} innerRadius={40} outerRadius={60} paddingAngle={5} dataKey="value">
+                          <Cell fill="#3b82f6" />
+                          <Cell fill="#f59e0b" />
+                        </Pie>
+                        <RechartsTooltip contentStyle={{ backgroundColor: 'rgba(13,17,30,0.9)', borderColor: 'rgba(255,255,255,0.1)' }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
+
                 <div style={{ flex: 1 }}>
                   <StatCard label="Today's Reads" value={formatNum(processedData.reads)} />
                   <br/>
