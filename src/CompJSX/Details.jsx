@@ -77,7 +77,7 @@ export default function DetailsPage() {
 
         fetchGame()
         return () => { isMounted = false }
-    }, [appId])
+    }, [appId, stateGame])
 
     const usPrice = game?.Price?.US
     const priceText = useMemo(() => formatPrice(usPrice), [usPrice])

@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react'
-import { API_BASE } from '../api.js'
 
 function sizeFormat(bytes) {
   if (!bytes || bytes === 0) return '0 B'

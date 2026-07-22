@@ -331,11 +331,6 @@ function extractValue(val) {
   return num;
 }
 
-function extractSum(val) {
-  if (typeof val === 'number') return val;
-  if (!Array.isArray(val)) return 0;
-  return val.reduce((acc, curr) => acc + (curr.y || 0), 0);
-}
 
 function extractArray(val) {
   if (!Array.isArray(val)) return [];
@@ -346,7 +341,7 @@ function extractArray(val) {
         const timePart = d.x.split(' ')[1];
         shortTime = timePart.split('.')[0]; // keep HH:MM:SS
       }
-    } catch(e) {}
+    } catch {}
     return { time: shortTime, value: typeof d.y === 'number' ? Number(d.y.toFixed(2)) : 0 };
   });
 }

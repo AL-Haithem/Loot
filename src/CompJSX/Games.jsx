@@ -48,7 +48,8 @@ export default function GamesPage() {
         return () => {
             isMounted = false
         }
-    }, [activeFilter?.id])
+    }, [activeFilter?.id, activeFilter?.filter])
+
     return (
         <>
             <div className={`overlay ${isOpen ? "show" : ""}`} onClick={toggleMenu}></div>

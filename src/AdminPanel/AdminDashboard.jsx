@@ -95,10 +95,10 @@ export default function AdminDashboard() {
         }
       };
       
-      sse.onerror = (err) => {
+      sse.onerror = (_err) => {
         setSseStatus('error');
       };
-    } catch (err) {
+    } catch {
       setSseStatus('error');
     }
 

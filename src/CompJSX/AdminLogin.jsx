@@ -107,7 +107,7 @@ export default function AdminLogin() {
     } finally {
       setLoading(false)
     }
-  }, [form, validate])
+  }, [form, validate, navigate])
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
