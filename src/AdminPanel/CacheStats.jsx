@@ -13,7 +13,7 @@ export default function CacheStats({ isActive, metrics }) {
     if (!data) return null;
     
     const currStorage = extractValue(data.current_storage);
-    const totalStorage = extractValue(data.total_monthly_storage) || (currStorage * 1.5) || 1024*1024*1024; // fallback for gauge
+    const totalStorage = extractValue(data.total_monthly_storage) || (currStorage * 1.5) || 1024*1024*1024;
     const storagePercent = totalStorage > 0 ? ((currStorage / totalStorage) * 100).toFixed(1) : 0;
 
     const hits = extractValue(data.hits);
@@ -38,15 +38,7 @@ export default function CacheStats({ isActive, metrics }) {
     if (otherCmds > 0) pieCommands.push({ name: 'OTHER', value: otherCmds });
 
     // Keyspace
-    let totalKeys = 0;
-    let expires = 0;
-    let avgTtl = 0;
-    if (data.keyspace && data.keyspace.db0) {
-      totalKeys = data.keyspace.db0.keys || 0;
-      expires = data.keyspace.db0.expires || 0;
-      avgTtl = data.keyspace.db0.avg_ttl || 0;
-    }
-    const persistent = Math.max(0, totalKeys - expires);
+    const totalKeys = extractValue(data.keyspace);
 
     // Merge for Daily Activity
     const activityMap = new Map();
@@ -58,15 +50,14 @@ export default function CacheStats({ isActive, metrics }) {
       });
     };
     addTimeSeries(data.dailyrequests, 'requests');
-    addTimeSeries(data.dailybandwidth, 'bandwidth');
     addTimeSeries(data.dailybilling, 'billing');
     const dailyActivity = Array.from(activityMap.values()).sort((a, b) => a.time.localeCompare(b.time));
 
     // Radar Data
     const radarData = [
       { subject: 'Storage', A: Math.min(100, (currStorage / (totalStorage || 1)) * 100), fullMark: 100 },
-      { subject: 'Bandwidth', A: 75, fullMark: 100 },
-      { subject: 'Requests', A: 85, fullMark: 100 },
+      { subject: 'Bandwidth', A: totalCache > 0 ? 80 : 0, fullMark: 100 },
+      { subject: 'Requests', A: totalCache > 0 ? 90 : 0, fullMark: 100 },
       { subject: 'Reads', A: totalCache > 0 ? (reads / totalCache) * 100 : 50, fullMark: 100 },
       { subject: 'Writes', A: totalCache > 0 ? (writes / totalCache) * 100 : 50, fullMark: 100 },
     ];
@@ -77,7 +68,7 @@ export default function CacheStats({ isActive, metrics }) {
       reads, writes,
       topCommands: top10,
       pieCommands,
-      totalKeys, expires, avgTtl, persistent,
+      totalKeys,
       dailyActivity,
       radarData
     };
@@ -126,42 +117,14 @@ export default function CacheStats({ isActive, metrics }) {
               </div>
               
               <div style={{ width: '100%', height: '200px' }}>
-                <TimeSeriesChart data={data.diskusage} color="#00f0ff" name="Storage (B)" />
+                <TimeSeriesChart data={data.diskusage} color="#00f0ff" name="Storage (B)" isBytes={true} />
               </div>
             </div>
 
-            <div className="card-glass dashboard-group">
-              <div className="group-title"><i className="fas fa-wifi"></i> Bandwidth Trend</div>
-              <div className="stats-mini-grid" style={{ marginBottom: '15px' }}>
-                <StatCard label="Today" value={formatBytes(extractSum(data.dailybandwidth))} />
-                <StatCard label="This Month" value={formatBytes(extractValue(data.total_monthly_bandwidth))} />
-              </div>
-              <div style={{ width: '100%', height: '200px' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={extractArray(data.dailybandwidth)} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorBw" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ff0055" stopOpacity={0.4}/>
-                        <stop offset="95%" stopColor="#ff0055" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                    <XAxis dataKey="time" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(val) => (val/1024/1024).toFixed(1) + 'M'} />
-                    <RechartsTooltip contentStyle={{ backgroundColor: 'rgba(13,17,30,0.9)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '8px' }} />
-                    <Area type="monotone" dataKey="value" name="Bandwidth" stroke="#ff0055" strokeWidth={3} fillOpacity={1} fill="url(#colorBw)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-
-          {/* 4 & 5. REQUESTS & CACHE PERFORMANCE */}
-          <div className="dashboard-grid two-cols">
             <div className="card-glass dashboard-group">
               <div className="group-title"><i className="fas fa-hand-pointer"></i> Traffic (Read vs Write)</div>
               
-              <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginTop: '10px' }}>
                 <div style={{ flex: 1, height: '200px' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -181,11 +144,16 @@ export default function CacheStats({ isActive, metrics }) {
                   <br/>
                   <StatCard label="Today's Writes" value={formatNum(processedData.writes)} />
                   <br/>
-                  <StatCard label="Total Requests" value={formatNum(extractValue(data.dailyrequests))} />
+                  <StatCard label="Monthly Reads" value={formatNum(extractValue(data.total_monthly_read_requests))} />
+                  <br/>
+                  <StatCard label="Monthly Writes" value={formatNum(extractValue(data.total_monthly_write_requests))} />
                 </div>
               </div>
             </div>
+          </div>
 
+          {/* CACHE HIT RATE & INFRASTRUCTURE */}
+          <div className="dashboard-grid two-cols">
             <div className="card-glass dashboard-group">
               <div className="group-title"><i className="fas fa-bullseye"></i> Hit Rate Performance</div>
               <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
@@ -215,9 +183,20 @@ export default function CacheStats({ isActive, metrics }) {
                 </div>
               </div>
             </div>
+
+            <div className="card-glass dashboard-group">
+              <div className="group-title"><i className="fas fa-key"></i> Infrastructure & Network</div>
+              <div className="stats-mini-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px' }}>
+                <StatCard label="Total Keyspace" value={formatNum(processedData.totalKeys)} />
+                <StatCard label="TCP Connections" value={extractValue(data.connection_count)} />
+                <StatCard label="REST Connections" value={extractValue(data.rest_conn_count)} />
+                <StatCard label="Daily Bandwidth" value={formatBytes(data.dailybandwidth)} />
+                <StatCard label="Daily Commands" value={formatNum(data.daily_net_commands)} />
+              </div>
+            </div>
           </div>
 
-          {/* 7. COMMANDS */}
+          {/* COMMANDS */}
           <div className="card-glass dashboard-group">
             <div className="group-title"><i className="fas fa-terminal"></i> Command Distribution</div>
             <div className="dashboard-grid" style={{ gridTemplateColumns: '1.5fr 1fr 1.5fr' }}>
@@ -273,31 +252,8 @@ export default function CacheStats({ isActive, metrics }) {
             </div>
           </div>
 
-          {/* 8, 9, 6. KEYSPACE & MONTHLY & CONNECTIONS */}
-          <div className="dashboard-grid" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
-            
-            <div className="card-glass dashboard-group">
-              <div className="group-title"><i className="fas fa-key"></i> Keyspace (db0)</div>
-              <div className="stats-mini-grid" style={{ gridTemplateColumns: '1fr' }}>
-                <StatCard label="Total Keys" value={formatNum(processedData.totalKeys)} />
-                <StatCard label="Average TTL" value={`${formatNum(processedData.avgTtl)} ms`} />
-              </div>
-              <div style={{ height: '160px', marginTop: '15px' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={[
-                      { name: 'Persistent', value: processedData.persistent },
-                      { name: 'Expiring', value: processedData.expires }
-                    ]} innerRadius={40} outerRadius={70} paddingAngle={5} dataKey="value">
-                      <Cell fill="#3b82f6" />
-                      <Cell fill="#fbbf24" />
-                    </Pie>
-                    <RechartsTooltip contentStyle={{ backgroundColor: 'rgba(13,17,30,0.9)', borderColor: 'rgba(255,255,255,0.1)' }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
+          {/* RADAR & DAILY ACTIVITY */}
+          <div className="dashboard-grid two-cols">
             <div className="card-glass dashboard-group">
               <div className="group-title"><i className="fas fa-radar"></i> Usage Radar</div>
               <div style={{ height: '280px', width: '100%' }}>
@@ -314,40 +270,25 @@ export default function CacheStats({ isActive, metrics }) {
             </div>
 
             <div className="card-glass dashboard-group">
-              <div className="group-title"><i className="fas fa-plug"></i> Connections & Billing</div>
-              <div className="stats-mini-grid" style={{ gridTemplateColumns: '1fr' }}>
-                <StatCard label="TCP Connections" value={extractValue(data.connection_count)} />
-                <StatCard label="REST Connections" value={extractValue(data.rest_conn_count)} />
-                <StatCard label="Today's Cost" value={`$${extractSum(data.dailybilling)}`} />
-                
-                <div style={{ marginTop: '10px' }}>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '5px' }}>Connection Load</div>
-                  <div className="progress-outer" style={{ height: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px' }}>
-                    <div className="progress-inner" style={{ width: `${Math.min(100, (extractValue(data.connection_count) / 100) * 100)}%`, background: 'linear-gradient(90deg, #10b981, #3b82f6)', height: '100%' }} />
-                  </div>
+              <div className="group-title">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span><i className="fas fa-chart-line"></i> Daily Activity & Cost</span>
                 </div>
               </div>
-            </div>
-
-          </div>
-
-          {/* 10. DAILY ACTIVITY */}
-          <div className="card-glass dashboard-group">
-            <div className="group-title"><i className="fas fa-chart-line"></i> Daily Activity Timeline</div>
-            <div style={{ width: '100%', height: '300px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={processedData.dailyActivity} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                  <XAxis dataKey="time" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis yAxisId="left" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => formatNum(v)} />
-                  <YAxis yAxisId="right" orientation="right" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => formatBytes(v)} />
-                  <RechartsTooltip contentStyle={{ backgroundColor: 'rgba(13,17,30,0.9)', borderColor: 'rgba(255,255,255,0.1)' }} />
-                  <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                  <Line yAxisId="left" type="monotone" dataKey="requests" stroke="#00f0ff" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
-                  <Line yAxisId="right" type="monotone" dataKey="bandwidth" stroke="#ff0055" strokeWidth={2} dot={false} />
-                  <Line yAxisId="left" type="monotone" dataKey="billing" stroke="#10b981" strokeWidth={2} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
+              <div style={{ width: '100%', height: '280px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={processedData.dailyActivity} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                    <XAxis dataKey="time" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <YAxis yAxisId="left" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => formatNum(v)} />
+                    <YAxis yAxisId="right" orientation="right" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => '$'+v} />
+                    <RechartsTooltip contentStyle={{ backgroundColor: 'rgba(13,17,30,0.9)', borderColor: 'rgba(255,255,255,0.1)' }} />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                    <Line yAxisId="left" type="monotone" dataKey="requests" stroke="#00f0ff" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
+                    <Line yAxisId="right" type="monotone" dataKey="billing" stroke="#10b981" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
 
@@ -361,6 +302,7 @@ export default function CacheStats({ isActive, metrics }) {
 function extractValue(val) {
   let num = 0;
   if (typeof val === 'number') num = val;
+  else if (val && typeof val === 'object' && !Array.isArray(val) && val.y !== undefined) num = val.y;
   else if (Array.isArray(val) && val.length > 0) {
     const last = val[val.length - 1];
     if (last && typeof last.y === 'number') num = last.y;
@@ -381,7 +323,7 @@ function extractArray(val) {
     try {
       if (typeof d.x === 'string' && d.x.includes(' ')) {
         const timePart = d.x.split(' ')[1];
-        shortTime = timePart.split('.')[0];
+        shortTime = timePart.split('.')[0]; // keep HH:MM:SS
       }
     } catch(e) {}
     return { time: shortTime, value: typeof d.y === 'number' ? Number(d.y.toFixed(2)) : 0 };
@@ -416,7 +358,7 @@ function StatCard({ icon, label, value, highlight }) {
   )
 }
 
-function TimeSeriesChart({ data, color, name }) {
+function TimeSeriesChart({ data, color, name, isBytes }) {
   const parsed = extractArray(data);
   if (parsed.length === 0) return <div style={{ fontSize: '0.8rem', color: '#64748b' }}>No data</div>;
 
@@ -424,16 +366,16 @@ function TimeSeriesChart({ data, color, name }) {
     <ResponsiveContainer width="100%" height="100%">
       <AreaChart data={parsed} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
         <defs>
-          <linearGradient id={`color${name}`} x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={`color${name.replace(/\s+/g,'')}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor={color} stopOpacity={0.3}/>
             <stop offset="95%" stopColor={color} stopOpacity={0}/>
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
         <XAxis dataKey="time" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-        <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => formatBytes(v)} />
+        <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => isBytes ? formatBytes(v) : formatNum(v)} />
         <RechartsTooltip contentStyle={{ backgroundColor: 'rgba(13,17,30,0.9)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '8px' }} />
-        <Area type="monotone" dataKey="value" name={name} stroke={color} strokeWidth={2} fillOpacity={1} fill={`url(#color${name})`} />
+        <Area type="monotone" dataKey="value" name={name} stroke={color} strokeWidth={2} fillOpacity={1} fill={`url(#color${name.replace(/\s+/g,'')})`} />
       </AreaChart>
     </ResponsiveContainer>
   )
