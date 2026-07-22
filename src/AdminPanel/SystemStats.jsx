@@ -1,4 +1,5 @@
 import React from 'react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell } from 'recharts'
 
 export default function SystemStats({ isActive, metrics, connectionStatus }) {
 
@@ -31,8 +32,8 @@ export default function SystemStats({ isActive, metrics, connectionStatus }) {
       {metrics && (
         <div className="dashboard-grid">
           {Object.entries(metrics).map(([key, value]) => {
-            // Optional: Skip time if you don't want a card for it, though rendering it is fine.
-            if (key === 'Time') return null;
+            // Skip non-system metrics that belong to other sections
+            if (['Time', 'Cache', 'Crawler', 'Settings', 'Data', 'Logs'].includes(key)) return null;
 
             return (
               <div key={key} className="card-glass dashboard-group">
@@ -72,6 +73,11 @@ function renderMetricContent(value) {
       if (typeof v === 'object' && v !== null) {
         if (Object.keys(v).length === 0) return null; // hide empty nested objects
 
+        // Render StatusCodes as a chart
+        if (k === 'StatusCodes' || k === 'statusCodes') {
+          return <StatusCodesChart key={k} data={v} />
+        }
+
         return (
           <div key={k} style={{ gridColumn: '1 / -1', background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px', marginBottom: '8px' }}>
             <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'capitalize' }}>{k}</div>
@@ -108,4 +114,35 @@ function StatCard({ label, value }) {
       <span className="value">{value}</span>
     </div>
   )
+}
+
+function StatusCodesChart({ data }) {
+  const chartData = Object.entries(data).map(([code, count]) => ({
+    code,
+    count
+  }));
+  const COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#f43f5e', '#8b5cf6'];
+
+  return (
+    <div style={{ gridColumn: '1 / -1', background: 'rgba(255,255,255,0.02)', padding: '15px', borderRadius: '12px', marginBottom: '8px' }}>
+      <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '15px', textTransform: 'capitalize' }}>
+        <i className="fas fa-chart-bar" style={{ marginRight: '8px' }}></i> Status Codes Distribution
+      </div>
+      <div style={{ width: '100%', height: '220px' }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+            <XAxis dataKey="code" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+            <RechartsTooltip contentStyle={{ backgroundColor: 'rgba(13,17,30,0.9)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
+            <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
 }
