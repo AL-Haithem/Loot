@@ -135,8 +135,9 @@ export default function ClientAuth() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           email: email.trim().toLowerCase(),
-          otp: forgotCode.trim(),
-          newPassword: forgotPassword.trim()
+          code: forgotCode.trim(),
+          newPassword: forgotPassword.trim(),
+          confirmNewPassword: forgotConfirm.trim()
         })
       })
       const data = await res.json().catch(() => ({}))
