@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import '../CompCss/ClientAuth.css'
 import logo from '../assets/imgs/logo.png'
+import { API_BASE } from '../api.js'
+import { csrfStore } from '../csrfStore.js'
+import { useClientAuth } from '../ClientAuthContext.jsx'
 
 export default function ClientAuth() {
   const [searchParams] = useSearchParams()
@@ -10,6 +13,7 @@ export default function ClientAuth() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState({ text: '', isError: false })
   const navigate = useNavigate()
+  const { setIsAuthenticated } = useClientAuth()
 
   useEffect(() => {
     const v = searchParams.get('view')
@@ -36,40 +40,85 @@ export default function ClientAuth() {
     e.preventDefault()
     setLoading(true)
     showMsg('')
-    // Simulate API Call for now
-    setTimeout(() => {
+    
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email: email.trim().toLowerCase(), password: password.trim() })
+      })
+      const data = await res.json().catch(() => ({}))
+      
+      if (res.ok) {
+        if (data.csrfToken) csrfStore.set(data.csrfToken)
+        setIsAuthenticated(true)
+        showMsg('Login successful! Redirecting...', false)
+        setTimeout(() => navigate('/profile', { replace: true }), 1000)
+      } else {
+        showMsg(data.message || 'Invalid email or password.', true)
+      }
+    } catch (err) {
+      showMsg('Network error, please try again.', true)
+    } finally {
       setLoading(false)
-      showMsg('Login successful! Redirecting...', false)
-      setTimeout(() => navigate('/'), 1000)
-    }, 1500)
+    }
   }
 
   const handleRegister = async (e) => {
     e.preventDefault()
     setLoading(true)
     showMsg('')
-    // Simulate API Call for now
-    setTimeout(() => {
+    
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim(), email: email.trim().toLowerCase(), password: password.trim() })
+      })
+      const data = await res.json().catch(() => ({}))
+      
+      if (res.ok) {
+        showMsg('Account created successfully! Please login.', false)
+        setTimeout(() => {
+          setView('login')
+          setName('')
+          setPassword('')
+        }, 1500)
+      } else {
+        showMsg(data.message || 'Registration failed.', true)
+      }
+    } catch (err) {
+      showMsg('Network error, please try again.', true)
+    } finally {
       setLoading(false)
-      showMsg('Account created successfully! Please login.', false)
-      setTimeout(() => {
-        setView('login')
-        setName('')
-        setPassword('')
-      }, 1500)
-    }, 1500)
+    }
   }
 
   const handleSendOtp = async () => {
     if (!email) return showMsg('Please enter your email first.', true)
     setLoading(true)
     showMsg('')
-    // Simulate API Call for now
-    setTimeout(() => {
+    
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase() })
+      })
+      const data = await res.json().catch(() => ({}))
+      
+      if (res.ok) {
+        setOtpSent(true)
+        showMsg('OTP sent! Check your email.', false)
+      } else {
+        showMsg(data.message || 'Failed to send OTP.', true)
+      }
+    } catch (err) {
+      showMsg('Network error, please try again.', true)
+    } finally {
       setLoading(false)
-      setOtpSent(true)
-      showMsg('OTP sent! Check your email.', false)
-    }, 1500)
+    }
   }
 
   const handleResetPassword = async (e) => {
@@ -79,19 +128,37 @@ export default function ClientAuth() {
     }
     setLoading(true)
     showMsg('')
-    // Simulate API Call for now
-    setTimeout(() => {
+    
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/confirm-forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email: email.trim().toLowerCase(),
+          otp: forgotCode.trim(),
+          newPassword: forgotPassword.trim()
+        })
+      })
+      const data = await res.json().catch(() => ({}))
+      
+      if (res.ok) {
+        showMsg('Password reset successfully! Please login.', false)
+        setTimeout(() => {
+          setView('login')
+          setForgotCode('')
+          setForgotPassword('')
+          setForgotConfirm('')
+          setPassword('')
+          setOtpSent(false)
+        }, 2000)
+      } else {
+        showMsg(data.message || 'Failed to reset password.', true)
+      }
+    } catch (err) {
+      showMsg('Network error, please try again.', true)
+    } finally {
       setLoading(false)
-      showMsg('Password reset successfully! Please login.', false)
-      setTimeout(() => {
-        setView('login')
-        setForgotCode('')
-        setForgotPassword('')
-        setForgotConfirm('')
-        setPassword('')
-        setOtpSent(false)
-      }, 2000)
-    }, 1500)
+    }
   }
 
   return (
