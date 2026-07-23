@@ -1,7 +1,8 @@
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import "../CompCss/Landing.css"
 import logo from "../assets/imgs/logo.png"
 import { storeCards, servicesCards } from "../StateTemps"
+import { useClientAuth } from "../ClientAuthContext.jsx"
 
 const BGlogoLink = "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=2560&auto=format&fit=crop"
 
@@ -62,6 +63,14 @@ function CardSection({ title, icon, items, variant }) {
 }
 
 export default function LandingPage() {
+    const { isAuthenticated, logout } = useClientAuth()
+    const navigate = useNavigate()
+
+    const handleLogout = async () => {
+        await logout()
+        navigate('/')
+    }
+
     return (
         <>
             <div className="video-bg">
@@ -71,12 +80,25 @@ export default function LandingPage() {
 
             <div className="glass-container" style={{ position: 'relative' }}>
                 <div className="auth-btn-group" style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', zIndex: 10 }}>
-                    <Link to="/login?view=login" className="btn auth-btn-outline auth-btn-small">
-                        Sign In
-                    </Link>
-                    <Link to="/login?view=register" className="btn auth-btn-primary auth-btn-small">
-                        Register
-                    </Link>
+                    {isAuthenticated ? (
+                        <>
+                            <Link to="/profile" className="btn auth-btn-outline auth-btn-small">
+                                <i className="fa-solid fa-user"></i> Profile
+                            </Link>
+                            <button onClick={handleLogout} className="btn auth-btn-primary auth-btn-small" style={{ border: 'none', cursor: 'pointer' }}>
+                                <i className="fa-solid fa-right-from-bracket"></i> Logout
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <Link to="/login?view=login" className="btn auth-btn-outline auth-btn-small">
+                                Sign In
+                            </Link>
+                            <Link to="/login?view=register" className="btn auth-btn-primary auth-btn-small">
+                                Register
+                            </Link>
+                        </>
+                    )}
                 </div>
 
                 <HeroSection />

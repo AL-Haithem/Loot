@@ -74,7 +74,7 @@ export default function ClientAuth() {
       const res = await fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), email: email.trim().toLowerCase(), password: password.trim() })
+        body: JSON.stringify({ username: name.trim(), email: email.trim().toLowerCase(), password: password.trim() })
       })
       const data = await res.json().catch(() => ({}))
       
