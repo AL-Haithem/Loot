@@ -33,39 +33,32 @@ export function GaugeDonut({ percent = 0, label = '', value = '', colors = ['#10
   const safe = Math.min(1, Math.max(0, isNaN(percent) ? 0 : percent))
 
   // SVG arc math — half‑circle (180°)
-  const r = 54            // radius
-  const cx = 70, cy = 70 // centre
-  const totalAngle = Math.PI          // 180° sweep
-  const sweepAngle = totalAngle * safe
+  const r = 50            // radius
+  const cx = 70, cy = 60 // centre
+  const sweepAngle = Math.PI * safe
 
   const toXY = (angle) => ({
-    x: cx + r * Math.cos(Math.PI - angle),
+    x: cx + r * Math.cos(angle),
     y: cy - r * Math.sin(angle)
   })
 
+  // Start at left (Math.PI) and go clockwise towards right (Math.PI - sweepAngle)
   const start = toXY(Math.PI)
   const end   = toXY(Math.PI - sweepAngle)
-  const largeArc = sweepAngle > Math.PI ? 1 : 0
 
-  // background track arc
-  const bgEnd = toXY(0)
-
-  // pick colour from linear interpolation between 3 stops
+  // pick colour
   const pickColor = (t) => {
-    if (t < 0.5) {
-      return colors[0] // low
-    } else if (t < 0.8) {
-      return colors[1] // mid
-    }
-    return colors[2] // high
+    if (t < 0.5) return colors[0]
+    if (t < 0.8) return colors[1]
+    return colors[2]
   }
 
   const arcColor = pickColor(safe)
-  const gradId   = `gauge-grad-${label.replace(/\s+/g, '-')}`
+  const gradId   = `gauge-grad-${label.replace(/[^a-zA-Z0-9]/g, '-')}`
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-      <svg width="140" height="80" viewBox="0 0 140 80" style={{ overflow: 'visible' }}>
+      <svg width="140" height="85" viewBox="0 0 140 85" style={{ overflow: 'visible' }}>
         <defs>
           <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor={colors[0]} />
@@ -76,7 +69,7 @@ export function GaugeDonut({ percent = 0, label = '', value = '', colors = ['#10
 
         {/* Background track */}
         <path
-          d={`M ${toXY(Math.PI).x} ${toXY(Math.PI).y} A ${r} ${r} 0 0 1 ${bgEnd.x} ${bgEnd.y}`}
+          d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
           fill="none"
           stroke="rgba(255,255,255,0.07)"
           strokeWidth="10"
@@ -86,7 +79,7 @@ export function GaugeDonut({ percent = 0, label = '', value = '', colors = ['#10
         {/* Value arc */}
         {safe > 0 && (
           <path
-            d={`M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 1 ${end.x} ${end.y}`}
+            d={`M ${start.x} ${start.y} A ${r} ${r} 0 0 1 ${end.x} ${end.y}`}
             fill="none"
             stroke={`url(#${gradId})`}
             strokeWidth="10"
@@ -98,7 +91,7 @@ export function GaugeDonut({ percent = 0, label = '', value = '', colors = ['#10
         <circle cx={end.x} cy={end.y} r="5" fill={arcColor} />
 
         {/* Centre value text */}
-        <text x={cx} y={cy + 12} textAnchor="middle" fill="#f1f5f9" fontSize="16" fontWeight="700">
+        <text x={cx} y={cy + 15} textAnchor="middle" fill="#f1f5f9" fontSize="16" fontWeight="700">
           {value}
         </text>
       </svg>

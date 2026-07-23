@@ -36,6 +36,82 @@ export default function SystemStats({ isActive, metrics, connectionStatus }) {
             // Skip non-system metrics that belong to other sections
             if (['Time', 'Cache', 'Crawler', 'Settings', 'Data', 'Logs'].includes(key)) return null;
 
+            if (key === 'System') {
+              const cpu = typeof value.CPU === 'number' ? value.CPU : 0;
+              const ram = value.RAM || {};
+              const ramPercent = typeof ram.Percent === 'number' ? ram.Percent : 0;
+              
+              const toGB = (bytes) => {
+                if (typeof bytes !== 'number' || bytes <= 0) return '0.00 GB';
+                // If it is already in MB or small, format appropriately. But raw telemetry is in bytes.
+                const gb = bytes / (1024 * 1024 * 1024);
+                return `${gb.toFixed(2)} GB`;
+              };
+
+              const ramUsed = toGB(ram.Used);
+              const ramFree = toGB(ram.Free);
+              const ramTotal = toGB(ram.Total);
+
+              const heap = value.Heap || {};
+              const heapUsed = typeof heap.Used === 'number' ? (heap.Used / (1024 * 1024)).toFixed(2) + ' MB' : '0.00 MB';
+              const heapTotal = typeof heap.Total === 'number' ? (heap.Total / (1024 * 1024)).toFixed(2) + ' MB' : '0.00 MB';
+              const rssVal = typeof value.RSS === 'number' ? (value.RSS / (1024 * 1024)).toFixed(2) + ' MB' : '0.00 MB';
+
+              let uptimeFormatted = '0s';
+              if (typeof value.Uptime === 'number') {
+                const h = Math.floor(value.Uptime / 3600);
+                const m = Math.floor((value.Uptime % 3600) / 60);
+                const s = Math.floor(value.Uptime % 60);
+                uptimeFormatted = `${h > 0 ? h + 'h ' : ''}${m > 0 ? m + 'm ' : ''}${s}s`;
+              }
+
+              return (
+                <div key={key} className="card-glass dashboard-group" style={{ gridColumn: 'span 2' }}>
+                  <div className="group-title">
+                    <i className="fas fa-microchip"></i> System Resources
+                  </div>
+                  
+                  {/* Gauges Side by Side */}
+                  <div style={{ display: 'flex', gap: '30px', justifyContent: 'center', flexWrap: 'wrap', padding: '15px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div style={{ minWidth: '140px' }}>
+                      <GaugeDonut
+                        percent={cpu / 100}
+                        label="CPU Usage"
+                        value={`${cpu.toFixed(1)}%`}
+                        colors={['#10b981', '#fbbf24', '#ef4444']}
+                      />
+                    </div>
+                    <div style={{ minWidth: '140px' }}>
+                      <GaugeDonut
+                        percent={ramPercent / 100}
+                        label="RAM Percent"
+                        value={`${ramPercent.toFixed(1)}%`}
+                        colors={['#3b82f6', '#8b5cf6', '#ef4444']}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Memory Cards Grid */}
+                  <div style={{ marginTop: '20px' }}>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>RAM Allocation</div>
+                    <div className="stats-mini-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px' }}>
+                      <StatCard label="Used" value={ramUsed} />
+                      <StatCard label="Free" value={ramFree} />
+                      <StatCard label="Total" value={ramTotal} />
+                    </div>
+
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '20px', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Node Engine (Heap / RSS / Uptime)</div>
+                    <div className="stats-mini-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px' }}>
+                      <StatCard label="Heap Used" value={heapUsed} />
+                      <StatCard label="Heap Total" value={heapTotal} />
+                      <StatCard label="RSS" value={rssVal} />
+                      <StatCard label="Uptime" value={uptimeFormatted} />
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <div key={key} className="card-glass dashboard-group">
                 <div className="group-title" style={{ textTransform: 'capitalize' }}>
