@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { GaugeDonut } from './Charts.jsx'
 
 function sizeFormat(bytes) {
   if (!bytes || bytes === 0) return '0 B'
@@ -94,30 +95,20 @@ export default function Dashboard({ isActive, metrics }) {
                 <i className="fas fa-spinner fa-pulse" /> Waiting for data...
               </div>
             ) : (
-              <>
-                <div className="stat-card-modern" style={{ gridColumn: 'span 2' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span className="label">CPU Usage:</span>
-                    <span className="value">{cpu}%</span>
-                  </div>
-                  <div className="progress-mini" style={{ height: '6px', marginTop: '8px' }}>
-                    <div className="progress-mini-fill" style={{ width: `${cpu}%`, background: 'var(--accent-clr)' }} />
-                  </div>
-                </div>
-
-                <div className="stat-card-modern" style={{ gridColumn: 'span 2' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span className="label">RAM Usage:</span>
-                    <span className="value">{ramPercent}%</span>
-                  </div>
-                  <div className="progress-mini" style={{ height: '6px', marginTop: '8px' }}>
-                    <div className="progress-mini-fill" style={{ width: `${ramPercent}%`, background: 'var(--success-clr)' }} />
-                  </div>
-                  <span className="label" style={{ fontSize: '0.7rem', marginTop: '6px', display: 'block' }}>
-                    {ramUsed} / {ramTotal}
-                  </span>
-                </div>
-              </>
+              <div style={{ display: 'flex', gap: '16px', justifyContent: 'space-around', flexWrap: 'wrap', padding: '10px 0' }}>
+                <GaugeDonut
+                  percent={cpu / 100}
+                  label="CPU Usage"
+                  value={`${cpu.toFixed(1)}%`}
+                  colors={['#10b981', '#fbbf24', '#ef4444']}
+                />
+                <GaugeDonut
+                  percent={ramPercent / 100}
+                  label={`RAM  ${ramUsed} / ${ramTotal}`}
+                  value={`${ramPercent.toFixed(1)}%`}
+                  colors={['#3b82f6', '#8b5cf6', '#ef4444']}
+                />
+              </div>
             )}
           </div>
         </div>
@@ -136,9 +127,13 @@ export default function Dashboard({ isActive, metrics }) {
                     <i className="fas fa-check-circle" /> Online
                   </span>
                 </div>
-                <div className="stat-card-modern">
-                  <span className="label">Uptime</span>
-                  <span className="value" style={{ fontSize: '1.1rem' }}>{uptime}</span>
+                <div className="stat-card-modern" style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px' }}>
+                  <GaugeDonut
+                    percent={Math.min(1, (sys.Uptime || 0) / (24 * 3600))}
+                    label="Uptime (24h)"
+                    value={uptime}
+                    colors={['#3b82f6', '#10b981', '#10b981']}
+                  />
                 </div>
                 <div className="stat-card-modern" style={{ gridColumn: 'span 2' }}>
                   <span className="label">Started At</span>

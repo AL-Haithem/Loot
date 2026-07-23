@@ -1,5 +1,6 @@
 import React from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell } from 'recharts'
+import { GaugeDonut } from './Charts.jsx'
 
 export default function SystemStats({ isActive, metrics, connectionStatus }) {
 
@@ -70,13 +71,25 @@ function renderMetricContent(value) {
       }
       
       // Formatting for top-level keys inside sections (System.Uptime, Http.AverageResponseTime, etc)
+      // Render CPU and RAM with gauges, others as cards
+      // Detect top-level gauge-able keys
+      if (k === 'CPU' && typeof v === 'number') {
+        return (
+          <div key={k} style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'center', padding: '10px' }}>
+            <GaugeDonut
+              percent={Math.min(1, v / 100)}
+              label="CPU Usage"
+              value={`${v.toFixed(1)}%`}
+              colors={['#10b981', '#fbbf24', '#ef4444']}
+            />
+          </div>
+        )
+      }
       if (k === 'Uptime' && typeof v === 'number') {
         const h = Math.floor(v / 3600);
         const m = Math.floor((v % 3600) / 60);
         const s = Math.floor(v % 60);
         formattedValue = `${h > 0 ? h + 'h ' : ''}${m > 0 ? m + 'm ' : ''}${s}s`;
-      } else if (k === 'CPU' && typeof v === 'number') {
-        formattedValue = `${v.toFixed(1)}%`;
       } else if (k === 'AverageResponseTime') {
         formattedValue = `${typeof v === 'number' ? v.toFixed(2) : v} ms`;
       } else if (k === 'RSS' && typeof v === 'number') {
@@ -104,7 +117,16 @@ function renderMetricContent(value) {
                 
                 // Special formatting for sub-keys
                 if (subK === 'Percent' && typeof subV === 'number') {
-                  subFormatted = `${subV.toFixed(1)}%`;
+                  return (
+                    <div key={subK} style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'center', padding: '8px' }}>
+                      <GaugeDonut
+                        percent={Math.min(1, subV / 100)}
+                        label={`${k} ${subK}`}
+                        value={`${subV.toFixed(1)}%`}
+                        colors={['#3b82f6', '#8b5cf6', '#ef4444']}
+                      />
+                    </div>
+                  )
                 } else if (['Used', 'Free', 'Total', 'RSS'].includes(subK) || ['Used', 'Free', 'Total', 'RSS'].includes(k)) {
                    if (typeof subV === 'number' && subV > 1024) {
                      subFormatted = (subV / 1024 / 1024).toFixed(2) + ' MB';

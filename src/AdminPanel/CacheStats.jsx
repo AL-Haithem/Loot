@@ -3,6 +3,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell, BarChart, Bar, Legend, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts'
+import { Sparkline, Histogram, StackedArea } from './Charts.jsx'
 
 const COLORS = ['#00f0ff', '#ff0055', '#10b981', '#fbbf24', '#8b5cf6', '#3b82f6'];
 
@@ -62,6 +63,36 @@ export default function CacheStats({ isActive, metrics }) {
       { subject: 'Writes', A: totalCache > 0 ? (writes / totalCache) * 100 : 50, fullMark: 100 },
     ];
 
+    // Stacked area: merge dailyrequests reads/writes per day
+    const stackedMap = new Map();
+    extractArray(data.dailyrequests).forEach(d => {
+      stackedMap.set(d.time, { t: d.time, reads: d.value, writes: 0 });
+    });
+    // If we have separate daily_read / daily_write arrays use them
+    if (Array.isArray(data.daily_read_requests) && data.daily_read_requests.length > 1) {
+      extractArray(data.daily_read_requests).forEach(d => {
+        const entry = stackedMap.get(d.time) || { t: d.time, reads: 0, writes: 0 };
+        entry.reads = d.value;
+        stackedMap.set(d.time, entry);
+      });
+      extractArray(data.daily_write_requests).forEach(d => {
+        const entry = stackedMap.get(d.time) || { t: d.time, reads: 0, writes: 0 };
+        entry.writes = d.value;
+        stackedMap.set(d.time, entry);
+      });
+    }
+    const stackedData = Array.from(stackedMap.values()).sort((a, b) => a.t.localeCompare(b.t));
+
+    // Disk usage histogram data
+    const diskHistogram = extractArray(data.diskusage).map(d => ({ label: d.time, value: d.value }));
+
+    // Sparkline data for reads/writes (derived from daily reads/writes arrays)
+    const readSparkline  = extractArray(Array.isArray(data.daily_read_requests) && data.daily_read_requests.length > 1
+      ? data.daily_read_requests
+      : data.dailyrequests
+    ).map(d => ({ t: d.time, v: d.value }));
+    const writeSparkline = extractArray(data.daily_write_requests).map(d => ({ t: d.time, v: d.value }));
+
     return {
       currStorage, totalStorage, storagePercent,
       hits, misses, hitRate,
@@ -70,7 +101,11 @@ export default function CacheStats({ isActive, metrics }) {
       pieCommands,
       totalKeys,
       dailyActivity,
-      radarData
+      radarData,
+      stackedData,
+      diskHistogram,
+      readSparkline,
+      writeSparkline
     };
   }, [data]);
 
@@ -119,6 +154,19 @@ export default function CacheStats({ isActive, metrics }) {
               <div style={{ width: '100%', height: '200px' }}>
                 <TimeSeriesChart data={data.diskusage} color="#00f0ff" name="Storage (B)" isBytes={true} />
               </div>
+
+              {/* Disk usage histogram */}
+              <div style={{ marginTop: '16px' }}>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '6px' }}>
+                  <i className="fas fa-chart-bar" style={{ marginRight: '6px' }} />Disk Usage Histogram
+                </div>
+                <Histogram
+                  data={processedData.diskHistogram}
+                  color="#0066ff"
+                  height={150}
+                  tickFormatter={(v) => formatBytes(v)}
+                />
+              </div>
             </div>
 
             <div className="card-glass dashboard-group">
@@ -161,14 +209,30 @@ export default function CacheStats({ isActive, metrics }) {
                 </div>
 
                 <div style={{ flex: 1 }}>
-                  <StatCard label="Today's Reads" value={formatNum(processedData.reads)} />
-                  <br/>
-                  <StatCard label="Today's Writes" value={formatNum(processedData.writes)} />
-                  <br/>
+                  <div style={{ marginBottom: '8px' }}>
+                    <StatCard label="Today's Reads" value={formatNum(processedData.reads)} />
+                    <div style={{ height: '40px', marginTop: '4px' }}>
+                      <Sparkline data={processedData.readSparkline} color="#00f0ff" height={40} />
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '8px' }}>
+                    <StatCard label="Today's Writes" value={formatNum(processedData.writes)} />
+                    <div style={{ height: '40px', marginTop: '4px' }}>
+                      <Sparkline data={processedData.writeSparkline} color="#ff0055" height={40} />
+                    </div>
+                  </div>
                   <StatCard label="Monthly Reads" value={formatNum(extractValue(data.total_monthly_read_requests))} />
                   <br/>
                   <StatCard label="Monthly Writes" value={formatNum(extractValue(data.total_monthly_write_requests))} />
                 </div>
+              </div>
+
+              {/* Stacked Area — Read vs Write trend */}
+              <div style={{ marginTop: '20px' }}>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '6px' }}>
+                  <i className="fas fa-chart-area" style={{ marginRight: '6px' }} />Read vs Write Trend (Daily)
+                </div>
+                <StackedArea data={processedData.stackedData} height={180} />
               </div>
             </div>
           </div>

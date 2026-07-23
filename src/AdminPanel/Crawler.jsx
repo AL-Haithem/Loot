@@ -2,6 +2,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { API_BASE } from '../api.js'
 import { csrfStore } from '../csrfStore.js'
+import { GaugeDonut, Sparkline, Histogram } from './Charts.jsx'
 
 export default function Crawler({ isActive, metrics }) {
   const [isRunning, setIsRunning]   = useState(false)
@@ -14,6 +15,10 @@ export default function Crawler({ isActive, metrics }) {
     total: 0, filled: 0, remaining: 0,
     totalApps: 0, comingSoon: 0, freeGames: 0, paidGames: 0
   })
+  // History for sparkline (last 30 storage snapshots)
+  const [storageHistory, setStorageHistory] = useState([])
+  // Disk usage histogram from SSE
+  const [diskHistData, setDiskHistData] = useState([])
 
   const csrfHeader = () => ({ 'X-CSRF-Token': csrfStore.get() ?? '' })
 
@@ -55,6 +60,27 @@ export default function Crawler({ isActive, metrics }) {
         });
       }
     }
+
+    // Also read diskusage from main Cache data for histogram
+    const cacheData = metrics?.Cache;
+    if (cacheData?.diskusage && Array.isArray(cacheData.diskusage)) {
+      const hist = cacheData.diskusage.map(d => {
+        let label = d.x || '';
+        try {
+          if (typeof d.x === 'string' && d.x.includes(' ')) label = d.x.split(' ')[1].split('.')[0];
+        } catch {}
+        return { label, value: typeof d.y === 'number' ? d.y : 0 };
+      });
+      setDiskHistData(hist);
+    }
+
+    // Update storage history for sparkline (track filled count over time)
+    if (crawlerData?.Filled !== undefined) {
+      setStorageHistory(prev => [
+        ...prev.slice(-29),
+        { t: new Date().toLocaleTimeString(), v: crawlerData.Filled }
+      ]);
+    }
   }, [metrics]);
 
   const startCrawler = useCallback(() => {
@@ -86,6 +112,49 @@ export default function Crawler({ isActive, metrics }) {
           <span className="subtitle">إدارة جلب البيانات الذكي</span>
         </h2>
         <div className={`status-indicator ${isRunning ? 'active' : ''}`} />
+      </div>
+
+      {/* Gauge + Sparkline + Histogram row */}
+      <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', marginBottom: '20px' }}>
+        {/* Storage Gauge */}
+        <div className="card-glass dashboard-group" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
+          <div className="group-title" style={{ marginBottom: '10px' }}>
+            <i className="fas fa-hdd" /> Storage Progress
+          </div>
+          <GaugeDonut
+            percent={stats.total > 0 ? stats.filled / stats.total : 0}
+            label={`${stats.filled.toLocaleString()} / ${stats.total.toLocaleString()}`}
+            value={`${stats.total > 0 ? ((stats.filled / stats.total) * 100).toFixed(1) : 0}%`}
+            colors={['#10b981', '#fbbf24', '#ef4444']}
+          />
+        </div>
+
+        {/* Filled progress Sparkline */}
+        <div className="card-glass dashboard-group">
+          <div className="group-title"><i className="fas fa-chart-line" /> Filled (Live)</div>
+          <div style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '6px', color: '#f1f5f9' }}>
+            {stats.filled.toLocaleString()}
+          </div>
+          <div style={{ height: '80px' }}>
+            <Sparkline data={storageHistory} color="#10b981" height={80} />
+          </div>
+        </div>
+
+        {/* Disk Usage Histogram */}
+        <div className="card-glass dashboard-group">
+          <div className="group-title"><i className="fas fa-chart-bar" /> Disk Usage Histogram</div>
+          <Histogram
+            data={diskHistData}
+            color="#8b5cf6"
+            height={120}
+            tickFormatter={(v) => {
+              if (v >= 1073741824) return (v / 1073741824).toFixed(1) + ' GB';
+              if (v >= 1048576) return (v / 1048576).toFixed(1) + ' MB';
+              if (v >= 1024) return (v / 1024).toFixed(1) + ' KB';
+              return v + ' B';
+            }}
+          />
+        </div>
       </div>
 
       {/* Stacked bar */}
