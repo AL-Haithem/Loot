@@ -116,7 +116,43 @@
   .game-detail{font-size:.78rem;color:#94a3b8;margin-top:4px}
   .status-indicator{width:10px;height:10px;border-radius:50%;background:#64748b;transition:all .3s}
   .status-indicator.active{background:var(--accent-clr);box-shadow:0 0 12px var(--accent-glow);animation:pulse 2s infinite}
-  
+
+  /* ── NewAppsRefresh Cards ── */
+  .nar-cards-row{display:grid;grid-template-columns:1fr 2fr;gap:var(--gap-base);margin-bottom:var(--gap-base)}
+
+  /* RefreshRunning Card */
+  .refresh-running-card{padding:1.1rem 1.3rem}
+  .rr-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem}
+  .rr-title{font-size:.88rem;font-weight:600;color:#e2e8f0;display:flex;align-items:center;gap:8px}
+  .rr-title i{color:var(--accent-clr);font-size:.85rem}
+  .rr-status-chip{display:inline-flex;align-items:center;gap:6px;font-size:.75rem;font-weight:600;padding:3px 10px;border-radius:20px;border:1px solid transparent}
+  .rr-status-chip.running{background:rgba(16,185,129,0.1);color:var(--success-clr);border-color:rgba(16,185,129,0.25)}
+  .rr-status-chip.idle{background:rgba(100,116,139,0.1);color:#64748b;border-color:rgba(100,116,139,0.2)}
+  .rr-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+  .rr-status-chip.running .rr-dot{animation:pulse 1.4s infinite}
+  .rr-counters{display:flex;align-items:center;gap:.8rem}
+  .rr-counter-item{display:flex;flex-direction:column;gap:2px;flex:1;text-align:center;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);padding:.5rem}
+  .rr-counter-label{font-size:.72rem;color:#64748b;text-transform:uppercase;letter-spacing:.04em}
+  .rr-counter-value{font-size:1.15rem;font-weight:700;font-family:var(--font-head);color:#94a3b8}
+  .rr-counter-value.accent{color:var(--accent-clr)}
+  .rr-counter-divider{width:1px;height:32px;background:var(--glass-border)}
+
+  /* SyncResume Card */
+  .sync-resume-card{padding:1.1rem 1.3rem}
+  .sr-progress-wrap{margin-bottom:.9rem}
+  .sr-progress-labels{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+  .sr-progress-text{font-size:.75rem;color:#64748b;font-style:italic;max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sr-progress-pct{font-size:.82rem;font-weight:700;color:var(--accent-clr);font-family:var(--font-head)}
+  .sr-fields-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:.5rem;margin-bottom:.8rem}
+  .sr-field-item{display:flex;flex-direction:column;align-items:center;gap:3px;background:rgba(255,255,255,0.02);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:.45rem .3rem;text-align:center}
+  .sr-field-item i{font-size:.75rem}
+  .sr-field-label{font-size:.68rem;color:#64748b;text-transform:uppercase;letter-spacing:.03em}
+  .sr-field-val{font-size:.88rem;font-weight:700;font-family:var(--font-head)}
+  .sr-duration{font-size:.78rem;color:#64748b;display:flex;align-items:center;gap:6px}
+  .sr-duration i{color:var(--accent-clr);font-size:.75rem}
+  .sr-duration strong{color:#94a3b8}
+
+
   /* Settings */
   .settings-grid-layout{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-base)}
   .wide-card{grid-column:span 2}

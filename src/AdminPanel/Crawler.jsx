@@ -2,6 +2,100 @@ import { useState, useCallback, useEffect } from 'react'
 import { API_BASE } from '../api.js'
 import { csrfStore } from '../csrfStore.js'
 
+// ── RefreshRunning Status Card ─────────────────────────────────────────────────
+function RefreshRunningCard({ isRunning, total, filtered }) {
+  return (
+    <div className="card-glass refresh-running-card">
+      <div className="rr-header">
+        <span className="rr-title">
+          <i className="fas fa-sync-alt" /> New Apps Refresh
+        </span>
+        <span className={`rr-status-chip ${isRunning ? 'running' : 'idle'}`}>
+          <span className="rr-dot" />
+          {isRunning ? 'Running' : 'Idle'}
+        </span>
+      </div>
+      <div className="rr-counters">
+        <div className="rr-counter-item">
+          <span className="rr-counter-label">Total</span>
+          <span className="rr-counter-value accent">{total.toLocaleString()}</span>
+        </div>
+        <div className="rr-counter-divider" />
+        <div className="rr-counter-item">
+          <span className="rr-counter-label">Filtered</span>
+          <span className="rr-counter-value">{filtered.toLocaleString()}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── SyncResume Card ────────────────────────────────────────────────────────────
+function SyncResumeCard({ sync }) {
+  const { SyncRunning, Remaining, NotAffected, New, Updated, Deleted, Changes, Duration, DataBaseSyncProgress } = sync
+  const processed = (New ?? 0) + (Updated ?? 0) + (Deleted ?? 0)
+  const grandTotal = processed + (Remaining ?? 0)
+  const pct = grandTotal > 0 ? Math.round((processed / grandTotal) * 100) : 0
+  const mins = Math.floor((Duration ?? 0) / 60)
+  const secs = ((Duration ?? 0) % 60).toString().padStart(2, '0')
+
+  const fields = [
+    { icon: 'fa-plus',          label: 'New',         val: New ?? 0,         color: 'var(--success-clr)' },
+    { icon: 'fa-pen',           label: 'Updated',      val: Updated ?? 0,     color: 'var(--accent-clr)'  },
+    { icon: 'fa-trash',         label: 'Deleted',      val: Deleted ?? 0,     color: 'var(--danger-clr)'  },
+    { icon: 'fa-equals',        label: 'No Change',    val: NotAffected ?? 0, color: '#64748b'            },
+    { icon: 'fa-bolt',          label: 'Changes',      val: Changes ?? 0,     color: 'var(--warning-clr)' },
+    { icon: 'fa-hourglass-half',label: 'Remaining',    val: Remaining ?? 0,   color: '#94a3b8'            },
+  ]
+
+  return (
+    <div className="card-glass sync-resume-card">
+      <div className="rr-header">
+        <span className="rr-title">
+          <i className="fas fa-database" /> Sync Resume
+        </span>
+        <span className={`rr-status-chip ${SyncRunning ? 'running' : 'idle'}`}>
+          <span className="rr-dot" />
+          {SyncRunning ? 'Syncing' : 'Idle'}
+        </span>
+      </div>
+
+      {/* Progress bar */}
+      <div className="sr-progress-wrap">
+        <div className="sr-progress-labels">
+          <span className="sr-progress-text">{DataBaseSyncProgress || (SyncRunning ? 'Syncing...' : 'Awaiting sync')}</span>
+          <span className="sr-progress-pct">{pct}%</span>
+        </div>
+        <div className="progress-outer">
+          <div className="progress-inner" style={{ width: `${pct}%` }} />
+        </div>
+      </div>
+
+      {/* Mini stat grid */}
+      <div className="sr-fields-grid">
+        {fields.map(({ icon, label, val, color }) => (
+          <div key={label} className="sr-field-item">
+            <i className={`fas ${icon}`} style={{ color }} />
+            <span className="sr-field-label">{label}</span>
+            <span className="sr-field-val" style={{ color }}>{val.toLocaleString()}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Duration */}
+      <div className="sr-duration">
+        <i className="fas fa-clock" /> Duration: <strong>{mins}:{secs}</strong>
+      </div>
+    </div>
+  )
+}
+
+// ── Default SyncResume state ───────────────────────────────────────────────────
+const DEFAULT_SYNC = {
+  SyncRunning: false, Remaining: 0, NotAffected: 0,
+  New: 0, Updated: 0, Deleted: 0, Changes: 0, Duration: 0, DataBaseSyncProgress: ''
+}
+
 export default function Crawler({ isActive, metrics }) {
   const [isRunning, setIsRunning]   = useState(false)
   const [crawlerMode, setCrawlerMode] = useState('both')
@@ -14,15 +108,29 @@ export default function Crawler({ isActive, metrics }) {
     totalApps: 0, comingSoon: 0, freeGames: 0, paidGames: 0
   })
 
+  // NewAppsRefresh state
+  const [refreshRunning, setRefreshRunning] = useState(false)
+  const [refreshTotal, setRefreshTotal]     = useState(0)
+  const [refreshFiltered, setRefreshFiltered] = useState(0)
+  const [syncResume, setSyncResume]         = useState(DEFAULT_SYNC)
+
   const csrfHeader = () => ({ 'X-CSRF-Token': csrfStore.get() ?? '' })
 
   // ── Sync with global SSE metrics ──
   useEffect(() => {
     if (!metrics) return;
 
-    // The backend might send Crawler or Sync data in the future.
-    // We handle it gracefully if it exists.
-    const crawlerData = metrics.Crawler || metrics.crawler || metrics.CrawlerData;
+    // ── NewAppsRefresh (RefreshRunning + SyncResume) ──
+    const nar = metrics.Crawler?.NewAppsRefresh ?? metrics.NewAppsRefresh
+    if (nar) {
+      if (nar.RefreshRunning !== undefined) setRefreshRunning(nar.RefreshRunning)
+      if (nar.Total        !== undefined) setRefreshTotal(nar.Total)
+      if (nar.Filtered     !== undefined) setRefreshFiltered(nar.Filtered)
+      if (nar.SyncResume)  setSyncResume(prev => ({ ...prev, ...nar.SyncResume }))
+    }
+
+    // ── GamesWorker (existing crawler) ──
+    const crawlerData = metrics.Crawler?.GamesWorker ?? metrics.Crawler ?? metrics.crawler ?? metrics.CrawlerData;
     
     if (crawlerData) {
       setStats(prev => ({
@@ -35,17 +143,16 @@ export default function Crawler({ isActive, metrics }) {
         paidGames: crawlerData.paidGames ?? prev.paidGames
       }));
 
-      if (crawlerData.isRunning !== undefined) {
-        setIsRunning(crawlerData.isRunning);
-      }
+      if (crawlerData.isRunning !== undefined) setIsRunning(crawlerData.isRunning)
+      if (crawlerData.WorkerRunning !== undefined) setIsRunning(crawlerData.WorkerRunning)
 
       if (crawlerData.prog !== undefined) setProgress(crawlerData.prog);
-      if (crawlerData.eta !== undefined) setTimeText(`${crawlerData.eta} remaining`);
+      if (crawlerData.eta  !== undefined) setTimeText(`${crawlerData.eta} remaining`);
       
       if (crawlerData.details) setStatusMsg(`Crawling: ${crawlerData.details}`);
       else if (crawlerData.text) setStatusMsg(crawlerData.text);
+      else if (crawlerData.LastLog) setStatusMsg(crawlerData.LastLog);
 
-      // If there's a new log entry
       if (crawlerData.log) {
         setLogs(prev => {
           if (prev.length > 0 && prev[0].id === crawlerData.log.id && prev[0].prog === crawlerData.log.prog) return prev;
@@ -83,10 +190,20 @@ export default function Crawler({ isActive, metrics }) {
           <i className="fas fa-robot" /> Crawler Manager
           <span className="subtitle">إدارة جلب البيانات الذكي</span>
         </h2>
-        <div className={`status-indicator ${isRunning ? 'active' : ''}`} />
+        <div className={`status-indicator ${isRunning || refreshRunning || syncResume.SyncRunning ? 'active' : ''}`} />
       </div>
 
-      {/* Stacked bar */}
+      {/* ── NewAppsRefresh cards ── */}
+      <div className="nar-cards-row">
+        <RefreshRunningCard
+          isRunning={refreshRunning}
+          total={refreshTotal}
+          filtered={refreshFiltered}
+        />
+        <SyncResumeCard sync={syncResume} />
+      </div>
+
+      {/* Stacked bar (GamesWorker) */}
       <div className="stats-bar-container card-glass">
         <h3 className="group-title"><i className="fas fa-chart-pie" /> توزيع ألعاب المتجر</h3>
         <div className="stacked-bar-outer">
