@@ -74,6 +74,7 @@ export default function ClientAuth() {
       const res = await fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ username: name.trim(), email: email.trim().toLowerCase(), password: password.trim() })
       })
       const data = await res.json().catch(() => ({}))
@@ -104,6 +105,7 @@ export default function ClientAuth() {
       const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email: email.trim().toLowerCase() })
       })
       const data = await res.json().catch(() => ({}))
@@ -133,6 +135,7 @@ export default function ClientAuth() {
       const res = await fetch(`${API_BASE}/api/auth/confirm-forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ 
           email: email.trim().toLowerCase(),
           code: forgotCode.trim(),
