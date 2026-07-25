@@ -3,6 +3,7 @@ import './App.css'
 
 import { ClientAuthProvider } from './ClientAuthContext.jsx'
 import { ClientProtectedRoute, ClientPublicRoute } from './ClientRoutes.jsx'
+import { CartProvider } from './CartContext.jsx'
 
 import LandingPage from './CompJSX/Landing.jsx'
 import GamesPage from './CompJSX/Games.jsx'
@@ -16,6 +17,7 @@ import Profile from './CompJSX/Profile.jsx'
 
 function App() {
   return (
+    <CartProvider>
     <ClientAuthProvider>
       <BrowserRouter>
         <Routes>
@@ -47,6 +49,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </ClientAuthProvider>
+    </CartProvider>
   )
 }
 

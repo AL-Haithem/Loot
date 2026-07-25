@@ -1,5 +1,6 @@
 import "../CompCss/Games.css"
 import { Link } from "react-router"
+import { useCart } from "../CartContext.jsx"
 
 const STEAM_APP_URL = "https://store.steampowered.com/app"
 const STEAM_ASSET_BASE = "https://shared.akamai.steamstatic.com/"
@@ -44,6 +45,7 @@ export function GameCard({
     recs
 }) {
     const gameData = { steam_appid, name, title, head, is_free, Price, rel, recs }
+    const { addToCart } = useCart()
     const reviews = recs?.total || 0
     const gameName = name || title || "Untitled"
     const usPrice = Price?.US
@@ -72,7 +74,12 @@ export function GameCard({
 
                     <div className="game-actions">
                         {hasBuyablePrice && (
-                            <button className="cart-btn" type="button" title="Add to cart">
+                            <button
+                                className="cart-btn"
+                                type="button"
+                                title="Add to cart"
+                                onClick={() => addToCart(gameData)}
+                            >
                                 <i className="fas fa-cart-plus"></i>
                             </button>
                         )}

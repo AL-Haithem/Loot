@@ -6,6 +6,7 @@ import { FilterButton, NavButton } from "../StandardComp/Buttons.jsx"
 import { GameCard } from "../StandardComp/GameCard.jsx"
 import { FiltersObjs, NavBarObjs } from "../StateTemps.js"
 import { API_BASE } from "../api.js"
+import { useCart } from "../CartContext.jsx"
 
 export default function GamesPage() {
     const [filters, setFilters] = useState(FiltersObjs)
@@ -15,6 +16,7 @@ export default function GamesPage() {
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState("")
     const activeFilter = filters.find(f => f.active)
+    const { totalCount } = useCart()
 
     function toggleMenu() {
         setIsOpen(prev => !prev)
@@ -87,7 +89,7 @@ export default function GamesPage() {
 
                     <a href="/cart" className="cart-icon">
                         <i className="fas fa-shopping-cart"></i>
-                        <span id="cartBadge">0</span>
+                        <span id="cartBadge">{totalCount > 0 ? totalCount : ''}</span>
                     </a>
                 </div>
 
