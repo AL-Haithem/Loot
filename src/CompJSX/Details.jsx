@@ -1,197 +1,343 @@
-import { useEffect, useMemo, useState } from "react"
-import { Link, useLocation, useParams } from "react-router"
+import { useEffect, useState, useRef } from "react"
+import { Link, useParams } from "react-router"
 import axios from "axios"
 import logo from "../assets/imgs/logo.png"
 import "../CompCss/Details.css"
-import { steamAssetUrl } from "../StandardComp/GameCard.jsx"
-import { API_BASE } from "../api.js"
 import PurchaseSection from "./PurchaseSection.jsx"
 import { useCart } from "../CartContext.jsx"
+import { API_BASE } from "../api.js"
 
-function formatPrice(price) {
-    if (!price?.final || price.final <= 0) return "Unavailable"
+/* ─── Constants ──────────────────────────────── */
+const STEAM_STORE_API = "https://store.steampowered.com/api/appdetails"
 
-    return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: price.currency || "USD"
-    }).format(price.final / 100)
+/* ─── Helpers ────────────────────────────────── */
+function fmtDate(str) {
+    if (!str) return null
+    const d = new Date(str)
+    return isNaN(d) ? str : d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
 }
 
-function formatDate(rel) {
-    if (!rel?.date) return "Not specified"
-    const date = new Date(rel.date)
-    if (Number.isNaN(date.getTime())) return rel.date
-
-    return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-    })
+function scoreColor(score) {
+    if (score >= 75) return "#4ade80"
+    if (score >= 50) return "#fbbf24"
+    return "#f87171"
 }
 
-export default function DetailsPage() {
-    const { appId } = useParams()
-    const location = useLocation()
-    const stateGame = location.state?.game
-    // Start with stateGame if available so the UI renders immediately;
-    // the background fetch will update/confirm the data.
-    const [game, setGame] = useState(stateGame ?? null)
-    // Always show a loader on first mount; if stateGame exists we still
-    // fetch to get the freshest data but keep the old game visible.
-    const [isLoading, setIsLoading] = useState(true)
-    const [error, setError] = useState("")
+/* ─── Skeleton ───────────────────────────────── */
+function Skeleton() {
+    return (
+        <div className="dt-skeleton">
+            <div className="dt-sk dt-sk-hero" />
+            <div className="dt-sk-body">
+                <div className="dt-sk-left">
+                    <div className="dt-sk dt-sk-cover" />
+                    <div className="dt-sk dt-sk-line" style={{ width: "80%", height: 14 }} />
+                    <div className="dt-sk dt-sk-line" style={{ width: "60%", height: 12 }} />
+                    <div className="dt-sk dt-sk-block" />
+                </div>
+                <div className="dt-sk-right">
+                    <div className="dt-sk dt-sk-line" style={{ width: "70%", height: 40 }} />
+                    <div className="dt-sk dt-sk-line" style={{ width: "90%", height: 16 }} />
+                    <div className="dt-sk dt-sk-line" style={{ width: "75%", height: 16 }} />
+                    <div className="dt-sk dt-sk-block" style={{ height: 120 }} />
+                    <div className="dt-sk dt-sk-block" style={{ height: 200 }} />
+                </div>
+            </div>
+        </div>
+    )
+}
 
-    useEffect(() => {
-        let isMounted = true
-
-        // If we already have matching stateGame data, show it instantly
-        // while the network request runs in the background.
-        if (stateGame?.steam_appid === Number(appId)) {
-            setGame(stateGame)
-            setIsLoading(false)
-            setError("")
-        }
-
-        async function fetchGame() {
-            // Only show skeleton when we have nothing to display yet
-            if (!stateGame || stateGame.steam_appid !== Number(appId)) {
-                setIsLoading(true)
-            }
-            setError("")
-
-            try {
-                const res = await axios.get(`${API_BASE}/api/public/games/${appId}`)
-                if (isMounted) {
-                    setGame(res.data.data)
-                }
-            } catch (err) {
-                if (isMounted) {
-                    // Only clear game if we never had one for this appId
-                    if (!stateGame || stateGame.steam_appid !== Number(appId)) {
-                        setGame(null)
-                    }
-                    setError(err?.response?.status === 404 ? "Game not found" : "Unable to load game details")
-                }
-            } finally {
-                if (isMounted) setIsLoading(false)
-            }
-        }
-
-        fetchGame()
-        return () => { isMounted = false }
-    }, [appId, stateGame])
-
-    const usPrice = game?.Price?.US
-    const priceText = useMemo(() => formatPrice(usPrice), [usPrice])
-    const releaseText = useMemo(() => formatDate(game?.rel), [game?.rel])
-    const steamUrl = `https://store.steampowered.com/app/${appId}`
-    const { totalCount } = useCart()
+/* ─── Screenshots Gallery ─────────────────────── */
+function Gallery({ shots }) {
+    const [active, setActive] = useState(0)
+    if (!shots?.length) return null
 
     return (
-        <>
-            {game?.bg && <div className="hero-bg" style={{ backgroundImage: `url(${steamAssetUrl(game.bg)})` }}></div>}
-
-            <header className="details-header">
-                <Link to="/games" className="btn-back"><span className="fa fa-arrow-left"> Back</span></Link>
-
-                <div className="logo-wrapper">
-                    <div id="detailLogo" className="logo-text">Hnk Store</div>
-                    <img src={logo} className="header-logo" alt="Logo" />
+        <div className="dt-gallery">
+            <div className="dt-gallery-main">
+                <img
+                    key={active}
+                    src={shots[active].path_full}
+                    alt={`screenshot ${active + 1}`}
+                    className="dt-gallery-main-img"
+                />
+                <div className="dt-gallery-overlay">
+                    <button
+                        className="dt-gallery-nav"
+                        onClick={() => setActive(p => Math.max(0, p - 1))}
+                        disabled={active === 0}
+                    >
+                        <i className="fas fa-chevron-left" />
+                    </button>
+                    <span className="dt-gallery-count">{active + 1} / {shots.length}</span>
+                    <button
+                        className="dt-gallery-nav"
+                        onClick={() => setActive(p => Math.min(shots.length - 1, p + 1))}
+                        disabled={active === shots.length - 1}
+                    >
+                        <i className="fas fa-chevron-right" />
+                    </button>
                 </div>
+            </div>
+            <div className="dt-gallery-thumbs">
+                {shots.slice(0, 8).map((s, i) => (
+                    <button
+                        key={s.id}
+                        className={`dt-thumb-btn ${i === active ? "active" : ""}`}
+                        onClick={() => setActive(i)}
+                    >
+                        <img src={s.path_thumbnail} alt="" />
+                    </button>
+                ))}
+            </div>
+        </div>
+    )
+}
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
-                    <Link to="/login" className="user-icon-link" style={{ color: '#fff', fontSize: '0.95rem', transition: 'color 0.2s', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', fontWeight: 600 }}>
-                        <i className="fas fa-user" style={{ fontSize: '1.1rem' }}></i> <span className="account-text">My Account</span>
+/* ─── Platform Icons ─────────────────────────── */
+function Platforms({ platforms }) {
+    const icons = [
+        { key: "windows", icon: "fab fa-windows", label: "Windows" },
+        { key: "mac",     icon: "fab fa-apple",   label: "Mac" },
+        { key: "linux",   icon: "fab fa-linux",   label: "Linux" },
+    ]
+    return (
+        <div className="dt-platforms">
+            {icons.map(({ key, icon, label }) =>
+                platforms?.[key] ? (
+                    <span key={key} className="dt-platform-badge" title={label}>
+                        <i className={icon} /> {label}
+                    </span>
+                ) : null
+            )}
+        </div>
+    )
+}
+
+/* ─── Main Page ──────────────────────────────── */
+export default function DetailsPage() {
+    const { appId } = useParams()
+    const { totalCount } = useCart()
+
+    /* Steam data (from browser direct) */
+    const [steam, setSteam]     = useState(null)
+    const [steamErr, setSteamErr] = useState(false)
+    const [steamLoading, setSteamLoading] = useState(true)
+
+    /* Price data (from our backend) */
+    const [priceData, setPriceData] = useState(null)
+
+    useEffect(() => {
+        let alive = true
+        setSteam(null)
+        setSteamErr(false)
+        setSteamLoading(true)
+
+        /* Fetch game details from Steam store API */
+        fetch(`${STEAM_STORE_API}?appids=${appId}&l=english`)
+            .then(r => r.json())
+            .then(json => {
+                if (!alive) return
+                const entry = json?.[appId]
+                if (entry?.success && entry.data) {
+                    setSteam(entry.data)
+                } else {
+                    setSteamErr(true)
+                }
+            })
+            .catch(() => { if (alive) setSteamErr(true) })
+            .finally(() => { if (alive) setSteamLoading(false) })
+
+        /* Fetch price from our backend — run in parallel */
+        axios.get(`${API_BASE}/api/public/games/${appId}`)
+            .then(res => { if (alive) setPriceData(res.data?.data) })
+            .catch(() => { /* price remains null; PurchaseSection will handle gracefully */ })
+
+        return () => { alive = false }
+    }, [appId])
+
+    /* Derived values */
+    const bg       = steam?.background_raw || steam?.background
+    const cover    = steam?.header_image
+    const name     = steam?.name || "Unknown Game"
+    const genres   = steam?.genres?.map(g => g.description) || []
+    const cats     = steam?.categories?.map(c => c.description) || []
+    const devs     = steam?.developers || []
+    const pubs     = steam?.publishers || []
+    const mc       = steam?.metacritic
+    const rel      = steam?.release_date
+    const shots    = steam?.screenshots || []
+    const shortDesc = steam?.short_description || ""
+    const platforms = steam?.platforms
+
+    /* Build a merged game object for PurchaseSection (needs Price from backend) */
+    const gameForPurchase = priceData
+        ? { ...priceData, steam_appid: Number(appId), head: cover, name }
+        : { steam_appid: Number(appId), head: cover, name, is_free: steam?.is_free, Price: null }
+
+    const steamUrl = `https://store.steampowered.com/app/${appId}`
+
+    const isLoading = steamLoading
+    const isError   = !steamLoading && steamErr
+
+    return (
+        <div className="dt-root">
+            {/* ── Hero blur background ── */}
+            {bg && <div className="dt-bg" style={{ backgroundImage: `url(${bg})` }} />}
+            <div className="dt-bg-overlay" />
+
+            {/* ── Sticky Header ── */}
+            <header className="dt-header">
+                <Link to="/games" className="dt-back">
+                    <i className="fas fa-arrow-left" /> Store
+                </Link>
+
+                <Link to="/" className="dt-header-brand">
+                    <img src={logo} alt="HNK Store" />
+                    <span>HNK Store</span>
+                </Link>
+
+                <div className="dt-header-right">
+                    <Link to="/login" className="dt-header-account">
+                        <i className="fas fa-user" />
+                        <span>Account</span>
                     </Link>
-                    <Link to="/cart" className="cart-icon-link">
-                        <i className="fas fa-shopping-cart"></i>
-                        {totalCount > 0 && <span id="cartBadge" className="cart-badge" style={{ display: 'flex' }}>{totalCount}</span>}
+                    <Link to="/cart" className="dt-header-cart">
+                        <i className="fas fa-shopping-bag" />
+                        {totalCount > 0 && <span className="dt-cart-badge">{totalCount}</span>}
                     </Link>
                 </div>
             </header>
 
-            <main className="main-container">
-                {isLoading && (
-                    <>
-                        <aside className="poster-section">
-                            <div className="sticky-wrapper">
-                                <div className="skeleton-image"></div>
-                                <div className="skeleton-info-poster">
-                                    <div className="skeleton-line"></div>
-                                    <div className="skeleton-line"></div>
-                                    <div className="skeleton-line"></div>
-                                </div>
-                            </div>
-                        </aside>
-                        <section className="info-section">
-                            <div className="skeleton-title-large"></div>
-                            <div className="skeleton-description">
-                                <div className="skeleton-line"></div>
-                                <div className="skeleton-line"></div>
-                                <div className="skeleton-line-short"></div>
-                            </div>
-                        </section>
-                    </>
+            {/* ── Content ── */}
+            <main className="dt-main">
+                {isLoading && <Skeleton />}
+
+                {isError && (
+                    <div className="dt-error">
+                        <i className="fas fa-circle-exclamation" />
+                        <h2>Game not found</h2>
+                        <p>This game may not be available or the Steam API is unreachable.</p>
+                        <Link to="/games" className="dt-error-btn">Back to Store</Link>
+                    </div>
                 )}
 
-                {!isLoading && error && <p className="details-message">{error}</p>}
-
-                {!isLoading && game && (
+                {!isLoading && !isError && steam && (
                     <>
-                        <aside className="poster-section">
-                            <div className="sticky-wrapper">
-                                <img className="game-img" src={steamAssetUrl(game.head)} alt={game.name || "Game poster"} />
-
-                                <div className="basic-info-poster">
-                                    <a href={steamUrl} target="_blank" rel="noreferrer">Open on Steam</a>
-                                </div>
-                            </div>
-                        </aside>
-
-                        <section className="info-section details-panel">
-                            <div className="badges-row">
-                                <span className="badge">Original Game</span>
-                                <span className="badge">Global Activation</span>
-                                <span className="badge">Fast Delivery</span>
-                            </div>
-
-                            <h1 className="details-title">{game.name || "Untitled"}</h1>
-
-                            <div className="details-stats">
-                                <div>
-                                    <span>Price</span>
-                                    <strong>{priceText}</strong>
-                                </div>
-                                <div>
-                                    <span>Release</span>
-                                    <strong>{releaseText}</strong>
-                                </div>
-                                <div>
-                                    <span>Reviews</span>
-                                    <strong>{game.recs?.total?.toLocaleString("en-US") || "0"}</strong>
-                                </div>
+                        {/* ── Hero strip (cover + title + quick tags) ── */}
+                        <div className="dt-hero-strip">
+                            <div className="dt-hero-cover">
+                                <img src={cover} alt={name} className="dt-cover-img" />
+                                {mc && (
+                                    <a
+                                        href={mc.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="dt-metascore"
+                                        style={{ "--mc-clr": scoreColor(mc.score) }}
+                                    >
+                                        <span className="dt-metascore-num">{mc.score}</span>
+                                        <span className="dt-metascore-label">Metacritic</span>
+                                    </a>
+                                )}
                             </div>
 
-                            <div className="description-card">
-                                <p className="short-desc">This game is available to order through HnK Store. Use the purchase options below to complete your request.</p>
-                            </div>
+                            <div className="dt-hero-info">
+                                <div className="dt-store-badges">
+                                    <span className="dt-sbadge dt-sbadge-original"><i className="fas fa-shield-halved" /> Original</span>
+                                    <span className="dt-sbadge dt-sbadge-global"><i className="fas fa-globe" /> Global</span>
+                                    <span className="dt-sbadge dt-sbadge-fast"><i className="fas fa-bolt" /> Fast Delivery</span>
+                                </div>
 
-                            <PurchaseSection game={game} />
+                                <h1 className="dt-title">{name}</h1>
 
-                            <div className="extra-info">
-                                <div className="extra-grid">
-                                    <div><span className="info-label">Publisher</span>{game.publ?.join(", ") || "Not specified"}</div>
-                                    <div>
-                                        <span className="info-label">Genres</span>
-                                        {game.gn?.flat().map(item => item.description).join(", ") || "Not specified"}
+                                {genres.length > 0 && (
+                                    <div className="dt-genres">
+                                        {genres.map(g => <span key={g} className="dt-genre-tag">{g}</span>)}
                                     </div>
-                                    <div><span className="info-label">Platforms</span>{Object.entries(game.plt || {}).filter(([, enabled]) => enabled).map(([key]) => key).join(", ") || "Not specified"}</div>
+                                )}
+
+                                {shortDesc && (
+                                    <p className="dt-short-desc">{shortDesc}</p>
+                                )}
+
+                                <div className="dt-meta-row">
+                                    {rel && (
+                                        <div className="dt-meta-item">
+                                            <i className="fas fa-calendar-days" />
+                                            <div>
+                                                <span>{rel.coming_soon ? "Coming Soon" : "Released"}</span>
+                                                <strong>{rel.date || "TBA"}</strong>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {devs.length > 0 && (
+                                        <div className="dt-meta-item">
+                                            <i className="fas fa-code" />
+                                            <div>
+                                                <span>Developer</span>
+                                                <strong>{devs.join(", ")}</strong>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {pubs.length > 0 && (
+                                        <div className="dt-meta-item">
+                                            <i className="fas fa-building" />
+                                            <div>
+                                                <span>Publisher</span>
+                                                <strong>{pubs.join(", ")}</strong>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <Platforms platforms={platforms} />
+
+                                <a href={steamUrl} target="_blank" rel="noreferrer" className="dt-steam-link">
+                                    <i className="fab fa-steam" /> View on Steam
+                                </a>
+                            </div>
+                        </div>
+
+                        {/* ── Two-column body ── */}
+                        <div className="dt-body">
+                            {/* ── Left column: gallery + categories ── */}
+                            <div className="dt-left-col">
+                                {shots.length > 0 && (
+                                    <section className="dt-section">
+                                        <h2 className="dt-section-title">
+                                            <i className="fas fa-images" /> Screenshots
+                                        </h2>
+                                        <Gallery shots={shots} />
+                                    </section>
+                                )}
+
+                                {cats.length > 0 && (
+                                    <section className="dt-section">
+                                        <h2 className="dt-section-title">
+                                            <i className="fas fa-tags" /> Features
+                                        </h2>
+                                        <div className="dt-cats-grid">
+                                            {cats.map(c => (
+                                                <span key={c} className="dt-cat-chip">
+                                                    <i className="fas fa-check-circle" /> {c}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </section>
+                                )}
+                            </div>
+
+                            {/* ── Right column: purchase ── */}
+                            <div className="dt-right-col">
+                                <div className="dt-purchase-sticky">
+                                    <PurchaseSection game={gameForPurchase} />
                                 </div>
                             </div>
-                        </section>
+                        </div>
                     </>
                 )}
             </main>
-        </>
+        </div>
     )
 }
