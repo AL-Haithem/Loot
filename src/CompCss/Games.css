@@ -1,3 +1,197 @@
+/* ══ Games page header — mirrors Details dt-header ═══ */
+.gp-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 5%;
+    background: rgba(8, 11, 20, 0.9);
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    animation: gpSlideDown .4s ease;
+    gap: 20px;
+}
+
+@keyframes gpSlideDown {
+    from { transform: translateY(-100%); opacity: 0; }
+    to   { transform: none; opacity: 1; }
+}
+
+/* Reuse dt-header-brand / dt-back / dt-header-account / dt-header-cart from Details.css */
+/* Since Details.css is not imported here, we re-declare them scoped to Games page */
+
+.gp-header .dt-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #7c8fac;
+    font-size: .9rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,.08);
+    transition: all .2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.gp-header .dt-back:hover {
+    color: #f0b429;
+    border-color: rgba(240,180,41,.35);
+    background: rgba(240,180,41,.1);
+}
+
+.gp-header .dt-header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: #f0f4ff;
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: -.3px;
+    flex-shrink: 0;
+}
+
+.gp-header .dt-header-brand img {
+    height: 32px;
+    filter: drop-shadow(0 0 8px rgba(240,180,41,.4));
+}
+
+.gp-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    justify-content: flex-end;
+}
+
+/* Search bar */
+.gp-search-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 10px;
+    padding: 9px 14px;
+    flex: 1;
+    max-width: 360px;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.gp-search-wrapper:focus-within {
+    border-color: rgba(240,180,41,.4);
+    box-shadow: 0 0 0 3px rgba(240,180,41,.1);
+}
+
+.gp-search-wrapper i { color: #7c8fac; font-size: .9rem; flex-shrink: 0; }
+
+.gp-search {
+    background: none;
+    border: none;
+    outline: none;
+    color: #f0f4ff;
+    font-size: .9rem;
+    font-family: 'Outfit', sans-serif;
+    width: 100%;
+}
+
+.gp-search::placeholder { color: #7c8fac; }
+
+/* Account link */
+.gp-header .dt-header-account {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    text-decoration: none;
+    color: #7c8fac;
+    font-size: .88rem;
+    font-weight: 600;
+    transition: color .2s;
+    white-space: nowrap;
+}
+
+.gp-header .dt-header-account:hover { color: #f0f4ff; }
+
+/* Cart icon */
+.gp-header .dt-header-cart {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,.08);
+    color: #7c8fac;
+    font-size: 1.05rem;
+    transition: all .2s;
+    flex-shrink: 0;
+}
+
+.gp-header .dt-header-cart:hover {
+    color: #f0b429;
+    border-color: rgba(240,180,41,.35);
+    background: rgba(240,180,41,.1);
+}
+
+.gp-header .dt-cart-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 99px;
+    background: #f0b429;
+    color: #000;
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Hamburger menu button */
+.gp-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,.08);
+    background: transparent;
+    color: #7c8fac;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all .2s;
+    flex-shrink: 0;
+}
+
+.gp-menu-btn:hover {
+    color: #f0f4ff;
+    border-color: rgba(255,255,255,.18);
+    background: rgba(255,255,255,.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .gp-search-wrapper { max-width: 200px; }
+    .gp-header .dt-header-account span { display: none; }
+}
+
+@media (max-width: 520px) {
+    .gp-search-wrapper { display: none; }
+    .gp-header .dt-header-brand span { display: none; }
+}
+
+/* ══ Old header kept for compatibility (hidden) ══ */
 .header {
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;

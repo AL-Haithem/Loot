@@ -54,6 +54,7 @@ export default function GamesPage() {
 
     return (
         <>
+            {/* ── Sidebar overlay ── */}
             <div className={`overlay ${isOpen ? "show" : ""}`} onClick={toggleMenu}></div>
 
             <div className={`sidebar ${isOpen ? "open" : ""}`}>
@@ -76,38 +77,40 @@ export default function GamesPage() {
                 </div>
             </div>
 
-            <header className="header">
-                <div className="header-left">
-                    <div className="search-wrapper">
-                        <span>Search</span>
+            {/* ══ Header matching Details page style ══ */}
+            <header className="gp-header">
+                <a href="/" className="dt-back">
+                    <i className="fas fa-arrow-left" /> Home
+                </a>
+
+                <a href="/" className="dt-header-brand">
+                    <img src={logo} alt="HNK Store" />
+                    <span>HNK Store</span>
+                </a>
+
+                <div className="gp-header-right">
+                    <div className="gp-search-wrapper">
+                        <i className="fas fa-magnifying-glass" />
                         <input
                             type="text"
-                            className="search"
+                            className="gp-search"
                             placeholder="Find your game..."
                         />
                     </div>
 
-                    <a href="/cart" className="cart-icon">
-                        <i className="fas fa-shopping-cart"></i>
-                        <span id="cartBadge">{totalCount > 0 ? totalCount : ''}</span>
+                    <a href="/login" className="dt-header-account">
+                        <i className="fas fa-user" />
+                        <span className="account-text">Account</span>
                     </a>
-                </div>
 
-                <div>
-                    <div className="header-branding">
-                        <img id="headerLogoImg" src={logo} alt="Logo" />
-                        <div className="branding-text">
-                            <div className="logo">Hnk Store</div>
-                            <p className="site-mini-desc">Digital games at competitive prices</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <a href="/login" className="user-icon-btn" style={{ color: '#fff', fontSize: '0.95rem', transition: 'color 0.2s', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', fontWeight: 600 }} title="Account">
-                        <i className="fas fa-user" style={{ fontSize: '1.1rem' }}></i> <span className="account-text">My Account</span>
+                    <a href="/cart" className="dt-header-cart" style={{ textDecoration: 'none' }}>
+                        <i className="fas fa-shopping-bag"></i>
+                        {totalCount > 0 && <span className="dt-cart-badge">{totalCount}</span>}
                     </a>
-                    <button className="menu-btn" onClick={toggleMenu}>☰</button>
+
+                    <button className="gp-menu-btn" onClick={toggleMenu}>
+                        <i className="fas fa-bars" />
+                    </button>
                 </div>
             </header>
 
