@@ -5,6 +5,8 @@ import logo from "../assets/imgs/logo.png"
 import "../CompCss/Details.css"
 import { steamAssetUrl } from "../StandardComp/GameCard.jsx"
 import { API_BASE } from "../api.js"
+import PurchaseSection from "./PurchaseSection.jsx"
+import { useCart } from "../CartContext.jsx"
 
 function formatPrice(price) {
     if (!price?.final || price.final <= 0) return "Unavailable"
@@ -83,7 +85,7 @@ export default function DetailsPage() {
     const priceText = useMemo(() => formatPrice(usPrice), [usPrice])
     const releaseText = useMemo(() => formatDate(game?.rel), [game?.rel])
     const steamUrl = `https://store.steampowered.com/app/${appId}`
-    const whatsappText = encodeURIComponent(`I want to buy ${game?.name || appId} for ${priceText}`)
+    const { totalCount } = useCart()
 
     return (
         <>
@@ -103,7 +105,7 @@ export default function DetailsPage() {
                     </Link>
                     <Link to="/cart" className="cart-icon-link">
                         <i className="fas fa-shopping-cart"></i>
-                        <span id="cartBadge" className="cart-badge">0</span>
+                        {totalCount > 0 && <span id="cartBadge" className="cart-badge" style={{ display: 'flex' }}>{totalCount}</span>}
                     </Link>
                 </div>
             </header>
@@ -174,27 +176,7 @@ export default function DetailsPage() {
                                 <p className="short-desc">This game is available to order through HnK Store. Use the purchase options below to complete your request.</p>
                             </div>
 
-                            <div className="purchase-box">
-                                <div className="final-price-wrapper">
-                                    <span className="label">Lowest Price</span>
-                                    <div id="finalPrice">{priceText}</div>
-                                </div>
-                                <div className="buy-actions">
-                                    <a
-                                        href={`https://wa.me/?text=${whatsappText}`}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="buy-button whatsapp"
-                                    >
-                                        <i className="fab fa-whatsapp"></i> Buy via WhatsApp
-                                    </a>
-                                    <button className="buy-button cart" type="button">
-                                        <i className="fas fa-cart-plus"></i> Add to cart
-                                    </button>
-                                </div>
-                            </div>
-
-                            <p className="disclaimer">Prices include store commission. Delivery is fast and secure.</p>
+                            <PurchaseSection game={game} />
 
                             <div className="extra-info">
                                 <div className="extra-grid">

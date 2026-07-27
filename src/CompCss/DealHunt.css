@@ -1,0 +1,628 @@
+/* ===== Deal Hunt & Purchase Section CSS ===== */
+
+/* ─── Mode Toggle ──────────────────────────── */
+.purchase-mode-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.pmt-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    border: 1.5px solid var(--border-color, rgba(255,255,255,0.08));
+    background: rgba(13,17,30,0.6);
+    color: var(--text-primary, #fff);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.25s;
+    font-family: 'Outfit', sans-serif;
+    backdrop-filter: blur(10px);
+}
+
+.pmt-btn > i {
+    font-size: 1.5rem;
+    color: var(--text-secondary, #94a3b8);
+    transition: color 0.25s;
+    flex-shrink: 0;
+}
+
+.pmt-btn .pmt-label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.pmt-btn .pmt-sub {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-secondary, #94a3b8);
+}
+
+.pmt-btn:hover {
+    border-color: rgba(0,240,255,0.3);
+    background: rgba(0,240,255,0.05);
+}
+
+.pmt-btn.pmt-active {
+    border-color: var(--accent-primary, #00f0ff);
+    background: rgba(0,240,255,0.08);
+    box-shadow: 0 0 20px rgba(0,240,255,0.15);
+}
+
+.pmt-btn.pmt-active > i {
+    color: var(--accent-primary, #00f0ff);
+}
+
+/* Highlight Deal Hunt active differently */
+.pmt-btn:last-child.pmt-active {
+    border-color: #7c3aed;
+    background: rgba(124,58,237,0.1);
+    box-shadow: 0 0 20px rgba(124,58,237,0.2);
+}
+
+.pmt-btn:last-child.pmt-active > i {
+    color: #a78bfa;
+}
+
+/* ─── Instant Box extras ───────────────────── */
+.instant-box {
+    background: linear-gradient(135deg, rgba(0,240,255,0.06), rgba(0,80,255,0.08));
+    border: 1px solid rgba(0,240,255,0.2);
+    border-radius: 18px;
+    padding: 28px 26px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    animation: priceReveal 0.6s ease both;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+}
+
+.instant-features {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 22px;
+}
+
+.instant-features span {
+    font-size: 0.87rem;
+    color: var(--text-secondary, #94a3b8);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.instant-features i {
+    color: #00d4aa;
+    font-size: 0.8rem;
+}
+
+.dh-unavail {
+    text-align: center;
+    color: var(--text-secondary, #94a3b8);
+    font-size: 0.9rem;
+    padding: 14px 0;
+}
+
+/* ─── Deal Hunt Box ────────────────────────── */
+.deal-hunt-box {
+    background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(217,70,239,0.06));
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 18px;
+    padding: 28px 26px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    animation: priceReveal 0.6s ease both;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+}
+
+.deal-hunt-box::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    right: -60px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,58,237,0.15), transparent 70%);
+    pointer-events: none;
+}
+
+.dh-box-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.dh-box-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #a78bfa;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dh-box-tagline {
+    font-size: 0.8rem;
+    color: var(--text-secondary, #94a3b8);
+    font-style: italic;
+}
+
+/* ─── Info Grid ────────────────────────────── */
+.dh-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.dh-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 13px 14px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    transition: border-color 0.2s;
+}
+
+.dh-info-item:hover { border-color: rgba(124,58,237,0.25); }
+
+.dh-info-item > i {
+    font-size: 1.1rem;
+    color: #a78bfa;
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+.dh-info-item span {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--text-secondary, #94a3b8);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+}
+
+.dh-info-item strong {
+    font-size: 0.95rem;
+    color: #fff;
+    font-weight: 700;
+}
+
+.dh-info-refund { border-color: rgba(0,212,170,0.2) !important; }
+.dh-info-refund > i { color: #00d4aa; }
+.dh-info-refund strong { color: #00d4aa; }
+
+/* ─── Cost Preview ─────────────────────────── */
+.dh-cost-preview {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 18px;
+}
+
+.dh-cost-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--text-secondary, #94a3b8);
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.dh-cost-row:last-of-type { border-bottom: none; }
+
+.dh-cost-total {
+    font-weight: 700;
+    color: #fff !important;
+    font-size: 1rem !important;
+    margin-top: 4px;
+    padding-top: 10px !important;
+    border-top: 1px solid rgba(255,255,255,0.12) !important;
+}
+
+.dh-cost-note {
+    font-size: 0.75rem;
+    color: var(--text-secondary, #94a3b8);
+    margin-top: 10px;
+    line-height: 1.5;
+}
+
+.dh-fee { color: #a78bfa; font-weight: 700; }
+
+/* ─── Form Fields ──────────────────────────── */
+.dh-form { display: flex; flex-direction: column; gap: 0; }
+
+.dh-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.dh-field label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary, #94a3b8);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.dh-field label i { color: #a78bfa; }
+
+.dh-input {
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: #fff;
+    font-size: 0.95rem;
+    font-family: 'Outfit', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+}
+
+.dh-input:focus {
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 3px rgba(124,58,237,0.2);
+}
+
+.dh-input.error { border-color: #ff4466; }
+.dh-input-err { font-size: 0.8rem; color: #ff4466; }
+
+/* ─── Terms Checkbox ───────────────────────── */
+.dh-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.78rem;
+    color: var(--text-secondary, #94a3b8);
+    line-height: 1.55;
+    cursor: pointer;
+    margin-bottom: 18px;
+}
+
+.dh-checkbox input[type="checkbox"] {
+    accent-color: #7c3aed;
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+}
+
+/* ─── Buttons ──────────────────────────────── */
+.dh-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 15px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    transition: all 0.2s;
+}
+
+.dh-btn-primary {
+    background: linear-gradient(135deg, #7c3aed, #d946ef);
+    color: #fff;
+    box-shadow: 0 8px 30px rgba(124,58,237,0.35);
+}
+
+.dh-btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 40px rgba(124,58,237,0.5);
+}
+
+.dh-btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.dh-btn-pay {
+    background: linear-gradient(135deg, #059669, #00c864);
+    color: #fff;
+    box-shadow: 0 8px 25px rgba(0,200,100,0.3);
+}
+
+.dh-btn-pay:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 35px rgba(0,200,100,0.45);
+}
+
+.dh-btn-cancel {
+    background: rgba(255,0,85,0.1);
+    border: 1px solid rgba(255,0,85,0.3);
+    color: #ff4466;
+}
+
+.dh-btn-cancel:hover {
+    background: rgba(255,0,85,0.2);
+}
+
+/* ─── Active Request Card ──────────────────── */
+.dh-active-card {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.dh-active-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.dh-active-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #a78bfa;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ─── Status Badge ─────────────────────────── */
+.dh-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 99px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.dh-searching {
+    background: rgba(251,191,36,0.15);
+    border: 1px solid rgba(251,191,36,0.4);
+    color: #fbbf24;
+}
+
+.dh-found {
+    background: rgba(0,212,170,0.12);
+    border: 1px solid rgba(0,212,170,0.35);
+    color: #00d4aa;
+}
+
+.dh-failed {
+    background: rgba(255,68,102,0.12);
+    border: 1px solid rgba(255,68,102,0.35);
+    color: #ff4466;
+}
+
+.dh-completed {
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.4);
+    color: #818cf8;
+}
+
+.dh-expired {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text-secondary, #94a3b8);
+}
+
+/* Pulsing dot for searching */
+.dh-pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fbbf24;
+    display: inline-block;
+    animation: dhPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes dhPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.6); }
+}
+
+/* ─── Progress Steps ───────────────────────── */
+.dh-steps {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    position: relative;
+    padding: 8px 0;
+}
+
+.dh-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    position: relative;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.3);
+    font-weight: 600;
+    text-align: center;
+}
+
+.dh-step.done { color: #00d4aa; }
+.dh-step.active { color: #a78bfa; }
+.dh-step.failed-step { color: #ff4466; }
+
+.dh-step-dot {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 2px solid rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    transition: all 0.3s;
+}
+
+.dh-step.done .dh-step-dot {
+    background: rgba(0,212,170,0.12);
+    border-color: #00d4aa;
+    color: #00d4aa;
+}
+
+.dh-step.active .dh-step-dot {
+    background: rgba(124,58,237,0.2);
+    border-color: #7c3aed;
+    color: #a78bfa;
+    box-shadow: 0 0 16px rgba(124,58,237,0.4);
+    animation: stepGlow 1.8s ease-in-out infinite;
+}
+
+.dh-step.failed-step .dh-step-dot {
+    background: rgba(255,68,102,0.1);
+    border-color: #ff4466;
+    color: #ff4466;
+}
+
+@keyframes stepGlow {
+    0%, 100% { box-shadow: 0 0 10px rgba(124,58,237,0.3); }
+    50%       { box-shadow: 0 0 22px rgba(124,58,237,0.6); }
+}
+
+/* Connecting line between steps */
+.dh-step-line {
+    position: absolute;
+    top: 17px;
+    left: calc(50% + 17px);
+    width: calc(100% - 34px);
+    height: 2px;
+    background: rgba(255,255,255,0.1);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.dh-step-line.done { background: #00d4aa; }
+
+/* ─── Payment Breakdown ────────────────────── */
+.dh-breakdown {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.dh-breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.88rem;
+    color: var(--text-secondary, #94a3b8);
+}
+
+.dh-breakdown-row span {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.dh-breakdown-row i { color: #a78bfa; font-size: 0.8rem; }
+.dh-breakdown-row strong { color: #fff; font-weight: 700; }
+
+.total-row {
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 9px;
+    margin-top: 2px;
+}
+
+.dh-total { color: #a78bfa !important; }
+.dh-total small { font-size: 0.7rem; font-weight: 400; color: var(--text-secondary, #94a3b8); margin-left: 4px; }
+
+.remaining-row {
+    background: rgba(0,212,170,0.06);
+    border: 1px solid rgba(0,212,170,0.2);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-top: 4px;
+}
+
+.dh-remaining { color: #00d4aa !important; font-size: 1.05rem !important; }
+
+/* ─── Notices ──────────────────────────────── */
+.dh-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    line-height: 1.55;
+}
+
+.dh-notice i { flex-shrink: 0; margin-top: 1px; }
+
+.dh-notice-warn {
+    background: rgba(251,191,36,0.08);
+    border: 1px solid rgba(251,191,36,0.25);
+    color: #fcd34d;
+}
+
+.dh-notice-refund {
+    background: rgba(0,212,170,0.07);
+    border: 1px solid rgba(0,212,170,0.22);
+    color: #6ee7b7;
+}
+
+/* ─── Active Actions ───────────────────────── */
+.dh-active-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.dh-active-actions .dh-btn { flex: 1; min-width: 140px; }
+
+/* ─── Success Message ──────────────────────── */
+.dh-success-msg {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(99,102,241,0.1);
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 12px;
+    font-size: 0.9rem;
+    color: #c7d2fe;
+}
+
+.dh-success-msg i { font-size: 1.4rem; color: #fbbf24; }
+
+/* ─── Wrapper ──────────────────────────────── */
+.purchase-section-wrapper {
+    margin-bottom: 20px;
+}
+
+/* ─── Responsive ───────────────────────────── */
+@media (max-width: 640px) {
+    .purchase-mode-toggle { grid-template-columns: 1fr; }
+    .dh-info-grid          { grid-template-columns: 1fr; }
+    .dh-step span          { display: none; }
+    .dh-active-actions     { flex-direction: column; }
+}
+
+@media (max-width: 480px) {
+    .dh-box-header { flex-direction: column; align-items: flex-start; }
+    .pmt-btn { padding: 12px 14px; }
+}
