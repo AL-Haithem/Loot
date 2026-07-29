@@ -444,7 +444,7 @@ export default function Crawler({ isActive, metrics }) {
     if (!metrics) return
 
     /* Resolve the NewAppsRefresh container */
-    const nar = metrics?.Crawler?.NewAppsRefresh ?? metrics?.NewAppsRefresh
+    const nar = metrics?.Crawler ?? metrics?.NewAppsRefresh
     if (!nar) return
 
     /* AllAppsFetcher */
