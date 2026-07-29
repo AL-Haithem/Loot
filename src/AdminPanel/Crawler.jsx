@@ -138,11 +138,9 @@ function SyncCard({ sync }) {
     DataBaseSyncProgress = '0/0',
   } = sync
 
-  /* parse "processed/total" from DataBaseSyncProgress */
-  const parts     = String(DataBaseSyncProgress).split('/')
-  const done      = parseInt(parts[0] ?? 0, 10) || 0
-  const total     = parseInt(parts[1] ?? 0, 10) || 0
-  const pct       = total > 0 ? Math.min(100, Math.round((done / total) * 100)) : 0
+  const processed = (New ?? 0) + (Updated ?? 0) + (Deleted ?? 0)
+  const grandTotal = processed + (Remaining ?? 0)
+  const pct = grandTotal > 0 ? Math.min(100, Math.round((processed / grandTotal) * 100)) : 0
 
   const cells = [
     { icon: 'fa-plus-circle',    label: 'New',        val: New,         color: 'var(--success-clr)' },
@@ -174,7 +172,7 @@ function SyncCard({ sync }) {
       <div className="cw-progress-block">
         <div className="cw-progress-labels">
           <span className="cw-progress-txt">
-            {SyncRunning ? `Syncing… ${DataBaseSyncProgress}` : 'Awaiting next sync'}
+            {SyncRunning ? `Syncing… ${DataBaseSyncProgress}` : DataBaseSyncProgress || 'Awaiting next sync'}
           </span>
           <span className="cw-progress-pct">{pct}%</span>
         </div>
@@ -182,7 +180,7 @@ function SyncCard({ sync }) {
           <div className="cw-progress-fill" style={{ width: `${pct}%` }} />
         </div>
         <div className="cw-processed-line">
-          <span>{done.toLocaleString()} done</span>
+          <span>{processed.toLocaleString()} processed</span>
           <span>{Remaining.toLocaleString()} remaining</span>
         </div>
       </div>
@@ -316,10 +314,10 @@ function LastAppsFeed({ apps }) {
             }
             <div className="cw-app-info">
               <span className="cw-app-name">{app.name ?? `App #${app.appid}`}</span>
-              <span className="cw-app-id">#{app.appid}</span>
+              <span className="cw-app-id">#{app.appid} {app.Reason && `· ${app.Reason}`}</span>
             </div>
-            <span className={`cw-app-badge ${app.is_free ? 'free' : app.coming_soon ? 'soon' : 'paid'}`}>
-              {app.is_free ? 'Free' : app.coming_soon ? 'Soon' : 'Paid'}
+            <span className={`cw-app-badge ${app.saveType === 'free' ? 'free' : app.saveType === 'coming_soon' ? 'soon' : 'paid'}`}>
+              {app.saveType === 'free' ? 'Free' : app.saveType === 'coming_soon' ? 'Soon' : 'Paid'}
             </span>
           </div>
         ))}
@@ -470,8 +468,8 @@ export default function Crawler({ isActive, metrics }) {
           const next = gw.LastAppsData.map(app => ({
             id:     app.appid,
             name:   app.name ?? `App #${app.appid}`,
-            detail: app.is_free ? 'Free' : app.coming_soon ? 'Coming Soon' : 'Paid',
-            prog:   0,
+            detail: `${app.saveType || 'unknown'} · ${app.Reason || 'unknown'}`,
+            prog:   'Saved',
             type:   'success',
             time:   '--',
           }))
