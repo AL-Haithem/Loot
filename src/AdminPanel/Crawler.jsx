@@ -1,33 +1,22 @@
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { API_BASE } from '../api.js'
 import { csrfStore } from '../csrfStore.js'
 
-/* ─── helpers ─────────────────────────────────── */
-function fmtDuration(seconds) {
-  if (!seconds || seconds <= 0) return '0s'
-  const h = Math.floor(seconds / 3600)
-  const m = Math.floor((seconds % 3600) / 60)
-  const s = Math.floor(seconds % 60)
-  if (h > 0) return `${h}h ${m}m ${s}s`
-  if (m > 0) return `${m}m ${s}s`
-  return `${s}s`
+/* ─── helpers ───────────────────────────────────────── */
+function N({ v, fallback = 0 }) {
+  return <span className="cw-num">{(v ?? fallback).toLocaleString()}</span>
 }
 
-function Num({ v }) {
-  return <span className="cw-num">{(v ?? 0).toLocaleString()}</span>
-}
-
-/* ─── 1. Global status banner ──────────────────── */
+/* ─── 1. Status Banner ──────────────────────────────── */
 function StatusBanner({ refreshRunning, syncRunning, workerRunning }) {
   const anyRunning = refreshRunning || syncRunning || workerRunning
-  const label = refreshRunning ? 'Refresh Running'
-              : syncRunning    ? 'Sync in Progress'
-              : workerRunning  ? 'Worker Processing'
+  const label = refreshRunning ? 'Catalog Refresh Running'
+              : syncRunning    ? 'Database Sync in Progress'
+              : workerRunning  ? 'Worker Processing Games'
               : 'All Systems Idle'
-  const cls = anyRunning ? 'cw-banner running' : 'cw-banner idle'
 
   return (
-    <div className={cls}>
+    <div className={`cw-banner ${anyRunning ? 'running' : 'idle'}`}>
       <span className="cw-banner-dot" />
       <span className="cw-banner-label">{label}</span>
       {anyRunning && (
@@ -41,78 +30,128 @@ function StatusBanner({ refreshRunning, syncRunning, workerRunning }) {
   )
 }
 
-/* ─── 2. NewAppsRefresh summary card ──────────── */
-function RefreshCard({ isRunning, total, filtered }) {
-  const diff  = total - filtered
-  const pct   = total > 0 ? Math.round((filtered / total) * 100) : 0
+/* ─── 2. AllAppsFetcher card (New Apps Refresh) ─────── */
+function RefreshCard({ fetcher }) {
+  const {
+    RefreshRunning = false,
+    TotalFetched   = 0,
+    FilteredTotal  = 0,
+    Cycle          = 0,
+    LastBatch      = 0,
+  } = fetcher
+
+  const passedPct = TotalFetched > 0
+    ? Math.round(((TotalFetched - FilteredTotal) / TotalFetched) * 100)
+    : 0
+  const filtPct = 100 - passedPct
+
+  const counters = [
+    {
+      icon:  'fa-layer-group',
+      label: 'Apps Gathered',
+      val:   TotalFetched,
+      color: 'var(--accent-clr)',
+      glow:  'rgba(0,242,254,0.12)',
+    },
+    {
+      icon:  'fa-filter',
+      label: 'Total Filtered',
+      val:   FilteredTotal,
+      color: '#f87171',
+      glow:  'rgba(248,113,113,0.12)',
+    },
+    {
+      icon:  'fa-cubes',
+      label: 'Last Batch',
+      val:   LastBatch,
+      color: '#a78bfa',
+      glow:  'rgba(167,139,250,0.12)',
+    },
+    {
+      icon:  'fa-redo',
+      label: 'Cycle #',
+      val:   Cycle,
+      color: '#fbbf24',
+      glow:  'rgba(251,191,36,0.12)',
+      badge: true,
+    },
+  ]
 
   return (
     <div className="cw-card refresh-card">
+      {/* header */}
       <div className="cw-card-head">
         <div className="cw-card-icon" style={{ background: 'rgba(0,242,254,0.08)', color: 'var(--accent-clr)' }}>
           <i className="fas fa-sync-alt" />
         </div>
         <div>
           <div className="cw-card-title">New Apps Refresh</div>
-          <div className="cw-card-sub">Steam catalog diff cycle</div>
+          <div className="cw-card-sub">Steam catalog fetch & filter cycle</div>
         </div>
-        <span className={`cw-chip ${isRunning ? 'chip-running' : 'chip-idle'}`}>
+        <span className={`cw-chip ${RefreshRunning ? 'chip-running' : 'chip-idle'}`}>
           <span className="cw-dot" />
-          {isRunning ? 'Running' : 'Idle'}
+          {RefreshRunning ? 'Running' : 'Idle'}
         </span>
       </div>
 
-      <div className="cw-counters-row">
-        <div className="cw-counter">
-          <span className="cw-counter-lbl">Total Apps</span>
-          <span className="cw-counter-val accent"><Num v={total} /></span>
-        </div>
-        <div className="cw-counter-sep" />
-        <div className="cw-counter">
-          <span className="cw-counter-lbl">Filtered Out</span>
-          <span className="cw-counter-val muted"><Num v={filtered} /></span>
-        </div>
-        <div className="cw-counter-sep" />
-        <div className="cw-counter">
-          <span className="cw-counter-lbl">Net Processed</span>
-          <span className="cw-counter-val"><Num v={diff} /></span>
-        </div>
+      {/* 4-stat grid */}
+      <div className="cw-refresh-grid">
+        {counters.map(({ icon, label, val, color, glow, badge }) => (
+          <div key={label} className="cw-refresh-cell" style={{ '--cell-glow': glow }}>
+            <div className="cw-refresh-cell-icon" style={{ color }}>
+              <i className={`fas ${icon}`} />
+            </div>
+            <span className="cw-refresh-cell-val" style={{ color }}>
+              {badge ? `#${val}` : val.toLocaleString()}
+            </span>
+            <span className="cw-refresh-cell-lbl">{label}</span>
+          </div>
+        ))}
       </div>
 
-      {/* filter ratio bar */}
+      {/* pass / filter ratio bar */}
       <div className="cw-ratio-wrap">
         <div className="cw-ratio-labels">
-          <span>{pct}% filtered</span>
-          <span>{100 - pct}% passed</span>
+          <span>{passedPct}% passed</span>
+          <span>{filtPct}% filtered out</span>
         </div>
         <div className="cw-ratio-track">
-          <div className="cw-ratio-fill filtered" style={{ width: `${pct}%` }} />
-          <div className="cw-ratio-fill passed"   style={{ width: `${100 - pct}%` }} />
+          <div className="cw-ratio-fill passed"   style={{ width: `${passedPct}%` }} />
+          <div className="cw-ratio-fill filtered" style={{ width: `${filtPct}%`  }} />
         </div>
       </div>
     </div>
   )
 }
 
-/* ─── 3. SyncResume card ──────────────────────── */
+/* ─── 3. SyncResume card ────────────────────────────── */
 function SyncCard({ sync }) {
   const {
-    SyncRunning, Remaining, NotAffected,
-    New, Updated, Deleted, Changes,
-    Duration, DataBaseSyncProgress
+    SyncRunning         = false,
+    Remaining           = 0,
+    NotAffected         = 0,
+    New                 = 0,
+    Updated             = 0,
+    Deleted             = 0,
+    Changes             = 0,
+    Skiped              = 0,
+    DataBaseSyncProgress = '0/0',
   } = sync
 
-  const processed   = (New ?? 0) + (Updated ?? 0) + (Deleted ?? 0)
-  const grandTotal  = processed + (Remaining ?? 0)
-  const pct         = grandTotal > 0 ? Math.min(100, Math.round((processed / grandTotal) * 100)) : 0
+  /* parse "processed/total" from DataBaseSyncProgress */
+  const parts     = String(DataBaseSyncProgress).split('/')
+  const done      = parseInt(parts[0] ?? 0, 10) || 0
+  const total     = parseInt(parts[1] ?? 0, 10) || 0
+  const pct       = total > 0 ? Math.min(100, Math.round((done / total) * 100)) : 0
 
-  const stats = [
-    { icon: 'fa-plus-circle',   label: 'New',         val: New        ?? 0, color: 'var(--success-clr)' },
-    { icon: 'fa-pen',           label: 'Updated',     val: Updated    ?? 0, color: 'var(--accent-clr)'  },
-    { icon: 'fa-trash-alt',     label: 'Deleted',     val: Deleted    ?? 0, color: 'var(--danger-clr)'  },
-    { icon: 'fa-ban',           label: 'No Change',   val: NotAffected?? 0, color: '#64748b'            },
-    { icon: 'fa-bolt',          label: 'Changes',     val: Changes    ?? 0, color: 'var(--warning-clr)' },
-    { icon: 'fa-hourglass-half',label: 'Remaining',   val: Remaining  ?? 0, color: '#94a3b8'            },
+  const cells = [
+    { icon: 'fa-plus-circle',    label: 'New',        val: New,         color: 'var(--success-clr)' },
+    { icon: 'fa-pen',            label: 'Updated',    val: Updated,     color: 'var(--accent-clr)'  },
+    { icon: 'fa-trash-alt',      label: 'Deleted',    val: Deleted,     color: 'var(--danger-clr)'  },
+    { icon: 'fa-bolt',           label: 'Changes',    val: Changes,     color: 'var(--warning-clr)' },
+    { icon: 'fa-ban',            label: 'No Change',  val: NotAffected, color: '#64748b'            },
+    { icon: 'fa-forward',        label: 'Skipped',    val: Skiped,      color: '#94a3b8'            },
+    { icon: 'fa-hourglass-half', label: 'Remaining',  val: Remaining,   color: '#475569'            },
   ]
 
   return (
@@ -135,7 +174,7 @@ function SyncCard({ sync }) {
       <div className="cw-progress-block">
         <div className="cw-progress-labels">
           <span className="cw-progress-txt">
-            {DataBaseSyncProgress || (SyncRunning ? 'Syncing…' : 'Awaiting next sync')}
+            {SyncRunning ? `Syncing… ${DataBaseSyncProgress}` : 'Awaiting next sync'}
           </span>
           <span className="cw-progress-pct">{pct}%</span>
         </div>
@@ -143,14 +182,14 @@ function SyncCard({ sync }) {
           <div className="cw-progress-fill" style={{ width: `${pct}%` }} />
         </div>
         <div className="cw-processed-line">
-          <span>{processed.toLocaleString()} processed</span>
-          <span>{Remaining?.toLocaleString() ?? 0} remaining</span>
+          <span>{done.toLocaleString()} done</span>
+          <span>{Remaining.toLocaleString()} remaining</span>
         </div>
       </div>
 
-      {/* stats grid */}
-      <div className="cw-sync-grid">
-        {stats.map(({ icon, label, val, color }) => (
+      {/* stats grid – 7 cells */}
+      <div className="cw-sync-grid cw-sync-grid-7">
+        {cells.map(({ icon, label, val, color }) => (
           <div key={label} className="cw-sync-cell">
             <i className={`fas ${icon}`} style={{ color }} />
             <span className="cw-sync-val" style={{ color }}>{val.toLocaleString()}</span>
@@ -158,26 +197,46 @@ function SyncCard({ sync }) {
           </div>
         ))}
       </div>
-
-      {/* duration */}
-      <div className="cw-sync-footer">
-        <i className="fas fa-clock" />
-        <span>Duration: <strong>{fmtDuration(Duration)}</strong></span>
-      </div>
     </div>
   )
 }
 
-/* ─── 4. GamesWorker card ─────────────────────── */
-function WorkerCard({ worker, statusMsg }) {
+/* ─── 4. GamesWorker card ───────────────────────────── */
+function WorkerCard({ worker }) {
   const {
-    WorkerRunning, LastLog, Processed,
-    CurrentTotal, DataReason, PriceReason, Failed
+    WorkerRunning = false,
+    LastLog       = '',
+    Processed     = 0,
+    Saved         = 0,
+    CurrentTotal  = 0,
+    DataReason    = 0,
+    PriceReason   = 0,
+    Failed        = 0,
+    Skiped        = 0,
+    Paid          = 0,
+    Free          = 0,
+    ComingSoon    = 0,
   } = worker
 
   const pct = CurrentTotal > 0
     ? Math.min(100, Math.round((Processed / CurrentTotal) * 100))
     : 0
+
+  /* top-row fetch reason chips */
+  const fetchChips = [
+    { cls: 'data',  icon: 'fa-file-code',       label: 'Data Fetches',  val: DataReason  },
+    { cls: 'price', icon: 'fa-tags',             label: 'Price Fetches', val: PriceReason },
+    { cls: 'fail',  icon: 'fa-exclamation-circle', label: 'Failed',      val: Failed      },
+    { cls: 'skip',  icon: 'fa-forward',          label: 'Skipped',       val: Skiped      },
+  ]
+
+  /* type breakdown cells */
+  const typeBreakdown = [
+    { icon: 'fa-dollar-sign', label: 'Paid',        val: Paid,      color: '#a78bfa' },
+    { icon: 'fa-gift',        label: 'Free',         val: Free,      color: '#34d399' },
+    { icon: 'fa-clock',       label: 'Coming Soon',  val: ComingSoon,color: '#fbbf24' },
+    { icon: 'fa-save',        label: 'Saved to DB',  val: Saved,     color: 'var(--accent-clr)' },
+  ]
 
   return (
     <div className="cw-card worker-card">
@@ -198,76 +257,70 @@ function WorkerCard({ worker, statusMsg }) {
       {/* progress */}
       <div className="cw-progress-block">
         <div className="cw-progress-labels">
-          <span className="cw-progress-txt worker-log">{LastLog || 'Waiting…'}</span>
+          <span className="cw-progress-txt worker-log">{LastLog || 'Waiting for tasks…'}</span>
           <span className="cw-progress-pct">{pct}%</span>
         </div>
         <div className="cw-progress-track">
           <div className="cw-progress-fill worker-fill" style={{ width: `${pct}%` }} />
         </div>
         <div className="cw-processed-line">
-          <span>{(Processed ?? 0).toLocaleString()} / {(CurrentTotal ?? 0).toLocaleString()}</span>
+          <span>{Processed.toLocaleString()} / {CurrentTotal.toLocaleString()} processed</span>
+          <span className="cw-saved-badge"><i className="fas fa-save" /> {Saved.toLocaleString()} saved</span>
         </div>
       </div>
 
-      {/* breakdown chips */}
+      {/* fetch reason chips */}
       <div className="cw-worker-chips">
-        <div className="cw-wchip data">
-          <i className="fas fa-file-code" />
-          <div>
-            <span className="cw-wchip-val">{(DataReason ?? 0).toLocaleString()}</span>
-            <span className="cw-wchip-lbl">Data Fetches</span>
+        {fetchChips.map(({ cls, icon, label, val }) => (
+          <div key={cls} className={`cw-wchip ${cls}`}>
+            <i className={`fas ${icon}`} />
+            <div>
+              <span className="cw-wchip-val">{val.toLocaleString()}</span>
+              <span className="cw-wchip-lbl">{label}</span>
+            </div>
           </div>
-        </div>
-        <div className="cw-wchip price">
-          <i className="fas fa-tags" />
-          <div>
-            <span className="cw-wchip-val">{(PriceReason ?? 0).toLocaleString()}</span>
-            <span className="cw-wchip-lbl">Price Fetches</span>
+        ))}
+      </div>
+
+      {/* type breakdown */}
+      <div className="cw-type-breakdown">
+        {typeBreakdown.map(({ icon, label, val, color }) => (
+          <div key={label} className="cw-type-cell">
+            <i className={`fas ${icon}`} style={{ color }} />
+            <span className="cw-type-val" style={{ color }}>{val.toLocaleString()}</span>
+            <span className="cw-type-lbl">{label}</span>
           </div>
-        </div>
-        <div className="cw-wchip fail">
-          <i className="fas fa-exclamation-circle" />
-          <div>
-            <span className="cw-wchip-val">{(Failed ?? 0).toLocaleString()}</span>
-            <span className="cw-wchip-lbl">Failed</span>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   )
 }
 
-/* ─── 5. Store distribution bar (legacy) ─────── */
-function StoreDistBar({ stats }) {
-  const items = [
-    { cls: 'seg-paid',    color: '#8b5cf6', label: 'Paid',        val: stats.paidGames  },
-    { cls: 'seg-free',    color: '#10b981', label: 'Free',        val: stats.freeGames  },
-    { cls: 'seg-coming',  color: '#fbbf24', label: 'Coming Soon', val: stats.comingSoon },
-    { cls: 'seg-left',    color: '#f87171', label: 'Unprocessed', val: stats.remaining  },
-  ]
-  const total = stats.total || 1
+/* ─── 5. Last Apps data mini-feed ───────────────────── */
+function LastAppsFeed({ apps }) {
+  if (!apps || apps.length === 0) return null
 
   return (
-    <div className="cw-card distbar-card">
-      <div className="cw-distbar-head">
-        <i className="fas fa-chart-pie" /> Store Distribution
-        <span className="cw-distbar-total">{total.toLocaleString()} total</span>
+    <div className="cw-card last-apps-card">
+      <div className="cw-last-apps-head">
+        <i className="fas fa-history" />
+        <span>Recently Processed</span>
+        <span className="cw-last-apps-count">{apps.length} apps</span>
       </div>
-      <div className="cw-distbar-track">
-        {items.map(({ cls, val }) => (
-          <div
-            key={cls}
-            className={`cw-distbar-seg ${cls}`}
-            style={{ width: `${(val / total * 100) || 0}%` }}
-          />
-        ))}
-      </div>
-      <div className="cw-distbar-legend">
-        {items.map(({ color, label, val }) => (
-          <div key={label} className="cw-legend-item">
-            <span className="cw-legend-dot" style={{ background: color }} />
-            <span className="cw-legend-lbl">{label}</span>
-            <span className="cw-legend-val">{val?.toLocaleString() ?? 0}</span>
+      <div className="cw-last-apps-list">
+        {apps.slice(0, 8).map((app, i) => (
+          <div key={app.appid ?? i} className="cw-app-row">
+            {app.head
+              ? <img src={`https://shared.akamai.steamstatic.com/${app.head}`} className="cw-app-thumb" alt="" onError={e => e.target.style.display='none'} />
+              : <div className="cw-app-thumb-placeholder"><i className="fas fa-gamepad" /></div>
+            }
+            <div className="cw-app-info">
+              <span className="cw-app-name">{app.name ?? `App #${app.appid}`}</span>
+              <span className="cw-app-id">#{app.appid}</span>
+            </div>
+            <span className={`cw-app-badge ${app.is_free ? 'free' : app.coming_soon ? 'soon' : 'paid'}`}>
+              {app.is_free ? 'Free' : app.coming_soon ? 'Soon' : 'Paid'}
+            </span>
           </div>
         ))}
       </div>
@@ -275,11 +328,10 @@ function StoreDistBar({ stats }) {
   )
 }
 
-/* ─── 6. Control panel ────────────────────────── */
+/* ─── 6. Control panel ──────────────────────────────── */
 function ControlPanel({ isRunning, crawlerMode, setCrawlerMode, onStart, statusMsg, logs, clearLogs }) {
   return (
     <div className="cw-control-panel">
-      {/* Mode picker */}
       <div className="cw-mode-picker">
         <span className="cw-mode-label">Crawling Mode</span>
         <div className="cw-mode-seg">
@@ -301,7 +353,6 @@ function ControlPanel({ isRunning, crawlerMode, setCrawlerMode, onStart, statusM
         </div>
       </div>
 
-      {/* Action */}
       <div className="cw-actions">
         <button
           className={`cw-start-btn ${isRunning ? 'stop' : 'start'}`}
@@ -317,14 +368,14 @@ function ControlPanel({ isRunning, crawlerMode, setCrawlerMode, onStart, statusM
 
       <div className="cw-status-txt">{statusMsg}</div>
 
-      {/* Live log terminal */}
       <div className="cw-terminal">
         <div className="cw-terminal-head">
           <i className="fas fa-terminal" /> Live Operation Log
+          <span className="cw-terminal-count">{logs.length} entries</span>
         </div>
         <div className="cw-terminal-body">
           {logs.length === 0 && (
-            <div className="cw-terminal-empty">No logs yet…</div>
+            <div className="cw-terminal-empty">No log entries yet…</div>
           )}
           {logs.map((entry, i) => (
             <div key={i} className={`cw-log-line ${entry.type || ''}`}>
@@ -340,82 +391,94 @@ function ControlPanel({ isRunning, crawlerMode, setCrawlerMode, onStart, statusM
   )
 }
 
-/* ─── default state ───────────────────────────── */
+/* ─── Default states ────────────────────────────────── */
+const DEFAULT_FETCHER = {
+  RefreshRunning: false,
+  TotalFetched:   0,
+  FilteredTotal:  0,
+  Cycle:          0,
+  LastBatch:      0,
+}
 const DEFAULT_SYNC = {
-  SyncRunning: false, Remaining: 0, NotAffected: 0,
-  New: 0, Updated: 0, Deleted: 0, Changes: 0,
-  Duration: 0, DataBaseSyncProgress: ''
+  SyncRunning:          false,
+  Remaining:            0,
+  NotAffected:          0,
+  New:                  0,
+  Updated:              0,
+  Deleted:              0,
+  Changes:              0,
+  Skiped:               0,
+  DataBaseSyncProgress: '0/0',
 }
 const DEFAULT_WORKER = {
-  WorkerRunning: false, LastLog: '', Processed: 0,
-  CurrentTotal: 0, DataReason: 0, PriceReason: 0, Failed: 0
+  WorkerRunning: false,
+  LastLog:       '',
+  Processed:     0,
+  Saved:         0,
+  CurrentTotal:  0,
+  DataReason:    0,
+  PriceReason:   0,
+  Failed:        0,
+  Skiped:        0,
+  Paid:          0,
+  Free:          0,
+  ComingSoon:    0,
+  LastAppsData:  [],
 }
 
-/* ─── Main export ─────────────────────────────── */
+/* ─── Main export ───────────────────────────────────── */
 export default function Crawler({ isActive, metrics }) {
   const [crawlerMode, setCrawlerMode] = useState('both')
-  const [isRunning, setIsRunning]     = useState(false)
-  const [statusMsg, setStatusMsg]     = useState('Ready to start…')
-  const [logs, setLogs]               = useState([])
+  const [isRunning,   setIsRunning]   = useState(false)
+  const [statusMsg,   setStatusMsg]   = useState('Ready to start…')
+  const [logs,        setLogs]        = useState([])
 
-  /* store dist stats (legacy worker data) */
-  const [storeStats, setStoreStats] = useState({
-    total: 0, filled: 0, remaining: 0,
-    totalApps: 0, comingSoon: 0, freeGames: 0, paidGames: 0
-  })
-
-  /* NewAppsRefresh */
-  const [refreshRunning, setRefreshRunning]   = useState(false)
-  const [refreshTotal, setRefreshTotal]       = useState(0)
-  const [refreshFiltered, setRefreshFiltered] = useState(0)
-
-  /* SyncResume */
-  const [syncResume, setSyncResume] = useState(DEFAULT_SYNC)
-
-  /* GamesWorker */
+  const [fetcher,     setFetcher]     = useState(DEFAULT_FETCHER)
+  const [syncResume,  setSyncResume]  = useState(DEFAULT_SYNC)
   const [gamesWorker, setGamesWorker] = useState(DEFAULT_WORKER)
 
   const csrfHeader = () => ({ 'X-CSRF-Token': csrfStore.get() ?? '' })
 
-  /* ── Consume SSE metrics ── */
+  /* ── consume SSE metrics ── */
   useEffect(() => {
     if (!metrics) return
 
-    const nar = metrics.Crawler?.NewAppsRefresh ?? metrics.NewAppsRefresh
-    if (nar) {
-      if (nar.RefreshRunning !== undefined) setRefreshRunning(nar.RefreshRunning)
-      if (nar.Total          !== undefined) setRefreshTotal(nar.Total)
-      if (nar.Filtered       !== undefined) setRefreshFiltered(nar.Filtered)
-      if (nar.SyncResume)                  setSyncResume(prev => ({ ...prev, ...nar.SyncResume }))
-      if (nar.GamesWorker) {
-        setGamesWorker(prev => ({ ...prev, ...nar.GamesWorker }))
-        if (nar.GamesWorker.WorkerRunning !== undefined) setIsRunning(nar.GamesWorker.WorkerRunning)
-        if (nar.GamesWorker.LastLog)                     setStatusMsg(nar.GamesWorker.LastLog)
-      }
+    /* Resolve the NewAppsRefresh container */
+    const nar = metrics?.Crawler?.NewAppsRefresh ?? metrics?.NewAppsRefresh
+    if (!nar) return
+
+    /* AllAppsFetcher */
+    if (nar.AllAppsFetcher) {
+      setFetcher(prev => ({ ...prev, ...nar.AllAppsFetcher }))
     }
 
-    /* legacy GamesWorker flat path */
-    const gw = metrics.Crawler?.GamesWorker ?? metrics.Crawler ?? metrics.CrawlerData
-    if (gw) {
-      setStoreStats(prev => ({
-        total:     gw.Total       ?? prev.total,
-        filled:    gw.Filled      ?? prev.filled,
-        remaining: gw.Remaining   ?? prev.remaining,
-        totalApps: gw.totalApps   ?? prev.totalApps,
-        comingSoon:gw.comingSoon  ?? prev.comingSoon,
-        freeGames: gw.freeGames   ?? prev.freeGames,
-        paidGames: gw.paidGames   ?? prev.paidGames,
-      }))
-      if (gw.isRunning     !== undefined) setIsRunning(gw.isRunning)
-      if (gw.WorkerRunning !== undefined) setIsRunning(gw.WorkerRunning)
-      if (gw.details) setStatusMsg(`Crawling: ${gw.details}`)
-      else if (gw.text)    setStatusMsg(gw.text)
-      else if (gw.LastLog) setStatusMsg(gw.LastLog)
+    /* SyncResume */
+    if (nar.SyncResume) {
+      setSyncResume(prev => ({ ...prev, ...nar.SyncResume }))
+    }
 
-      if (gw.log) {
+    /* GamesWorker */
+    if (nar.GamesWorker) {
+      const gw = nar.GamesWorker
+      setGamesWorker(prev => ({ ...prev, ...gw }))
+      if (gw.WorkerRunning !== undefined) setIsRunning(gw.WorkerRunning)
+      if (gw.LastLog)                     setStatusMsg(gw.LastLog)
+
+      /* Log feed — pull from LastAppsData entries */
+      if (Array.isArray(gw.LastAppsData) && gw.LastAppsData.length > 0) {
         setLogs(prev => {
-          if (prev[0]?.id === gw.log.id && prev[0]?.prog === gw.log.prog) return prev
-          return [{ ...gw.log, id: gw.log.id || 'SYNC' }, ...prev].slice(0, 100)
+          const next = gw.LastAppsData.map(app => ({
+            id:     app.appid,
+            name:   app.name ?? `App #${app.appid}`,
+            detail: app.is_free ? 'Free' : app.coming_soon ? 'Coming Soon' : 'Paid',
+            prog:   0,
+            type:   'success',
+            time:   '--',
+          }))
+          /* deduplicate by appid against what we have */
+          const existing = new Set(prev.map(e => e.id))
+          const fresh    = next.filter(e => !existing.has(e.id))
+          return [...fresh, ...prev].slice(0, 100)
         })
       }
     }
@@ -425,7 +488,7 @@ export default function Crawler({ isActive, metrics }) {
     if (isRunning) {
       setIsRunning(false)
       fetch(`${API_BASE}/api/siri0/games/stop`, {
-        method: 'POST', credentials: 'include', headers: csrfHeader()
+        method: 'POST', credentials: 'include', headers: csrfHeader(),
       }).catch(() => {})
       return
     }
@@ -433,9 +496,11 @@ export default function Crawler({ isActive, metrics }) {
     fetch(`${API_BASE}/api/siri0/games/start`, {
       method: 'POST', credentials: 'include',
       headers: { 'Content-Type': 'application/json', ...csrfHeader() },
-      body: JSON.stringify({ mode: crawlerMode })
+      body: JSON.stringify({ mode: crawlerMode }),
     }).catch(() => setIsRunning(false))
   }, [crawlerMode, isRunning])
+
+  const anyRunning = fetcher.RefreshRunning || syncResume.SyncRunning || gamesWorker.WorkerRunning
 
   return (
     <div id="crawler" className={`section ${isActive ? 'active' : ''}`}>
@@ -447,31 +512,26 @@ export default function Crawler({ isActive, metrics }) {
           </h2>
           <span className="subtitle">Steam catalog crawler & data enrichment engine</span>
         </div>
-        <div className={`status-indicator ${refreshRunning || syncResume.SyncRunning || gamesWorker.WorkerRunning ? 'active' : ''}`} />
+        <div className={`status-indicator ${anyRunning ? 'active' : ''}`} />
       </div>
 
-      {/* Status banner */}
       <StatusBanner
-        refreshRunning={refreshRunning}
+        refreshRunning={fetcher.RefreshRunning}
         syncRunning={syncResume.SyncRunning}
         workerRunning={gamesWorker.WorkerRunning}
       />
 
-      {/* Top three monitoring cards */}
+      {/* top 3 cards */}
       <div className="cw-top-row">
-        <RefreshCard
-          isRunning={refreshRunning}
-          total={refreshTotal}
-          filtered={refreshFiltered}
-        />
-        <SyncCard sync={syncResume} />
-        <WorkerCard worker={gamesWorker} statusMsg={statusMsg} />
+        <RefreshCard fetcher={fetcher} />
+        <SyncCard    sync={syncResume} />
+        <WorkerCard  worker={gamesWorker} />
       </div>
 
-      {/* Store distribution */}
-      <StoreDistBar stats={storeStats} />
+      {/* last apps mini-feed (only if there's data) */}
+      <LastAppsFeed apps={gamesWorker.LastAppsData} />
 
-      {/* Control & logs */}
+      {/* control panel + terminal */}
       <ControlPanel
         isRunning={isRunning}
         crawlerMode={crawlerMode}
