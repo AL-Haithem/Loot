@@ -294,40 +294,10 @@ function WorkerCard({ worker }) {
   )
 }
 
-/* ─── 5. Last Apps data mini-feed ───────────────────── */
-function LastAppsFeed({ apps }) {
-  if (!apps || apps.length === 0) return null
 
-  return (
-    <div className="cw-card last-apps-card">
-      <div className="cw-last-apps-head">
-        <i className="fas fa-history" />
-        <span>Recently Processed</span>
-        <span className="cw-last-apps-count">{apps.length} apps</span>
-      </div>
-      <div className="cw-last-apps-list">
-        {apps.slice(0, 8).map((app, i) => (
-          <div key={app.appid ?? i} className="cw-app-row">
-            {app.head
-              ? <img src={`https://shared.akamai.steamstatic.com/${app.head}`} className="cw-app-thumb" alt="" onError={e => e.target.style.display='none'} />
-              : <div className="cw-app-thumb-placeholder"><i className="fas fa-gamepad" /></div>
-            }
-            <div className="cw-app-info">
-              <span className="cw-app-name">{app.name ?? `App #${app.appid}`}</span>
-              <span className="cw-app-id">#{app.appid} {app.Reason && `· ${app.Reason}`}</span>
-            </div>
-            <span className={`cw-app-badge ${app.saveType === 'free' ? 'free' : app.saveType === 'coming_soon' ? 'soon' : 'paid'}`}>
-              {app.saveType === 'free' ? 'Free' : app.saveType === 'coming_soon' ? 'Soon' : 'Paid'}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
 
 /* ─── 6. Control panel ──────────────────────────────── */
-function ControlPanel({ isRunning, crawlerMode, setCrawlerMode, onStart, statusMsg, logs, clearLogs }) {
+function ControlPanel({ isRunning, crawlerMode, setCrawlerMode, onStart, statusMsg, appLogs, sysLogs, clearLogs }) {
   return (
     <div className="cw-control-panel">
       <div className="cw-mode-picker">
@@ -366,23 +336,45 @@ function ControlPanel({ isRunning, crawlerMode, setCrawlerMode, onStart, statusM
 
       <div className="cw-status-txt">{statusMsg}</div>
 
-      <div className="cw-terminal">
-        <div className="cw-terminal-head">
-          <i className="fas fa-terminal" /> Live Operation Log
-          <span className="cw-terminal-count">{logs.length} entries</span>
+      <div className="cw-terminals-wrapper">
+        {/* System Logs (LastLog history) */}
+        <div className="cw-terminal">
+          <div className="cw-terminal-head">
+            <i className="fas fa-terminal" /> System Activity Log
+            <span className="cw-terminal-count">{sysLogs.length} entries</span>
+          </div>
+          <div className="cw-terminal-body">
+            {sysLogs.length === 0 && (
+              <div className="cw-terminal-empty">No system logs yet…</div>
+            )}
+            {sysLogs.map((entry, i) => (
+              <div key={i} className="cw-log-line info">
+                <span className="cw-log-name" style={{ fontFamily: 'var(--font-body)', fontWeight: 500 }}>{entry.text}</span>
+                <span className="cw-log-meta">{entry.time}</span>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="cw-terminal-body">
-          {logs.length === 0 && (
-            <div className="cw-terminal-empty">No log entries yet…</div>
-          )}
-          {logs.map((entry, i) => (
-            <div key={i} className={`cw-log-line ${entry.type || ''}`}>
-              <span className="cw-log-id">#{entry.id}</span>
-              <span className="cw-log-name">{entry.name}</span>
-              {entry.detail && <span className="cw-log-detail">{entry.detail}</span>}
-              <span className="cw-log-meta">{entry.prog}% · {entry.time || '--'}</span>
-            </div>
-          ))}
+
+        {/* Processed Apps Log */}
+        <div className="cw-terminal">
+          <div className="cw-terminal-head">
+            <i className="fas fa-gamepad" /> Processed Apps Log
+            <span className="cw-terminal-count">{appLogs.length} entries</span>
+          </div>
+          <div className="cw-terminal-body">
+            {appLogs.length === 0 && (
+              <div className="cw-terminal-empty">No app entries yet…</div>
+            )}
+            {appLogs.map((entry, i) => (
+              <div key={i} className={`cw-log-line ${entry.type || ''}`}>
+                <span className="cw-log-id">#{entry.id}</span>
+                <span className="cw-log-name">{entry.name}</span>
+                {entry.detail && <span className="cw-log-detail">{entry.detail}</span>}
+                <span className="cw-log-meta">{entry.prog} · {entry.time}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -429,7 +421,8 @@ export default function Crawler({ isActive, metrics }) {
   const [crawlerMode, setCrawlerMode] = useState('both')
   const [isRunning,   setIsRunning]   = useState(false)
   const [statusMsg,   setStatusMsg]   = useState('Ready to start…')
-  const [logs,        setLogs]        = useState([])
+  const [appLogs,     setAppLogs]     = useState([])
+  const [sysLogs,     setSysLogs]     = useState([])
 
   const [fetcher,     setFetcher]     = useState(DEFAULT_FETCHER)
   const [syncResume,  setSyncResume]  = useState(DEFAULT_SYNC)
@@ -460,18 +453,24 @@ export default function Crawler({ isActive, metrics }) {
       const gw = nar.GamesWorker
       setGamesWorker(prev => ({ ...prev, ...gw }))
       if (gw.WorkerRunning !== undefined) setIsRunning(gw.WorkerRunning)
-      if (gw.LastLog)                     setStatusMsg(gw.LastLog)
+      if (gw.LastLog) {
+        setStatusMsg(gw.LastLog)
+        setSysLogs(prev => {
+          if (prev.length > 0 && prev[0].text === gw.LastLog) return prev
+          return [{ text: gw.LastLog, time: new Date().toLocaleTimeString() }, ...prev].slice(0, 100)
+        })
+      }
 
       /* Log feed — pull from LastAppsData entries */
       if (Array.isArray(gw.LastAppsData) && gw.LastAppsData.length > 0) {
-        setLogs(prev => {
+        setAppLogs(prev => {
           const next = gw.LastAppsData.map(app => ({
             id:     app.appid,
             name:   app.name ?? `App #${app.appid}`,
             detail: `${app.saveType || 'unknown'} · ${app.Reason || 'unknown'}`,
             prog:   'Saved',
             type:   'success',
-            time:   '--',
+            time:   new Date().toLocaleTimeString(),
           }))
           /* deduplicate by appid against what we have */
           const existing = new Set(prev.map(e => e.id))
@@ -526,18 +525,16 @@ export default function Crawler({ isActive, metrics }) {
         <WorkerCard  worker={gamesWorker} />
       </div>
 
-      {/* last apps mini-feed (only if there's data) */}
-      <LastAppsFeed apps={gamesWorker.LastAppsData} />
-
-      {/* control panel + terminal */}
+      {/* control panel + terminals */}
       <ControlPanel
         isRunning={isRunning}
         crawlerMode={crawlerMode}
         setCrawlerMode={setCrawlerMode}
         onStart={handleStart}
         statusMsg={statusMsg}
-        logs={logs}
-        clearLogs={() => setLogs([])}
+        appLogs={appLogs}
+        sysLogs={sysLogs}
+        clearLogs={() => { setAppLogs([]); setSysLogs([]); }}
       />
     </div>
   )
