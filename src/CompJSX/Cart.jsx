@@ -5,6 +5,7 @@ import "../CompCss/Cart.css"
 import logo from "../assets/imgs/logo.png"
 
 function CartItemRow({ item, onRemove, onUpdate }) {
+    const finalId = item.steam_appid || item.appid;
     const price = (item.Price?.US?.final || 0) / 100;
     const currency = item.Price?.US?.currency || "USD";
     const lineTotal = price * item.qty;
@@ -13,7 +14,7 @@ function CartItemRow({ item, onRemove, onUpdate }) {
         new Intl.NumberFormat("en-US", { style: "currency", currency }).format(val);
 
     return (
-        <div className="cart-item" data-appid={item.steam_appid}>
+        <div className="cart-item" data-appid={finalId}>
             <img
                 src={steamAssetUrl(item.head)}
                 alt={item.name || item.title}
@@ -27,7 +28,7 @@ function CartItemRow({ item, onRemove, onUpdate }) {
             <div className="cart-item-qty">
                 <button
                     className="qty-btn"
-                    onClick={() => item.qty <= 1 ? onRemove(item.steam_appid) : onUpdate(item.steam_appid, -1)}
+                    onClick={() => item.qty <= 1 ? onRemove(finalId) : onUpdate(finalId, -1)}
                     aria-label="decrease"
                 >
                     {item.qty <= 1 ? <i className="fas fa-trash-alt" /> : <i className="fas fa-minus" />}
@@ -35,7 +36,7 @@ function CartItemRow({ item, onRemove, onUpdate }) {
                 <span className="qty-value">{item.qty}</span>
                 <button
                     className="qty-btn"
-                    onClick={() => onUpdate(item.steam_appid, 1)}
+                    onClick={() => onUpdate(finalId, 1)}
                     aria-label="increase"
                 >
                     <i className="fas fa-plus" />

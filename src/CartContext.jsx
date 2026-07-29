@@ -23,10 +23,11 @@ export function CartProvider({ children }) {
 
     const addToCart = useCallback((game) => {
         setCartItems(prev => {
-            const existing = prev.find(item => item.steam_appid === game.steam_appid);
+            const gameId = game.steam_appid || game.appid;
+            const existing = prev.find(item => (item.steam_appid || item.appid) === gameId);
             if (existing) {
                 return prev.map(item =>
-                    item.steam_appid === game.steam_appid
+                    (item.steam_appid || item.appid) === gameId
                         ? { ...item, qty: item.qty + 1 }
                         : item
                 );
@@ -35,14 +36,14 @@ export function CartProvider({ children }) {
         });
     }, []);
 
-    const removeFromCart = useCallback((steam_appid) => {
-        setCartItems(prev => prev.filter(item => item.steam_appid !== steam_appid));
+    const removeFromCart = useCallback((id) => {
+        setCartItems(prev => prev.filter(item => (item.steam_appid || item.appid) !== id));
     }, []);
 
-    const updateQty = useCallback((steam_appid, delta) => {
+    const updateQty = useCallback((id, delta) => {
         setCartItems(prev =>
             prev.map(item =>
-                item.steam_appid === steam_appid
+                (item.steam_appid || item.appid) === id
                     ? { ...item, qty: Math.max(1, item.qty + delta) }
                     : item
             )

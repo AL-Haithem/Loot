@@ -476,9 +476,13 @@
     .cw-distbar-legend { grid-template-columns: 1fr 1fr; }
     .cw-mode-seg { flex-wrap: wrap; }
     .cw-refresh-grid { grid-template-columns: 1fr 1fr; }
-    .cw-sync-grid, .cw-sync-grid-7 { grid-template-columns: repeat(4, 1fr); }
-    .cw-type-breakdown { grid-template-columns: 1fr 1fr; }
+    .cw-sync-grid, .cw-sync-grid-7 { grid-template-columns: repeat(2, 1fr); }
+    .cw-type-breakdown { grid-template-columns: 1fr; }
     .cw-terminals-wrapper { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .cw-sync-grid, .cw-sync-grid-7 { grid-template-columns: 1fr; }
+    .cw-refresh-grid { grid-template-columns: 1fr; }
   }
 
 

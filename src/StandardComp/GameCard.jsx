@@ -35,6 +35,7 @@ function formatPrice(price) {
 }
 
 export function GameCard({
+    appid,
     steam_appid,
     name,
     title,
@@ -44,15 +45,16 @@ export function GameCard({
     rel,
     recs
 }) {
-    const gameData = { steam_appid, name, title, head, is_free, Price, rel, recs }
+    const finalId = steam_appid || appid
+    const gameData = { steam_appid: finalId, appid: finalId, name, title, head, is_free, Price, rel, recs }
     const { addToCart } = useCart()
     const reviews = recs?.total || 0
     const gameName = name || title || "Untitled"
     const usPrice = Price?.US
     const releaseText = formatReleaseDate(rel)
     const hasBuyablePrice = !is_free && !rel?.coming_soon && usPrice?.final > 0
-    const steamUrl = `${STEAM_APP_URL}/${steam_appid}`
-    const detailsUrl = `/games/${steam_appid}`
+    const steamUrl = `${STEAM_APP_URL}/${finalId}`
+    const detailsUrl = `/games/${finalId}`
     const priceText = rel?.coming_soon
         ? releaseText
         : is_free

@@ -684,10 +684,15 @@
 }
 
 @media (max-width: 480px) {
-    .dt-main { padding: 0 14px 80px; }
-    .dt-header { padding: 12px 4%; }
+    .dt-main { padding: 0 10px 80px; }
+    .dt-header { padding: 12px 4%; gap: 6px; }
     .dt-header-brand span { display: none; }
-    .dt-meta-row { gap: 8px; }
+    .dt-header-account span { display: none; }
+    .dt-meta-row { gap: 6px; font-size: .8rem; }
     .dt-sk-body { grid-template-columns: 1fr; }
-    .dt-sk-hero { height: 200px; }
+    .dt-sk-hero { height: 180px; }
+    .dt-cover-img { max-width: 100%; border-radius: 8px; }
+    .dt-title { font-size: 1.5rem; }
+    .dt-section-title { font-size: .9rem; margin-bottom: 12px; padding-bottom: 8px; }
+    .dt-cat-chip { padding: 6px 10px; font-size: .75rem; }
 }
