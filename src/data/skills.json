@@ -1,0 +1,112 @@
+{
+  "known": {
+    "label": "Experienced With",
+    "color": "green",
+    "categories": [
+      {
+        "name": "Languages & Technologies",
+        "items": ["JavaScript", "Python", "Luau","CSS","HTML","Node.js", "Express","React"]
+      },
+      {
+        "name": "Application Development",
+        "items": ["Middlewares", "Validation", "Error Handling"]
+      },
+      {
+        "name": "API Development",
+        "items": ["REST API", "WebSockets", "SSE", "Long Polling","RESTful Design", "Pagination", "Filtering", "Sorting", "Search", "Idempotency"]
+      },
+      {
+        "name": "Databases",
+        "items": ["MongoDB"]
+      },
+      {
+        "name": "Authentication & Authorization",
+        "items": ["Session Authentication", "JWT", "API Keys", "RBAC", "Permissions"]
+      },
+      {
+        "name": "Application Security",
+        "items": ["Password Hashing", "Encryption", "Secrets Management", "Security Headers", "Refresh Tokens", "Rate Limiting","CORS", "CSRF", "XSS", "SSRF","Injection Attacks", "Clickjacking"]
+      },
+      {
+        "name": "Architecture",
+        "items": ["Monolith", "Modular Monolith", "Microservices"]
+      },
+      {
+        "name": "Scalability & Performance",
+        "items": ["Vertical Scaling", "Stateless Services","Compression", "Lazy Loading"]
+      },
+      {
+        "name": "Deployment & Infrastructure",
+        "items": ["GitHub Pages", "Deployment Automation", "Custom Domains", "DNS Configuration", "SSL/TLS Certificates", "Email Integration"]
+      }
+    ]
+  },
+  "learning": {
+    "label": "Current Focus",
+    "color": "yellow",
+    "categories": [
+      {
+        "name": "Languages & Technologies",
+        "items": ["TypeScript","NestJS","Next.js"]
+      },
+      {
+        "name": "Application Development",
+        "items": ["File Uploads"]
+      },
+      {
+        "name": "API Development",
+        "items": ["API Versioning"]
+      },
+      {
+        "name": "Authentication & Authorization",
+        "items": ["OAuth2", "OpenID Connect"]
+      },
+      {
+        "name": "Architecture",
+        "items": ["Clean Architecture"]
+      },
+      {
+        "name": "Scalability & Performance",
+        "items": ["Horizontal Scaling","Caching (Redis)", "Cache Invalidation", "Connection Pooling"]
+      },
+      {
+        "name": "Traffic Management",
+        "items": ["Load Balancer", "Reverse Proxy", "Forward Proxy", "CDN"]
+      },
+      {
+        "name": "DevOps",
+        "items": ["CI/CD", "Monitoring", "Logging","Docker", "Docker Compose", "Containerization"]
+      }
+    ]
+  },
+  "future": {
+    "label": "Future Goals",
+    "color": "red",
+    "categories": [
+      {
+        "name": "Languages & Technologies",
+        "items": ["Go","PHP","Java"]
+      },
+      {
+        "name": "API Development",
+        "items": ["GraphQL", "gRPC"]
+      },
+      {
+        "name": "Databases",
+        "items": ["PostgreSQL", "MySQL"]
+      },
+      {
+        "name": "Authentication & Authorization",
+        "items": ["ABAC"]
+      },
+      {
+        "name": "Architecture",
+        "items": ["Event-Driven Architecture","Layered Architecture", "Hexagonal Architecture", "Onion Architecture"]
+      },
+      {
+        "name": "DevOps",
+        "items": ["Nginx", "Cloud Providers", "Kubernetes"]
+      }
+    ]
+  }
+}
