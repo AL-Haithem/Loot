@@ -452,11 +452,12 @@ export default function Crawler({ isActive, metrics }) {
       if (gw.WorkerRunning !== undefined) setIsRunning(gw.WorkerRunning)
       if (gw.Logs && Array.isArray(gw.Logs) && gw.Logs.length > 0) {
         setSysLogs(prev => {
-          const newEntries = gw.Logs.map(logText => ({
-            text: logText,
-            time: new Date().toLocaleTimeString()
-          })).reverse()
-          return [...newEntries, ...prev].slice(0, 100)
+          const newEntries = gw.Logs.map(logItem => {
+            const text = typeof logItem === 'object' && logItem !== null && logItem.message ? logItem.message : String(logItem);
+            const time = typeof logItem === 'object' && logItem !== null && logItem.time ? logItem.time : new Date().toLocaleTimeString();
+            return { text, time };
+          }).reverse();
+          return [...newEntries, ...prev].slice(0, 100);
         })
       }
 
