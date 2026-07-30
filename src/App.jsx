@@ -1,46 +1,56 @@
-import { useState } from 'react'
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
+import './App.css'
 
-import Navbar from './components/Navbar'
-import Hero from './components/Hero'
-import About from './components/About'
-import Skills from './components/Skills/Skills'
-import Works from './components/Works'
-import Journey from './components/Journey'
-import Contact from './components/Contact'
-import Footer from './components/Footer'
-import CursorGlow from './components/ui/CursorGlow'
-import AuthModal from './components/AuthModal'
+import { ClientAuthProvider } from './ClientAuthContext.jsx'
+import { ClientProtectedRoute, ClientPublicRoute } from './ClientRoutes.jsx'
+import { CartProvider } from './CartContext.jsx'
+
+import LandingPage from './CompJSX/Landing.jsx'
+import GamesPage from './CompJSX/Games.jsx'
+import CartPage from './CompJSX/Cart.jsx'
+import DetailsPage from './CompJSX/Details.jsx'
 import NotFound from './NotFound.jsx'
+import AdminLogin from './CompJSX/AdminLogin.jsx'
+import AdminDashboard from './AdminPanel/AdminDashboard.jsx'
+import ClientAuth from './CompJSX/ClientAuth.jsx'
+import Profile from './CompJSX/Profile.jsx'
 
-export default function App() {
-  const [authOpen, setAuthOpen] = useState(false)
+function App() {
+  return (
+    <CartProvider>
+    <ClientAuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/home" element={<Navigate to="/" replace />} />
+          
+          {/* Public routes only (redirects to home if logged in) */}
+          <Route element={<ClientPublicRoute />}>
+            <Route path="/login" element={<ClientAuth />} />
+          </Route>
 
-return (
-  <BrowserRouter>
+          {/* Protected routes (redirects to login if not logged in) */}
+          <Route element={<ClientProtectedRoute />}>
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/profile" element={<Profile />} />
+          </Route>
 
-    <CursorGlow />
+          <Route path="/games" >
+            <Route index element={<GamesPage />} />
+            <Route path=":appId" element={<DetailsPage />} />
+            <Route path="buy" element={<GamesPage />} />
+          </Route>
 
-      <Routes>
+          <Route path="/admin/login"     element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
-        <Route path="/" element={
-          <main id="home">
-            <Navbar />
-            <Hero />
-            <Works onOpenAuth={() => setAuthOpen(true)} />
-            <Skills />
-            <About />
-            <Journey />
-            <Contact />
-          </main>
-        }/>
+          <Route path="*" element={<NotFound />} />
 
-        <Route path="*" element={<NotFound />} />  
+        </Routes>
+      </BrowserRouter>
+    </ClientAuthProvider>
+    </CartProvider>
+  )
+}
 
-      </Routes>
-
-      <Footer />
-      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
-
-    </BrowserRouter>
-)}
+export default App
