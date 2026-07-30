@@ -255,7 +255,6 @@ function WorkerCard({ worker }) {
       {/* progress */}
       <div className="cw-progress-block">
         <div className="cw-progress-labels">
-          <span className="cw-progress-txt worker-log">{LastLog || 'Waiting for tasks…'}</span>
           <span className="cw-progress-pct">{pct}%</span>
         </div>
         <div className="cw-progress-track">
