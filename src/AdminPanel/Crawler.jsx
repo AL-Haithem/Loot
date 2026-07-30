@@ -334,6 +334,8 @@ function ControlPanel({ isRunning, crawlerMode, setCrawlerMode, onStart, statusM
         </button>
       </div>
 
+      <div className="cw-status-txt">{statusMsg}</div>
+
       <div className="cw-terminals-wrapper">
         {/* System Logs (LastLog history) */}
         <div className="cw-terminal">
