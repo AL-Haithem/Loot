@@ -7,82 +7,6 @@ import PurchaseSection from "./PurchaseSection.jsx"
 import { useCart } from "../CartContext.jsx"
 import { API_BASE } from "../api.js"
 
-/* ─── Constants ──────────────────────────────── */
-const STEAM_STORE_API = "https://store.steampowered.com/api/appdetails"
-
-/* ─── Helpers ────────────────────────────────── */
-function scoreColor(score) {
-    if (score >= 75) return "#4ade80"
-    if (score >= 50) return "#fbbf24"
-    return "#f87171"
-}
-
-/* ─── Inline section skeleton ────────────────── */
-function SectionSkeleton({ lines = 3, height = 14 }) {
-    return (
-        <div className="dt-inline-sk">
-            {Array.from({ length: lines }).map((_, i) => (
-                <div
-                    key={i}
-                    className="dt-sk dt-sk-line"
-                    style={{ width: `${100 - i * 15}%`, height }}
-                />
-            ))}
-        </div>
-    )
-}
-
-function BlockSkeleton({ height = 200 }) {
-    return <div className="dt-sk dt-sk-block" style={{ height }} />
-}
-
-/* ─── Screenshots Gallery ─────────────────────── */
-function Gallery({ shots }) {
-    const [active, setActive] = useState(0)
-    if (!shots?.length) return null
-
-    return (
-        <div className="dt-gallery">
-            <div className="dt-gallery-main">
-                <img
-                    key={active}
-                    src={shots[active].path_full}
-                    alt={`screenshot ${active + 1}`}
-                    className="dt-gallery-main-img"
-                />
-                <div className="dt-gallery-overlay">
-                    <button
-                        className="dt-gallery-nav"
-                        onClick={() => setActive(p => Math.max(0, p - 1))}
-                        disabled={active === 0}
-                    >
-                        <i className="fas fa-chevron-left" />
-                    </button>
-                    <span className="dt-gallery-count">{active + 1} / {shots.length}</span>
-                    <button
-                        className="dt-gallery-nav"
-                        onClick={() => setActive(p => Math.min(shots.length - 1, p + 1))}
-                        disabled={active === shots.length - 1}
-                    >
-                        <i className="fas fa-chevron-right" />
-                    </button>
-                </div>
-            </div>
-            <div className="dt-gallery-thumbs">
-                {shots.slice(0, 8).map((s, i) => (
-                    <button
-                        key={s.id}
-                        className={`dt-thumb-btn ${i === active ? "active" : ""}`}
-                        onClick={() => setActive(i)}
-                    >
-                        <img src={s.path_thumbnail} alt="" />
-                    </button>
-                ))}
-            </div>
-        </div>
-    )
-}
-
 /* ─── Platform Badges ────────────────────────── */
 function Platforms({ platforms }) {
     const icons = [
@@ -103,120 +27,81 @@ function Platforms({ platforms }) {
     )
 }
 
-/* ─── Cover image area ───────────────────────── */
-function CoverArea({ src, name, mc, loading, failed }) {
-    if (loading) return <div className="dt-sk dt-sk-cover" />
-    if (failed || !src) return (
-        <div className="dt-cover-placeholder">
-            <i className="fab fa-steam" />
-            <span>No cover art</span>
-        </div>
-    )
+/* ─── Skeleton Loader ────────────────────────── */
+function DetailSkeleton() {
     return (
-        <div className="dt-hero-cover">
-            <img src={src} alt={name} className="dt-cover-img" />
-            {mc && (
-                <a
-                    href={mc.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="dt-metascore"
-                    style={{ "--mc-clr": scoreColor(mc.score) }}
-                >
-                    <span className="dt-metascore-num">{mc.score}</span>
-                    <span className="dt-metascore-label">Metacritic</span>
-                </a>
-            )}
+        <div className="dt-skeleton-loader">
+            <div className="dt-sk-line" style={{ width: "40%", height: 40, marginBottom: 20 }} />
+            <div className="dt-sk-line" style={{ width: "80%", height: 20, marginBottom: 10 }} />
+            <div className="dt-sk-line" style={{ width: "60%", height: 20, marginBottom: 30 }} />
+            
+            <div className="dt-sk-grid">
+                <div className="dt-sk-box" style={{ height: 100 }} />
+                <div className="dt-sk-box" style={{ height: 100 }} />
+            </div>
         </div>
     )
 }
 
 /* ─── Main Page ──────────────────────────────── */
 export default function DetailsPage() {
-    const { appId }     = useParams()
-    const location      = useLocation()
-    const stateGame     = location.state?.game   // basic data from GameCard
+    const { appId } = useParams()
     const { totalCount } = useCart()
+    const location = useLocation()
+    const stateGame = location.state?.game
 
-    /* ── Steam data (fetched in browser from Steam API) ── */
-    const [steam, setSteam]           = useState(null)
-    const [steamLoading, setSteamLoading] = useState(true)
-    const [steamFailed, setSteamFailed]   = useState(false)
-
-    /* ── Price data from our backend ── */
-    // Initialise with stateGame price if navigated from GameCard
-    const [priceData, setPriceData]   = useState(stateGame ?? null)
-    const [priceLoading, setPriceLoading] = useState(!stateGame)
+    const [game, setGame] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [failed, setFailed] = useState(false)
 
     useEffect(() => {
         let alive = true
-        setSteam(null)
-        setSteamLoading(true)
-        setSteamFailed(false)
+        setLoading(true)
+        setFailed(false)
+        setGame(null)
 
-        // If the stateGame doesn't match current appId, clear it
-        if (stateGame?.steam_appid !== Number(appId)) {
-            setPriceData(null)
-            setPriceLoading(true)
-        }
-
-        /* Fetch rich game details from Steam store API (browser-direct) */
-        fetch(`${STEAM_STORE_API}?appids=${appId}&l=english`)
-            .then(r => r.json())
-            .then(json => {
+        // Fetch full game details from our backend
+        axios.get(`${API_BASE}/api/public/games/${appId}`)
+            .then(res => {
                 if (!alive) return
-                const entry = json?.[appId]
-                if (entry?.success && entry.data) {
-                    setSteam(entry.data)
+                // Assuming data is inside res.data.data or res.data
+                const gameData = res.data?.data || res.data
+                if (gameData && Object.keys(gameData).length > 0) {
+                    setGame(gameData)
                 } else {
-                    setSteamFailed(true)
+                    setFailed(true)
                 }
             })
-            .catch(() => { if (alive) setSteamFailed(true) })
-            .finally(() => { if (alive) setSteamLoading(false) })
-
-        /* Fetch price-only from our backend — in parallel */
-        if (!stateGame || stateGame.steam_appid !== Number(appId)) {
-            axios.get(`${API_BASE}/api/public/games/${appId}`)
-                .then(res => { if (alive) setPriceData(res.data?.data ?? null) })
-                .catch(() => { if (alive) setPriceData(null) })
-                .finally(() => { if (alive) setPriceLoading(false) })
-        }
+            .catch(() => { if (alive) setFailed(true) })
+            .finally(() => { if (alive) setLoading(false) })
 
         return () => { alive = false }
-    }, [appId]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [appId])
 
-    /* ── Derived from Steam data ── */
-    const bg        = steam?.background_raw || steam?.background
-    const cover     = steam?.header_image
-    const name      = steam?.name || stateGame?.name || `App ${appId}`
-    const genres    = steam?.genres?.map(g => g.description) || []
-    const cats      = steam?.categories?.map(c => c.description) || []
-    const devs      = steam?.developers || []
-    const pubs      = steam?.publishers || []
-    const mc        = steam?.metacritic
-    const rel       = steam?.release_date
-    const shots     = steam?.screenshots || []
-    const shortDesc = steam?.short_description || ""
-    const platforms = steam?.platforms
-    const steamUrl  = `https://store.steampowered.com/app/${appId}`
+    const bg = game?.background_raw || game?.background
 
-    /* ── Merged game object for PurchaseSection ── */
+    // Format Release Date
+    const releaseStr = game?.release_date?.date || "Unknown"
+    const isComingSoon = game?.release_date?.coming_soon
+
+    // Purchase game object compatibility
     const gameForPurchase = {
-        ...(priceData ?? {}),
+        ...(game ?? {}),
         steam_appid: Number(appId),
-        head:        cover || stateGame?.head,
-        name,
-        is_free:     steam?.is_free ?? priceData?.is_free,
+        head: game?.header_image || stateGame?.head,
+        name: game?.name || stateGame?.name || `App ${appId}`,
+        is_free: game?.is_free,
+        // Map price_overview directly for the purchase component if needed
+        price_overview: game?.price_overview
     }
 
     return (
         <div className="dt-root">
-            {/* ── Blurred background from Steam art ── */}
+            {/* Background Image */}
             {bg && <div className="dt-bg" style={{ backgroundImage: `url(${bg})` }} />}
             <div className="dt-bg-overlay" />
 
-            {/* ══ Sticky Header ════════════════════════════ */}
+            {/* Header */}
             <header className="dt-header">
                 <Link to="/games" className="dt-back">
                     <i className="fas fa-arrow-left" /> Store
@@ -239,155 +124,75 @@ export default function DetailsPage() {
                 </div>
             </header>
 
-            {/* ══ Main Content ════════════════════════════ */}
-            <main className="dt-main">
-
-                {/* ── Hero strip — always rendered ── */}
-                <div className="dt-hero-strip">
-
-                    {/* Cover column */}
-                    <CoverArea
-                        src={cover}
-                        name={name}
-                        mc={mc}
-                        loading={steamLoading}
-                        failed={steamFailed}
-                    />
-
-                    {/* Info column */}
-                    <div className="dt-hero-info">
-                        {/* Trust badges — always shown */}
-                        <div className="dt-store-badges">
-                            <span className="dt-sbadge dt-sbadge-original"><i className="fas fa-shield-halved" /> Original</span>
-                            <span className="dt-sbadge dt-sbadge-global"><i className="fas fa-globe" /> Global</span>
-                            <span className="dt-sbadge dt-sbadge-fast"><i className="fas fa-bolt" /> Fast Delivery</span>
-                        </div>
-
-                        {/* Title */}
-                        {steamLoading
-                            ? <div className="dt-sk dt-sk-line" style={{ width: "70%", height: 40, marginBottom: 8 }} />
-                            : <h1 className="dt-title">{name}</h1>
-                        }
-
-                        {/* Genres */}
-                        {steamLoading && <SectionSkeleton lines={1} height={22} />}
-                        {!steamLoading && genres.length > 0 && (
-                            <div className="dt-genres">
-                                {genres.map(g => <span key={g} className="dt-genre-tag">{g}</span>)}
-                            </div>
-                        )}
-
-                        {/* Short description */}
-                        {steamLoading && <SectionSkeleton lines={3} height={13} />}
-                        {!steamLoading && steamFailed && (
-                            <p className="dt-steam-notice">
-                                <i className="fas fa-triangle-exclamation" /> Game details unavailable from Steam API
-                            </p>
-                        )}
-                        {!steamLoading && !steamFailed && shortDesc && (
-                            <p className="dt-short-desc">{shortDesc}</p>
-                        )}
-
-                        {/* Meta row */}
-                        {steamLoading
-                            ? <SectionSkeleton lines={2} height={14} />
-                            : (
-                                <div className="dt-meta-row">
-                                    {rel && (
-                                        <div className="dt-meta-item">
-                                            <i className="fas fa-calendar-days" />
-                                            <div>
-                                                <span>{rel.coming_soon ? "Coming Soon" : "Released"}</span>
-                                                <strong>{rel.date || "TBA"}</strong>
-                                            </div>
-                                        </div>
-                                    )}
-                                    {devs.length > 0 && (
-                                        <div className="dt-meta-item">
-                                            <i className="fas fa-code" />
-                                            <div>
-                                                <span>Developer</span>
-                                                <strong>{devs.join(", ")}</strong>
-                                            </div>
-                                        </div>
-                                    )}
-                                    {pubs.length > 0 && (
-                                        <div className="dt-meta-item">
-                                            <i className="fas fa-building" />
-                                            <div>
-                                                <span>Publisher</span>
-                                                <strong>{pubs.join(", ")}</strong>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            )
-                        }
-
-                        {/* Platforms */}
-                        {!steamLoading && <Platforms platforms={platforms} />}
-
-                        {/* Steam link */}
-                        <a href={steamUrl} target="_blank" rel="noreferrer" className="dt-steam-link">
-                            <i className="fab fa-steam" /> View on Steam
-                        </a>
+            <main className="dt-main dt-new-layout">
+                {loading ? (
+                    <DetailSkeleton />
+                ) : failed || !game ? (
+                    <div className="dt-failed-msg">
+                        <i className="fas fa-exclamation-triangle" />
+                        <h2>Failed to load game details.</h2>
+                        <p>The game might not exist or the server is unreachable.</p>
                     </div>
-                </div>
+                ) : (
+                    <div className="dt-content-grid">
+                        
+                        {/* LEFT COLUMN: Game Information */}
+                        <div className="dt-info-column">
+                            <h1 className="dt-title">{game.name}</h1>
+                            
+                            <div className="dt-meta-row">
+                                <Platforms platforms={game.platforms} />
+                                
+                                {game.required_age > 0 && (
+                                    <span className="dt-badge dt-age-badge" title="Required Age">
+                                        <i className="fas fa-user-shield" /> {game.required_age}+
+                                    </span>
+                                )}
+                                
+                                {game.recommendations?.total > 0 && (
+                                    <span className="dt-badge dt-recommend-badge" title="Recommendations">
+                                        <i className="fas fa-thumbs-up" /> {game.recommendations.total.toLocaleString()}
+                                    </span>
+                                )}
+                            </div>
 
-                {/* ── Two-column body ── */}
-                <div className="dt-body">
+                            <div className="dt-info-box">
+                                <h3><i className="fas fa-calendar-alt" /> Release Date</h3>
+                                <p className="dt-release-date">
+                                    {isComingSoon ? <span className="dt-coming-soon">Coming Soon</span> : null}
+                                    {releaseStr}
+                                </p>
+                            </div>
 
-                    {/* Left: gallery + categories */}
-                    <div className="dt-left-col">
-                        <section className="dt-section">
-                            <h2 className="dt-section-title">
-                                <i className="fas fa-images" /> Screenshots
-                            </h2>
-                            {steamLoading && <BlockSkeleton height={240} />}
-                            {!steamLoading && steamFailed && (
-                                <div className="dt-section-fail">
-                                    <i className="fas fa-image-slash" />
-                                    <span>Screenshots unavailable</span>
-                                </div>
-                            )}
-                            {!steamLoading && !steamFailed && shots.length === 0 && (
-                                <div className="dt-section-fail">
-                                    <i className="fas fa-image" />
-                                    <span>No screenshots available</span>
-                                </div>
-                            )}
-                            {!steamLoading && !steamFailed && shots.length > 0 && (
-                                <Gallery shots={shots} />
-                            )}
-                        </section>
-
-                        {(steamLoading || cats.length > 0) && (
-                            <section className="dt-section">
-                                <h2 className="dt-section-title">
-                                    <i className="fas fa-tags" /> Features
-                                </h2>
-                                {steamLoading && <SectionSkeleton lines={4} height={32} />}
-                                {!steamLoading && cats.length > 0 && (
-                                    <div className="dt-cats-grid">
-                                        {cats.map(c => (
-                                            <span key={c} className="dt-cat-chip">
-                                                <i className="fas fa-check-circle" /> {c}
-                                            </span>
+                            {game.categories && game.categories.length > 0 && (
+                                <div className="dt-info-box">
+                                    <h3><i className="fas fa-tags" /> Categories</h3>
+                                    <div className="dt-tags-list">
+                                        {game.categories.map(c => (
+                                            <span key={c.id} className="dt-tag">{c.description}</span>
                                         ))}
                                     </div>
-                                )}
-                            </section>
-                        )}
-                    </div>
+                                </div>
+                            )}
 
-                    {/* Right: purchase — always rendered */}
-                    <div className="dt-right-col">
-                        <div className="dt-purchase-sticky">
-                            <PurchaseSection game={gameForPurchase} priceLoading={priceLoading} />
+                            {game.supported_languages && (
+                                <div className="dt-info-box dt-languages">
+                                    <h3><i className="fas fa-language" /> Supported Languages</h3>
+                                    <p dangerouslySetInnerHTML={{ __html: game.supported_languages }} />
+                                </div>
+                            )}
+
                         </div>
-                    </div>
-                </div>
 
+                        {/* RIGHT COLUMN: Purchase Component */}
+                        <div className="dt-purchase-column">
+                            <div className="dt-purchase-sticky">
+                                <PurchaseSection game={gameForPurchase} priceLoading={loading} />
+                            </div>
+                        </div>
+
+                    </div>
+                )}
             </main>
         </div>
     )
