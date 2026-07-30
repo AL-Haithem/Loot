@@ -454,8 +454,19 @@ export default function Crawler({ isActive, metrics }) {
         setSysLogs(prev => {
           const newEntries = gw.Logs.map(logItem => {
             const text = typeof logItem === 'object' && logItem !== null && logItem.message ? logItem.message : String(logItem);
-            const time = typeof logItem === 'object' && logItem !== null && logItem.time ? logItem.time : new Date().toLocaleTimeString();
-            return { text, time };
+            let rawTime = typeof logItem === 'object' && logItem !== null && logItem.time ? logItem.time : null;
+            let timeStr = new Date().toLocaleTimeString();
+            if (rawTime) {
+              let d = new Date(rawTime);
+              if (isNaN(d.getTime()) && !isNaN(Number(rawTime))) {
+                let n = Number(rawTime);
+                if (n < 10000000000) n *= 1000;
+                d = new Date(n);
+              }
+              if (!isNaN(d.getTime())) timeStr = d.toLocaleTimeString();
+              else timeStr = String(rawTime);
+            }
+            return { text, time: timeStr };
           }).reverse();
           return [...newEntries, ...prev].slice(0, 100);
         })
