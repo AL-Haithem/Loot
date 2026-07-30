@@ -450,11 +450,13 @@ export default function Crawler({ isActive, metrics }) {
       const gw = nar.GamesWorker
       setGamesWorker(prev => ({ ...prev, ...gw }))
       if (gw.WorkerRunning !== undefined) setIsRunning(gw.WorkerRunning)
-      if (gw.LastLog) {
-        setStatusMsg(gw.LastLog)
+      if (gw.Logs && Array.isArray(gw.Logs) && gw.Logs.length > 0) {
         setSysLogs(prev => {
-          if (prev.length > 0 && prev[0].text === gw.LastLog) return prev
-          return [{ text: gw.LastLog, time: new Date().toLocaleTimeString() }, ...prev].slice(0, 100)
+          const newEntries = gw.Logs.map(logText => ({
+            text: logText,
+            time: new Date().toLocaleTimeString()
+          })).reverse()
+          return [...newEntries, ...prev].slice(0, 100)
         })
       }
 
