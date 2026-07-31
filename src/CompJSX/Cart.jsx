@@ -46,7 +46,7 @@ function CartItemRow({ item, onRemove, onUpdate }) {
             <div className="cart-item-total">{fmt(lineTotal)}</div>
 
             <button
-                className="cart-item-remove"
+                className="cart-item-remove btn-danger"
                 onClick={() => onRemove(item.steam_appid)}
                 aria-label="Remove item"
                 title="Remove"
@@ -114,7 +114,7 @@ export default function CartPage() {
                                 <h2>
                                     <i className="fas fa-list" /> Items ({totalCount})
                                 </h2>
-                                <button className="clear-all-btn" onClick={clearCart}>
+                                <button className="clear-all-btn btn-danger" style={{padding:'7px 16px'}} onClick={clearCart}>
                                     <i className="fas fa-trash" /> Clear All
                                 </button>
                             </div>
@@ -155,7 +155,7 @@ export default function CartPage() {
 
                             <button
                                 id="checkoutWhatsapp"
-                                className="checkout-btn whatsapp-btn"
+                                className="checkout-btn btn-success"
                                 type="button"
                                 onClick={handleWhatsApp}
                             >
@@ -163,7 +163,7 @@ export default function CartPage() {
                                 Order via WhatsApp
                             </button>
                             <button
-                                className="checkout-btn clear-btn"
+                                className="checkout-btn btn-danger"
                                 type="button"
                                 onClick={clearCart}
                             >

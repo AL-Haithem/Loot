@@ -277,17 +277,19 @@ export default function PurchaseSection({ game }) {
                     <div className="ps-actions">
                         <button
                             id="btn-buy-now"
-                            className="ps-btn ps-btn-primary"
+                            className="ps-btn btn-success"
                             type="button"
                             onClick={handleAddToCart}
+                            style={{ padding: '15px 20px', borderRadius: '12px', fontSize: '1.05rem', fontWeight: '700', width: '100%', marginBottom: '10px' }}
                         >
                             <i className="fas fa-credit-card" /> Buy Now
                         </button>
                         <button
                             id="btn-add-cart"
-                            className="ps-btn ps-btn-secondary"
+                            className="ps-btn auth-btn-primary"
                             type="button"
                             onClick={handleAddToCart}
+                            style={{ padding: '15px 20px', borderRadius: '12px', fontSize: '1.05rem', fontWeight: '700', width: '100%' }}
                         >
                             <i className="fas fa-cart-plus" /> Add to Cart
                         </button>

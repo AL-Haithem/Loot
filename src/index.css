@@ -1,51 +1,55 @@
 /* ════════════════════════════════════════════════
    HNK Store — Global Design Tokens
-   Palette: Sleek Dark Gray / Monochrome (Comfortable & Minimalist)
+   Palette: "Ocean Slate"
+   Base: #0f172a (Dark Slate) | Primary: #0ea5e9 (Sea Blue) | Accent: #f59e0b (Amber)
    ════════════════════════════════════════════════ */
 
 :root {
-    /* ── Brand Palette ── */
-    --clr-bg:          #0e0e11;   /* deepest dark gray */
-    --clr-surface:     #181a1f;   /* card / panel backgrounds */
-    --clr-surface2:    #22252b;   /* elevated surfaces, modals */
-    --clr-border:      rgba(255, 255, 255, 0.08);
-    --clr-border2:     rgba(255, 255, 255, 0.15);
+    /* ── Foundation (Comfortable Slate) ── */
+    --clr-bg:          #0f172a;   /* Slate 900 */
+    --clr-surface:     #1e293b;   /* Slate 800 */
+    --clr-surface2:    #334155;   /* Slate 700 - hovers/elevated */
+    --clr-border:      rgba(14, 165, 233, 0.15); /* Subtle blue borders */
+    --clr-border2:     rgba(14, 165, 233, 0.3);
 
-    /* ── Brand accent colours ── */
-    --clr-primary:     #f8fafc;   /* crisp off-white for primary actions */
-    --clr-primary-dim: rgba(248, 250, 252, 0.08);
-    --clr-primary-glow:0 0 20px rgba(248, 250, 252, 0.15);
+    /* ── Action: Primary (Sea Blue) ── */
+    --clr-primary:     #0ea5e9;   
+    --clr-primary-dim: rgba(14, 165, 233, 0.15);
+    --clr-primary-glow:0 0 15px rgba(14, 165, 233, 0.4);
 
-    --clr-secondary:   #2d333b;   /* slate gray for hover / secondary */
-    --clr-secondary-dim:rgba(45, 51, 59, 0.4);
+    /* ── Action: Secondary/Accent (Amber/Yellow) ── */
+    --clr-secondary:   #f59e0b;   
+    --clr-secondary-dim:rgba(245, 158, 11, 0.15);
+    --clr-secondary-glow:0 0 15px rgba(245, 158, 11, 0.4);
 
-    --clr-accent:      #475569;   /* muted steel for borders/highlights */
-    --clr-accent-dim:  rgba(71, 85, 105, 0.3);
+    /* ── Accent & Highlights ── */
+    --clr-accent:      #f59e0b;   
+    --clr-accent-dim:  rgba(245, 158, 11, 0.15);
 
-    /* ── Text ── */
-    --clr-text:        #f1f5f9;   /* primary bright slate */
-    --clr-text-muted:  #94a3b8;   /* secondary/muted text */
-    --clr-text-dim:    #475569;   /* disabled / placeholder */
+    /* ── Text (Comfortable off-white) ── */
+    --clr-text:        #f8fafc;   /* Slate 50 */
+    --clr-text-muted:  #94a3b8;   /* Slate 400 */
+    --clr-text-dim:    #475569;   /* Slate 600 */
 
-    /* ── Status (keep functional greens/reds readable, but muted) ── */
-    --clr-success:     #34d399;
-    --clr-success-dim: rgba(52, 211, 153, 0.1);
-    --clr-error:       #f87171;
-    --clr-error-dim:   rgba(248, 113, 113, 0.1);
-    --clr-warning:     #fbbf24;
-    --clr-warning-dim: rgba(251, 191, 36, 0.1);
+    /* ── Functional / Status Colors ── */
+    --clr-success:     #10b981;   /* Emerald Green - Buy/Success */
+    --clr-success-dim: rgba(16, 185, 129, 0.15);
+    --clr-error:       #ef4444;   /* Red - Delete/Error */
+    --clr-error-dim:   rgba(239, 68, 68, 0.15);
+    --clr-warning:     #f59e0b;   /* Amber */
+    --clr-warning-dim: rgba(245, 158, 11, 0.15);
 
     /* ── Radii ── */
     --radius-sm:  8px;
-    --radius:     14px;
-    --radius-lg:  20px;
-    --radius-xl:  28px;
+    --radius:     12px;
+    --radius-lg:  16px;
+    --radius-xl:  24px;
 
     /* ── Shadows ── */
-    --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.4);
-    --shadow-glow: 0 0 20px rgba(255, 255, 255, 0.05);
+    --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    --shadow-glow: var(--clr-primary-glow);
 
-    /* ── Legacy aliases (so old variable names still work) ── */
+    /* ── Legacy aliases (Mapped dynamically across all CSS) ── */
     --bg-main:           var(--clr-bg);
     --accent-primary:    var(--clr-primary);
     --accent-secondary:  var(--clr-secondary);
@@ -54,23 +58,28 @@
     --card-bg:           var(--clr-surface);
     --border-color:      var(--clr-border);
     --glow-primary:      var(--clr-primary-glow);
-    --glow-secondary:    0 0 25px rgba(255, 255, 255, 0.08);
+    --glow-secondary:    var(--clr-secondary-glow);
 
-    /* ── dt- aliases (used by Details.css, DealHunt.css etc.) ── */
+    /* ── dt- aliases ── */
     --dt-bg:         var(--clr-bg);
     --dt-surface:    var(--clr-surface);
     --dt-surface2:   var(--clr-surface2);
     --dt-border:     var(--clr-border);
     --dt-border2:    var(--clr-border2);
-    --dt-gold:       var(--clr-primary);   
-    --dt-gold-dim:   var(--clr-primary-dim);
-    --dt-gold-glow:  var(--shadow-glow);
-    --dt-purple:     var(--clr-primary);               
+    
+    --dt-gold:       var(--clr-secondary); /* Remapped Gold to Amber */
+    --dt-gold-dim:   var(--clr-secondary-dim);
+    --dt-gold-glow:  var(--clr-secondary-glow);
+    
+    --dt-purple:     var(--clr-primary);   /* Remapped Purple to Primary Blue */
     --dt-purple-dim: var(--clr-primary-dim);
+    
     --dt-green:      var(--clr-success);
     --dt-red:        var(--clr-error);
+    
     --dt-text:       var(--clr-text);
     --dt-muted:      var(--clr-text-muted);
+    
     --dt-radius-sm:  var(--radius-sm);
     --dt-radius:     var(--radius);
     --dt-radius-lg:  var(--radius-lg);
@@ -86,7 +95,7 @@ body {
     min-height: 100vh;
 }
 
-/* Auth Shared Buttons */
+/* ─── Shared Button Styles ─── */
 .auth-btn-group {
     display: flex;
     gap: 12px;
@@ -101,32 +110,64 @@ body {
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
-    border-radius: 8px !important;
+    border-radius: var(--radius-sm) !important;
     font-weight: 600 !important;
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
+/* Primary Button -> Sea Blue */
 .auth-btn-primary {
     background: var(--clr-primary) !important;
-    color: #000000 !important;
-    border: 2px solid transparent !important;
-    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important; 
+    border: none !important;
+    box-shadow: 0 4px 12px var(--clr-primary-dim) !important;
 }
 
 .auth-btn-primary:hover {
-    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2) !important;
-    background: #ffffff !important;
-    color: #000000 !important;
+    box-shadow: 0 6px 16px var(--clr-primary-glow) !important;
     transform: translateY(-2px);
+    background: #0284c7 !important; /* Slightly darker/more intense blue */
 }
 
+/* Secondary Button -> Amber Outlined */
 .auth-btn-outline {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    color: var(--text-primary) !important;
-    backdrop-filter: blur(12px) !important;
+    background: rgba(30, 41, 59, 0.6) !important;
+    border: 1px solid var(--clr-secondary) !important;
+    color: var(--clr-secondary) !important;
+    backdrop-filter: blur(10px) !important;
 }
 
 .auth-btn-outline:hover {
-    border-color: rgba(255, 255, 255, 0.3) !important;
-    background: rgba(255, 255, 255, 0.1) !important;
+    background: var(--clr-secondary-dim) !important;
+    box-shadow: 0 4px 15px var(--clr-secondary-glow) !important;
+    transform: translateY(-2px);
+}
+
+/* Success Button -> Emerald Green (Buy) */
+.btn-success {
+    background: var(--clr-success) !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 4px 12px var(--clr-success-dim) !important;
+    cursor: pointer;
+}
+.btn-success:hover {
+    background: #059669 !important;
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4) !important;
+    transform: translateY(-2px);
+}
+
+/* Danger Button -> Red (Delete) */
+.btn-danger {
+    background: var(--clr-error) !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 4px 12px var(--clr-error-dim) !important;
+    cursor: pointer;
+}
+.btn-danger:hover {
+    background: #dc2626 !important;
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4) !important;
+    transform: translateY(-2px);
 }

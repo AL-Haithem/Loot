@@ -186,10 +186,10 @@
   text-align: center;
 }
 .auth-message.error {
-  color: var(--clr-primary);
+  color: var(--clr-error);
 }
 .auth-message.success {
-  color: var(--clr-primary);
+  color: var(--clr-success);
 }
 
 .return-home {

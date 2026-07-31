@@ -118,14 +118,15 @@
 }
 
 .pnav-danger {
-    background: var(--clr-primary-dim);
-    border: 1px solid var(--clr-primary-dim);
-    color: var(--accent-secondary);
+    background: var(--clr-error-dim);
+    border: 1px solid var(--clr-error-dim);
+    color: var(--clr-error);
 }
 
 .pnav-danger:hover {
-    background: var(--clr-primary-dim);
-    border-color: var(--clr-primary-dim);
+    background: var(--clr-error);
+    border-color: var(--clr-error);
+    color: #ffffff;
 }
 
 /* ── Hero ────────────────────────────────────────────── */

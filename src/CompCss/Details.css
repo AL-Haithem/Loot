@@ -60,26 +60,7 @@
 
 .dt-section-fail i { font-size: 1.3rem; opacity: .5; }
 
-/* ─── Design tokens ─────────────────────────── */
-:root {
-    --dt-bg:        var(--clr-bg);
-    --dt-surface:   var(--clr-primary);
-    --dt-surface2:  var(--clr-primary);
-    --dt-border:    var(--clr-primary);
-    --dt-border2:   var(--clr-primary);
-    --dt-gold:      var(--clr-secondary);
-    --dt-gold-dim:  var(--clr-primary);
-    --dt-gold-glow: 0 0 28px var(--clr-primary);
-    --dt-purple:    var(--clr-secondary);
-    --dt-purple-dim:var(--clr-primary);
-    --dt-green:     var(--clr-primary);
-    --dt-red:       var(--clr-primary);
-    --dt-text:      var(--clr-text-muted);
-    --dt-muted:     var(--clr-text-muted);
-    --dt-radius-sm: 8px;
-    --dt-radius:    14px;
-    --dt-radius-lg: 20px;
-}
+
 
 /* ─── Root wrapper ───────────────────────────── */
 .dt-root {
@@ -110,7 +91,7 @@
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    background: linear-gradient(to bottom, var(--clr-primary) 0%, var(--clr-primary) 40%, var(--dt-bg) 100%);
+    background: radial-gradient(circle at center 20%, rgba(15, 23, 42, 0.4) 0%, rgba(15, 23, 42, 0.9) 60%, var(--dt-bg) 100%);
 }
 
 /* ─── Sticky Header ─────────────────────────── */

@@ -1,4 +1,4 @@
-﻿/* ÔòÉÔòÉ Games page header ÔÇö mirrors Details dt-header ÔòÉÔòÉÔòÉ */
+/* ÔòÉÔòÉ Games page header ÔÇö mirrors Details dt-header ÔòÉÔòÉÔòÉ */
 .gp-header {
     position: sticky;
     top: 0;
@@ -669,7 +669,7 @@
     justify-content: center;
     min-width: 72px;
     height: 36px;
-    background: linear-gradient(135deg, var(--clr-primary) 0%, var(--clr-primary) 100%);
+    background: linear-gradient(135deg, var(--clr-success) 0%, var(--clr-success) 100%);
     color: white;
     text-decoration: none;
     padding: 0 14px;
@@ -678,12 +678,12 @@
     font-weight: 700;
     transition: all 0.3s ease;
     border: none;
-    box-shadow: 0 4px 15px var(--clr-primary);
+    box-shadow: 0 4px 15px var(--clr-success-dim);
 }
 
 .buy-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px var(--clr-primary);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
 }
 
 .buy-btn.steam-btn {
