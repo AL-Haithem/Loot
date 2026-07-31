@@ -228,7 +228,7 @@
 .dt-main {
     position: relative;
     z-index: 1;
-    max-width: 1280px;
+    max-width: 100%;
     margin: 0 auto;
     padding: 0 24px 100px;
 }
@@ -981,7 +981,7 @@
 
 .dt-three-col-layout {
     display: grid;
-    grid-template-columns: 320px 1fr 320px;
+    grid-template-columns: minmax(260px, 320px) 1fr minmax(260px, 320px);
     gap: 32px;
     align-items: start;
     width: 100%;
