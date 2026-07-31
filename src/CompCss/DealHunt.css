@@ -1,137 +1,402 @@
-/* ===== Deal Hunt & Purchase Section CSS ===== */
+/* ══════════════════════════════════════════════════
+   Deal Hunt & Purchase Section — Obsidian & Ice
+   Complete rewrite — no purples, no pinks
+   ══════════════════════════════════════════════════ */
 
-/* ─── Mode Toggle ──────────────────────────── */
+/* ═══════════════════════════════════════════════
+   PURCHASE SECTION — ps-* namespace
+   Two modes: Instant Delivery · Deal Hunt
+   ═══════════════════════════════════════════════ */
+
+/* ── Mode toggle ── */
 .purchase-mode-toggle {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 
 .pmt-btn {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 14px 18px;
-    border-radius: 14px;
-    border: 1.5px solid var(--border-color, rgba(255,255,255,0.08));
-    background: var(--clr-primary);
-    color: var(--text-primary, #fff);
+    gap: 12px;
+    padding: 13px 16px;
+    border-radius: var(--r);
+    border: 1.5px solid var(--border);
+    background: var(--bg-raised);
+    color: var(--text-muted);
     cursor: pointer;
     text-align: left;
-    transition: all 0.25s;
-    font-family: 'Outfit', sans-serif;
-    backdrop-filter: blur(10px);
+    transition: all 0.22s;
+    font-family: 'Space Grotesk', sans-serif;
 }
 
 .pmt-btn > i {
-    font-size: 1.5rem;
-    color: var(--text-secondary, var(--clr-text-muted));
-    transition: color 0.25s;
+    font-size: 1.4rem;
     flex-shrink: 0;
+    transition: color 0.22s;
 }
 
 .pmt-btn .pmt-label {
     display: block;
-    font-size: 0.95rem;
+    font-size: .92rem;
     font-weight: 700;
     margin-bottom: 2px;
+    color: var(--text);
 }
 
 .pmt-btn .pmt-sub {
     display: block;
-    font-size: 0.75rem;
-    color: var(--text-secondary, var(--clr-text-muted));
+    font-size: .72rem;
+    color: var(--text-muted);
 }
 
 .pmt-btn:hover {
-    border-color: var(--clr-primary);
-    background: var(--clr-primary);
+    border-color: var(--border-2);
+    background: var(--surface);
 }
 
+/* Instant: active = Ice Blue */
 .pmt-btn.pmt-active {
-    border-color: var(--accent-primary, var(--clr-primary));
-    background: var(--clr-primary);
-    box-shadow: 0 0 20px var(--clr-primary);
+    border-color: var(--blue);
+    background: var(--blue-dim);
+    box-shadow: 0 0 0 1px var(--blue);
 }
 
-.pmt-btn.pmt-active > i {
-    color: var(--accent-primary, var(--clr-primary));
-}
+.pmt-btn.pmt-active > i { color: var(--blue); }
 
-/* Highlight Deal Hunt active differently */
+/* Deal Hunt: active = Amber */
 .pmt-btn:last-child.pmt-active {
-    border-color: var(--clr-secondary);
-    background: var(--clr-secondary-dim);
-    box-shadow: 0 0 20px var(--clr-secondary-dim);
+    border-color: var(--amber);
+    background: var(--amber-dim);
+    box-shadow: 0 0 0 1px var(--amber);
 }
 
-.pmt-btn:last-child.pmt-active > i {
-    color: var(--clr-secondary);
+.pmt-btn:last-child.pmt-active > i { color: var(--amber); }
+
+/* ── Panels container ── */
+.ps-panels-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
 }
 
-/* ─── Instant Box extras ───────────────────── */
-.instant-box {
-    background: linear-gradient(135deg, var(--clr-primary), var(--clr-primary));
-    border: 1px solid var(--clr-primary);
-    border-radius: 18px;
-    padding: 28px 26px;
-    margin-bottom: 20px;
+@media (max-width: 768px) {
+    .ps-panels-container { grid-template-columns: 1fr; }
+}
+
+/* ── Panel base ── */
+.ps-panel {
+    background: var(--bg-raised);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    cursor: pointer;
+    transition: all 0.22s ease;
     position: relative;
     overflow: hidden;
-    animation: priceReveal 0.6s ease both;
-    box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+}
+
+.ps-panel:hover {
+    border-color: var(--border-2);
+    background: var(--bg-elevated);
+}
+
+.ps-panel.active {
+    background: var(--bg-elevated);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    transform: translateY(-3px);
+}
+
+.ps-panel.unselected {
+    opacity: 0.55;
+    filter: grayscale(0.4);
+    transform: scale(0.98);
+}
+
+/* Active check mark */
+.ps-check-mark {
+    position: absolute;
+    top: 18px; right: 18px;
+    font-size: 1.4rem;
+}
+
+/* Instant panel — active = Ice Blue */
+.ps-panel-instant.active {
+    border-color: var(--blue);
+    box-shadow: 0 0 24px rgba(56,189,248,0.12), inset 0 1px 0 rgba(56,189,248,0.2);
+}
+
+.ps-panel-instant .ps-check-mark { color: var(--blue); }
+
+/* Deal Hunt panel — active = Amber */
+.ps-panel-deal {
+    border-color: var(--border);
+}
+
+.ps-panel-deal.active {
+    border-color: var(--amber);
+    box-shadow: 0 0 24px rgba(245,158,11,0.12), inset 0 1px 0 rgba(245,158,11,0.15);
+}
+
+.ps-panel-deal .ps-check-mark { color: var(--amber); }
+
+/* ── Panel header ── */
+.ps-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+}
+
+.ps-mode-icon {
+    width: 44px; height: 44px;
+    border-radius: var(--r);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+}
+
+.ps-panel.active .ps-mode-icon { transform: scale(1.08); }
+
+.ps-icon-instant { background: var(--blue-dim); color: var(--blue); }
+.ps-icon-deal    { background: var(--amber-dim); color: var(--amber); }
+
+.ps-mode-text { display: flex; flex-direction: column; gap: 3px; }
+
+.ps-mode-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.ps-panel-instant.active .ps-mode-title { color: var(--blue); }
+.ps-panel-deal.active .ps-mode-title    { color: var(--amber); }
+
+.ps-mode-sub { font-size: .74rem; color: var(--text-muted); line-height: 1.3; }
+
+.ps-spacer { flex-grow: 1; }
+
+/* ── Price block ── */
+.ps-price-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+}
+
+.ps-price-label {
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    font-weight: 600;
+}
+
+.ps-price-value {
+    font-size: 2.6rem;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.ps-discount-badge {
+    position: absolute;
+    top: 0; right: 0;
+    background: var(--green);
+    color: #fff;
+    font-size: .76rem;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: var(--r-sm);
+}
+
+.ps-original-price {
+    text-decoration: line-through;
+    color: var(--text-dim);
+    font-size: .85rem;
+    font-weight: 400;
+}
+
+/* ── Features list ── */
+.ps-features {
+    list-style: none;
+    padding: 0; margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.ps-features li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: .86rem;
+    color: var(--text-muted);
+}
+
+.ps-features li i { color: var(--blue); font-size: .85rem; flex-shrink: 0; }
+.ps-panel-deal .ps-features li i { color: var(--amber); }
+
+/* ── Action buttons ── */
+.ps-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ps-btn {
+    width: 100%;
+    padding: 14px 20px;
+    border-radius: var(--r);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: .95rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.22s ease;
+    letter-spacing: 0.01em;
+}
+
+/* Disclaimer */
+.ps-disclaimer {
+    font-size: .73rem;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.5;
+}
+
+.ps-disclaimer i { color: var(--text-dim); flex-shrink: 0; }
+
+.ps-unavailable {
+    font-size: .84rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px;
+    border-radius: var(--r-sm);
+    background: rgba(255,255,255,0.02);
+    border: 1px dashed var(--border);
+}
+
+/* Deal header inside deal hunt box */
+.ps-deal-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+}
+
+.ps-deal-header > i {
+    font-size: 1.8rem;
+    color: var(--amber);
+    flex-shrink: 0;
+}
+
+.ps-deal-title {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--amber);
+    margin-bottom: 2px;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.ps-deal-tagline {
+    display: block;
+    font-size: .75rem;
+    color: var(--text-muted);
+}
+
+/* ══════════════════════════════════════════════════
+   OLD-STYLE DEAL HUNT BOX — dh-* namespace
+   ══════════════════════════════════════════════════ */
+
+/* ─── Mode Toggle (old) ── */
+.dh-unavail {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: .88rem;
+    padding: 14px 0;
+}
+
+/* ─── Instant Box ── */
+.instant-box {
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 24px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+    animation: priceReveal 0.5s ease both;
+    box-shadow: var(--shadow);
+}
+
+@keyframes priceReveal {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: none; }
 }
 
 .instant-features {
     display: flex;
     flex-direction: column;
     gap: 7px;
-    margin-bottom: 22px;
+    margin-bottom: 20px;
 }
 
 .instant-features span {
-    font-size: 0.87rem;
-    color: var(--text-secondary, var(--clr-text-muted));
+    font-size: .85rem;
+    color: var(--text-muted);
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.instant-features i {
-    color: var(--clr-secondary);
-    font-size: 0.8rem;
-}
+.instant-features i { color: var(--green); font-size: .78rem; }
 
-.dh-unavail {
-    text-align: center;
-    color: var(--text-secondary, var(--clr-text-muted));
-    font-size: 0.9rem;
-    padding: 14px 0;
-}
-
-/* ─── Deal Hunt Box ────────────────────────── */
+/* ─── Deal Hunt Box ── */
 .deal-hunt-box {
-    background: linear-gradient(135deg, var(--clr-secondary-dim), var(--clr-primary));
-    border: 1px solid var(--clr-secondary-dim);
-    border-radius: 18px;
-    padding: 28px 26px;
-    margin-bottom: 20px;
+    background: var(--bg-raised);
+    border: 1px solid var(--amber-dim);
+    border-radius: var(--r-lg);
+    padding: 24px;
+    margin-bottom: 16px;
     position: relative;
     overflow: hidden;
-    animation: priceReveal 0.6s ease both;
-    box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+    animation: priceReveal 0.5s ease both;
+    box-shadow: var(--shadow);
 }
 
 .deal-hunt-box::before {
     content: '';
     position: absolute;
-    top: -60px;
-    right: -60px;
-    width: 220px;
-    height: 220px;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
     border-radius: 50%;
-    background: radial-gradient(circle, var(--clr-secondary-dim), transparent 70%);
+    background: radial-gradient(circle, var(--amber-dim), transparent 70%);
     pointer-events: none;
 }
 
@@ -139,233 +404,216 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 22px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
     gap: 8px;
 }
 
 .dh-box-title {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     font-weight: 800;
-    color: var(--clr-secondary);
+    color: var(--amber);
     display: flex;
     align-items: center;
     gap: 8px;
+    font-family: 'Space Grotesk', sans-serif;
 }
 
 .dh-box-tagline {
-    font-size: 0.8rem;
-    color: var(--text-secondary, var(--clr-text-muted));
+    font-size: .78rem;
+    color: var(--text-muted);
     font-style: italic;
 }
 
-/* ─── Info Grid ────────────────────────────── */
+/* ─── Info grid ── */
 .dh-info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
 }
 
 .dh-info-item {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
-    padding: 13px 14px;
-    border-radius: 12px;
+    gap: 11px;
+    padding: 12px 13px;
+    border-radius: var(--r);
     background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
+    border: 1px solid var(--border);
     transition: border-color 0.2s;
 }
 
-.dh-info-item:hover { border-color: var(--clr-secondary-dim); }
+.dh-info-item:hover { border-color: var(--amber-dim); }
 
-.dh-info-item > i {
-    font-size: 1.1rem;
-    color: var(--clr-secondary);
-    margin-top: 3px;
-    flex-shrink: 0;
-}
+.dh-info-item > i { font-size: 1rem; color: var(--amber); margin-top: 2px; flex-shrink: 0; }
 
 .dh-info-item span {
     display: block;
-    font-size: 0.72rem;
-    color: var(--text-secondary, var(--clr-text-muted));
+    font-size: .68rem;
+    color: var(--text-dim);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: .06em;
     margin-bottom: 4px;
 }
 
-.dh-info-item strong {
-    font-size: 0.95rem;
-    color: #fff;
-    font-weight: 700;
-}
+.dh-info-item strong { font-size: .9rem; color: var(--text); font-weight: 700; }
 
-.dh-info-refund { border-color: var(--clr-secondary-dim) !important; }
-.dh-info-refund > i { color: var(--clr-secondary); }
-.dh-info-refund strong { color: var(--clr-secondary); }
+.dh-info-refund { border-color: var(--amber-dim) !important; }
+.dh-info-refund > i { color: var(--amber); }
+.dh-info-refund strong { color: var(--amber); }
 
-/* ─── Cost Preview ─────────────────────────── */
+/* ─── Cost preview ── */
 .dh-cost-preview {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 18px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 14px;
+    margin-bottom: 16px;
 }
 
 .dh-cost-row {
     display: flex;
     justify-content: space-between;
-    font-size: 0.9rem;
-    color: var(--text-secondary, var(--clr-text-muted));
-    padding: 6px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: .88rem;
+    color: var(--text-muted);
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 
 .dh-cost-row:last-of-type { border-bottom: none; }
 
 .dh-cost-total {
     font-weight: 700;
-    color: #fff !important;
-    font-size: 1rem !important;
+    color: var(--text) !important;
+    font-size: .95rem !important;
     margin-top: 4px;
     padding-top: 10px !important;
-    border-top: 1px solid rgba(255,255,255,0.12) !important;
+    border-top: 1px solid var(--border) !important;
 }
 
-.dh-cost-note {
-    font-size: 0.75rem;
-    color: var(--text-secondary, var(--clr-text-muted));
-    margin-top: 10px;
-    line-height: 1.5;
-}
+.dh-cost-note { font-size: .73rem; color: var(--text-dim); margin-top: 8px; line-height: 1.5; }
+.dh-fee { color: var(--amber); font-weight: 700; }
 
-.dh-fee { color: var(--clr-secondary); font-weight: 700; }
-
-/* ─── Form Fields ──────────────────────────── */
+/* ─── Form ── */
 .dh-form { display: flex; flex-direction: column; gap: 0; }
 
-.dh-field {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 14px;
-}
+.dh-field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 13px; }
 
 .dh-field label {
-    font-size: 0.85rem;
+    font-size: .82rem;
     font-weight: 600;
-    color: var(--text-secondary, var(--clr-text-muted));
+    color: var(--text-muted);
     display: flex;
     align-items: center;
     gap: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: .72rem;
 }
 
-.dh-field label i { color: var(--clr-secondary); }
+.dh-field label i { color: var(--amber); }
 
 .dh-input {
-    background: rgba(255,255,255,0.04);
-    border: 1.5px solid rgba(255,255,255,0.1);
-    border-radius: 10px;
-    padding: 11px 14px;
-    color: #fff;
-    font-size: 0.95rem;
-    font-family: 'Outfit', sans-serif;
+    background: var(--bg-raised);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 10px 13px;
+    color: var(--text);
+    font-size: .9rem;
+    font-family: 'Space Grotesk', sans-serif;
     transition: border-color 0.2s, box-shadow 0.2s;
     outline: none;
 }
 
 .dh-input:focus {
-    border-color: var(--clr-secondary);
-    box-shadow: 0 0 0 3px var(--clr-secondary-dim);
+    border-color: var(--amber);
+    box-shadow: 0 0 0 3px var(--amber-dim);
 }
 
-.dh-input.error { border-color: var(--clr-primary); }
-.dh-input-err { font-size: 0.8rem; color: var(--clr-primary); }
+.dh-input.error { border-color: var(--red); }
+.dh-input-err   { font-size: .78rem; color: var(--red); }
 
-/* ─── Terms Checkbox ───────────────────────── */
+/* ─── Checkbox ── */
 .dh-checkbox {
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    font-size: 0.78rem;
-    color: var(--text-secondary, var(--clr-text-muted));
+    font-size: .76rem;
+    color: var(--text-muted);
     line-height: 1.55;
     cursor: pointer;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
 }
 
 .dh-checkbox input[type="checkbox"] {
-    accent-color: var(--clr-secondary);
-    width: 15px;
-    height: 15px;
+    accent-color: var(--amber);
+    width: 15px; height: 15px;
     flex-shrink: 0;
     margin-top: 2px;
     cursor: pointer;
 }
 
-/* ─── Buttons ──────────────────────────────── */
+/* ─── Buttons ── */
 .dh-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     width: 100%;
-    padding: 15px 20px;
+    padding: 14px 18px;
     border: none;
-    border-radius: 12px;
-    font-size: 1rem;
+    border-radius: var(--r);
+    font-size: .95rem;
     font-weight: 700;
     cursor: pointer;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     transition: all 0.2s;
+    letter-spacing: 0.01em;
 }
 
+/* Deal hunt primary action — Amber */
 .dh-btn-primary {
-    background: linear-gradient(135deg, var(--clr-secondary), var(--clr-primary));
-    color: #fff;
-    box-shadow: 0 8px 30px var(--clr-secondary-dim);
+    background: var(--amber);
+    color: #000;
+    box-shadow: 0 6px 24px rgba(245,158,11,0.25);
 }
 
 .dh-btn-primary:hover:not(:disabled) {
+    background: var(--amber-dark);
     transform: translateY(-2px);
-    box-shadow: 0 14px 40px var(--clr-secondary-dim);
+    box-shadow: 0 10px 32px rgba(245,158,11,0.35);
 }
 
-.dh-btn-primary:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
+.dh-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
+/* Pay button — Green (confirm payment) */
 .dh-btn-pay {
-    background: linear-gradient(135deg, var(--clr-secondary), var(--clr-secondary));
+    background: var(--green);
     color: #fff;
-    box-shadow: 0 8px 25px var(--clr-secondary-dim);
+    box-shadow: 0 6px 20px rgba(34,197,94,0.2);
 }
 
 .dh-btn-pay:hover {
+    background: var(--green-dark);
     transform: translateY(-2px);
-    box-shadow: 0 14px 35px var(--clr-secondary-dim);
+    box-shadow: var(--green-glow);
 }
 
+/* Cancel button */
 .dh-btn-cancel {
-    background: var(--clr-primary-dim);
-    border: 1px solid var(--clr-primary-dim);
-    color: var(--clr-primary);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
 }
 
 .dh-btn-cancel:hover {
-    background: var(--clr-primary-dim);
+    background: var(--surface);
+    color: var(--text);
 }
 
-/* ─── Active Request Card ──────────────────── */
-.dh-active-card {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-}
+/* ─── Active request card ── */
+.dh-active-card { display: flex; flex-direction: column; gap: 16px; }
 
 .dh-active-header {
     display: flex;
@@ -376,75 +624,74 @@
 }
 
 .dh-active-title {
-    font-size: 1rem;
+    font-size: .95rem;
     font-weight: 700;
-    color: var(--clr-secondary);
+    color: var(--amber);
     display: flex;
     align-items: center;
     gap: 8px;
+    font-family: 'Space Grotesk', sans-serif;
 }
 
-/* ─── Status Badge ─────────────────────────── */
+/* ─── Status badges ── */
 .dh-status {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 5px 12px;
+    padding: 4px 11px;
     border-radius: 99px;
-    font-size: 0.8rem;
+    font-size: .78rem;
     font-weight: 700;
 }
 
 .dh-searching {
-    background: var(--clr-warning-dim);
-    border: 1px solid var(--clr-warning-dim);
-    color: var(--clr-primary);
+    background: var(--amber-dim);
+    border: 1px solid rgba(245,158,11,0.2);
+    color: var(--amber);
 }
 
 .dh-found {
-    background: var(--clr-secondary-dim);
-    border: 1px solid var(--clr-secondary-dim);
-    color: var(--clr-secondary);
+    background: var(--green-dim);
+    border: 1px solid rgba(34,197,94,0.2);
+    color: var(--green);
 }
 
 .dh-failed {
-    background: var(--clr-primary-dim);
-    border: 1px solid var(--clr-primary-dim);
-    color: var(--clr-primary);
+    background: var(--red-dim);
+    border: 1px solid rgba(239,68,68,0.2);
+    color: var(--red);
 }
 
 .dh-completed {
-    background: var(--clr-secondary-dim);
-    border: 1px solid var(--clr-secondary-dim);
-    color: var(--clr-primary);
+    background: var(--blue-dim);
+    border: 1px solid rgba(56,189,248,0.2);
+    color: var(--blue);
 }
 
 .dh-expired {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
-    color: var(--text-secondary, var(--clr-text-muted));
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
 }
 
-/* Pulsing dot for searching */
+/* Pulse dot */
 .dh-pulse-dot {
-    width: 8px;
-    height: 8px;
+    width: 7px; height: 7px;
     border-radius: 50%;
-    background: var(--clr-primary);
+    background: var(--amber);
     display: inline-block;
     animation: dhPulse 1.4s ease-in-out infinite;
 }
 
 @keyframes dhPulse {
     0%, 100% { opacity: 1; transform: scale(1); }
-    50%       { opacity: 0.4; transform: scale(0.6); }
+    50%       { opacity: 0.35; transform: scale(0.6); }
 }
 
-/* ─── Progress Steps ───────────────────────── */
+/* ─── Progress steps ── */
 .dh-steps {
     display: flex;
     align-items: flex-start;
-    gap: 0;
     position: relative;
     padding: 8px 0;
 }
@@ -456,74 +703,72 @@
     gap: 6px;
     flex: 1;
     position: relative;
-    font-size: 0.72rem;
-    color: rgba(255,255,255,0.3);
+    font-size: .68rem;
+    color: var(--text-dim);
     font-weight: 600;
     text-align: center;
 }
 
-.dh-step.done { color: var(--clr-secondary); }
-.dh-step.active { color: var(--clr-secondary); }
-.dh-step.failed-step { color: var(--clr-primary); }
+.dh-step.done   { color: var(--amber); }
+.dh-step.active { color: var(--amber); }
+.dh-step.failed-step { color: var(--red); }
 
 .dh-step-dot {
-    width: 34px;
-    height: 34px;
+    width: 32px; height: 32px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.06);
-    border: 2px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    border: 2px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.85rem;
+    font-size: .82rem;
     transition: all 0.3s;
 }
 
 .dh-step.done .dh-step-dot {
-    background: var(--clr-secondary-dim);
-    border-color: var(--clr-secondary);
-    color: var(--clr-secondary);
+    background: var(--amber-dim);
+    border-color: var(--amber);
+    color: var(--amber);
 }
 
 .dh-step.active .dh-step-dot {
-    background: var(--clr-secondary-dim);
-    border-color: var(--clr-secondary);
-    color: var(--clr-secondary);
-    box-shadow: 0 0 16px var(--clr-secondary-dim);
+    background: var(--amber-dim);
+    border-color: var(--amber);
+    color: var(--amber);
+    box-shadow: 0 0 14px rgba(245,158,11,0.3);
     animation: stepGlow 1.8s ease-in-out infinite;
 }
 
 .dh-step.failed-step .dh-step-dot {
-    background: var(--clr-primary-dim);
-    border-color: var(--clr-primary);
-    color: var(--clr-primary);
+    background: var(--red-dim);
+    border-color: var(--red);
+    color: var(--red);
 }
 
 @keyframes stepGlow {
-    0%, 100% { box-shadow: 0 0 10px var(--clr-secondary-dim); }
-    50%       { box-shadow: 0 0 22px var(--clr-secondary-dim); }
+    0%, 100% { box-shadow: 0 0 8px rgba(245,158,11,0.2); }
+    50%       { box-shadow: 0 0 18px rgba(245,158,11,0.45); }
 }
 
-/* Connecting line between steps */
 .dh-step-line {
     position: absolute;
-    top: 17px;
-    left: calc(50% + 17px);
-    width: calc(100% - 34px);
+    top: 16px;
+    left: calc(50% + 16px);
+    width: calc(100% - 32px);
     height: 2px;
-    background: rgba(255,255,255,0.1);
+    background: var(--border);
     z-index: 0;
     pointer-events: none;
 }
 
-.dh-step-line.done { background: var(--clr-secondary); }
+.dh-step-line.done { background: var(--amber); }
 
-/* ─── Payment Breakdown ────────────────────── */
+/* ─── Payment breakdown ── */
 .dh-breakdown {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 12px;
-    padding: 14px 16px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 13px 15px;
     display: flex;
     flex-direction: column;
     gap: 9px;
@@ -533,423 +778,91 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.88rem;
-    color: var(--text-secondary, var(--clr-text-muted));
+    font-size: .86rem;
+    color: var(--text-muted);
 }
 
-.dh-breakdown-row span {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-}
+.dh-breakdown-row span { display: flex; align-items: center; gap: 7px; }
+.dh-breakdown-row i    { color: var(--amber); font-size: .78rem; }
+.dh-breakdown-row strong { color: var(--text); font-weight: 700; }
 
-.dh-breakdown-row i { color: var(--clr-secondary); font-size: 0.8rem; }
-.dh-breakdown-row strong { color: #fff; font-weight: 700; }
+.total-row { border-top: 1px solid var(--border); padding-top: 9px; margin-top: 2px; }
 
-.total-row {
-    border-top: 1px solid rgba(255,255,255,0.08);
-    padding-top: 9px;
-    margin-top: 2px;
-}
-
-.dh-total { color: var(--clr-secondary) !important; }
-.dh-total small { font-size: 0.7rem; font-weight: 400; color: var(--text-secondary, var(--clr-text-muted)); margin-left: 4px; }
+.dh-total { color: var(--amber) !important; }
+.dh-total small { font-size: .68rem; font-weight: 400; color: var(--text-dim); margin-left: 4px; }
 
 .remaining-row {
-    background: var(--clr-secondary-dim);
-    border: 1px solid var(--clr-secondary-dim);
-    border-radius: 8px;
+    background: var(--amber-dim);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: var(--r-sm);
     padding: 8px 10px;
     margin-top: 4px;
 }
 
-.dh-remaining { color: var(--clr-secondary) !important; font-size: 1.05rem !important; }
+.dh-remaining { color: var(--amber) !important; font-size: 1rem !important; }
 
-/* ─── Notices ──────────────────────────────── */
+/* ─── Notices ── */
 .dh-notice {
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    padding: 12px 14px;
-    border-radius: 10px;
-    font-size: 0.82rem;
+    padding: 11px 13px;
+    border-radius: var(--r-sm);
+    font-size: .8rem;
     line-height: 1.55;
 }
 
 .dh-notice i { flex-shrink: 0; margin-top: 1px; }
 
 .dh-notice-warn {
-    background: var(--clr-warning-dim);
-    border: 1px solid var(--clr-warning-dim);
-    color: var(--clr-primary);
+    background: var(--amber-dim);
+    border: 1px solid rgba(245,158,11,0.2);
+    color: var(--amber);
 }
 
 .dh-notice-refund {
-    background: var(--clr-secondary-dim);
-    border: 1px solid var(--clr-secondary-dim);
-    color: var(--clr-primary);
+    background: var(--green-dim);
+    border: 1px solid rgba(34,197,94,0.2);
+    color: var(--green);
 }
 
-/* ─── Active Actions ───────────────────────── */
-.dh-active-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-.dh-active-actions .dh-btn { flex: 1; min-width: 140px; }
+/* ─── Active actions ── */
+.dh-active-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.dh-active-actions .dh-btn { flex: 1; min-width: 130px; }
 
-/* ─── Success Message ──────────────────────── */
+/* ─── Success message ── */
 .dh-success-msg {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 16px;
-    background: var(--clr-secondary-dim);
-    border: 1px solid var(--clr-secondary-dim);
-    border-radius: 12px;
-    font-size: 0.9rem;
-    color: var(--clr-primary);
-}
-
-.dh-success-msg i { font-size: 1.4rem; color: var(--clr-primary); }
-
-/* ─── Wrapper ──────────────────────────────── */
-.purchase-section-wrapper {
-    margin-bottom: 20px;
-}
-
-/* ─── Responsive ───────────────────────────── */
-@media (max-width: 640px) {
-    .purchase-mode-toggle { grid-template-columns: 1fr; }
-    .dh-info-grid          { grid-template-columns: 1fr; }
-    .dh-step span          { display: none; }
-    .dh-active-actions     { flex-direction: column; }
-}
-
-@media (max-width: 480px) {
-    .dh-box-header { flex-direction: column; align-items: flex-start; }
-    .pmt-btn { padding: 12px 14px; }
-}
-
-/* ═══════════════════════════════════════════════
-   NEW PURCHASE SECTION — ps-* namespace
-   Three modes: Instant · Deal · Store Price
-   ═══════════════════════════════════════════════ */
-
-/* ── Wrapper ── */
-.ps-panels-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    width: 100%;
-}
-
-@media (max-width: 768px) {
-    .ps-panels-container {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* ── Panel base ── */
-.ps-panel {
-    background: rgba(255,255,255,0.03);
-    border: 1.5px solid rgba(255,255,255,0.08);
-    border-radius: 20px;
-    padding: 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-    cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
-    position: relative;
-    overflow: hidden;
-}
-
-.ps-panel:hover {
-    border-color: rgba(255,255,255,0.2);
-    background: rgba(255,255,255,0.05);
-}
-
-.ps-panel.active {
-    background: rgba(255,255,255,0.06);
-    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
-    transform: translateY(-4px);
-}
-
-.ps-panel.unselected {
-    opacity: 0.6;
-    background: rgba(255,255,255,0.015);
-    filter: grayscale(0.5);
-    transform: scale(0.98);
-}
-
-.ps-check-mark {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    font-size: 1.6rem;
-}
-
-.ps-panel-instant.active {
-    border-color: var(--clr-primary);
-    box-shadow: 0 0 30px var(--clr-primary-dim), inset 0 1px 0 var(--clr-primary);
-}
-
-.ps-panel-instant .ps-check-mark {
-    color: var(--clr-primary);
-}
-
-.ps-panel-deal.active {
-    border-color: var(--clr-secondary);
-    box-shadow: 0 0 30px var(--clr-secondary-dim), inset 0 1px 0 var(--clr-primary);
-}
-
-.ps-panel-deal .ps-check-mark {
-    color: var(--clr-secondary);
-}
-
-/* ── Panel Header ── */
-.ps-panel-header {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-}
-
-.ps-mode-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    flex-shrink: 0;
-}
-
-.ps-panel.active .ps-mode-icon {
-    transform: scale(1.1);
-}
-
-.ps-icon-instant {
-    background: var(--clr-primary-dim);
-    color: var(--clr-primary);
-}
-
-.ps-icon-deal {
-    background: var(--clr-secondary-dim);
-    color: var(--clr-secondary);
-}
-
-.ps-mode-text { display: flex; flex-direction: column; gap: 3px; }
-
-.ps-mode-title {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--clr-text-muted);
-}
-
-.ps-panel-instant.active .ps-mode-title { color: var(--clr-primary); }
-.ps-panel-deal.active .ps-mode-title { color: var(--clr-secondary); }
-
-.ps-mode-sub {
-    font-size: 0.78rem;
-    color: var(--clr-text-muted);
-    line-height: 1.3;
-}
-
-.ps-spacer { flex-grow: 1; }
-
-/* ── Instant Delivery panel ── */
-.ps-panel-instant {
-    border-color: var(--clr-primary-dim);
-}
-
-/* Price display */
-.ps-price-block {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-    position: relative;
-}
-
-.ps-price-label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--clr-text-muted);
-    font-weight: 600;
-}
-
-.ps-price-value {
-    font-size: 2.8rem;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -0.02em;
-    line-height: 1;
-}
-
-.ps-discount-badge {
-    position: absolute;
-    top: 0;
-    right: 0;
-    background: linear-gradient(135deg, var(--clr-secondary), var(--clr-primary));
-    color: #000;
-    font-size: 0.8rem;
-    font-weight: 800;
-    padding: 4px 10px;
-    border-radius: 20px;
-}
-
-/* Feature checklist */
-.ps-features {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.ps-features li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.88rem;
-    color: var(--clr-text-muted);
-}
-
-.ps-features li i {
-    color: var(--clr-primary);
-    font-size: 0.9rem;
-    flex-shrink: 0;
-}
-
-/* Action buttons */
-.ps-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.ps-btn {
-    width: 100%;
-    padding: 15px 24px;
-    border-radius: 14px;
-    font-family: 'Outfit', sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
-}
-
-.ps-btn-primary {
-    background: linear-gradient(135deg, var(--clr-primary) 0%, var(--clr-primary) 100%);
-    color: var(--clr-primary);
-    box-shadow: 0 4px 20px var(--clr-primary-dim);
-}
-
-.ps-btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px var(--clr-primary-dim);
-}
-
-.ps-btn-primary:active { transform: translateY(0); }
-
-.ps-btn-secondary {
-    background: rgba(255,255,255,0.06);
-    color: var(--clr-primary);
-    border: 1.5px solid rgba(255,255,255,0.12);
-}
-
-.ps-btn-secondary:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: rgba(255,255,255,0.2);
-    color: #fff;
-    transform: translateY(-1px);
-}
-
-/* Disclaimer */
-.ps-disclaimer {
-    font-size: 0.75rem;
-    color: var(--clr-primary);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin: 0;
-    line-height: 1.5;
-}
-
-.ps-disclaimer i { color: var(--clr-primary); flex-shrink: 0; }
-
-.ps-unavailable {
-    font-size: 0.85rem;
-    color: var(--clr-text-muted);
-    display: flex;
-    align-items: center;
-    gap: 8px;
     padding: 14px;
-    border-radius: 10px;
-    background: rgba(255,255,255,0.03);
-    border: 1px dashed rgba(255,255,255,0.08);
-    margin: 0;
+    background: var(--green-dim);
+    border: 1px solid rgba(34,197,94,0.2);
+    border-radius: var(--r);
+    font-size: .88rem;
+    color: var(--green);
 }
 
-/* ── Deal Hunt panel ── */
-.ps-panel-deal {
-    border-color: var(--clr-secondary-dim);
-}
+.dh-success-msg i { font-size: 1.3rem; color: var(--green); }
 
-.ps-deal-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-}
+/* ─── Wrapper ── */
+.purchase-section-wrapper { margin-bottom: 18px; }
 
-.ps-deal-header > i {
-    font-size: 2rem;
-    color: var(--clr-secondary);
-    flex-shrink: 0;
-    filter: drop-shadow(0 0 10px var(--clr-secondary-dim));
-}
-
-.ps-deal-title {
-    display: block;
-    font-size: 1.2rem;
-    font-weight: 800;
-    color: var(--clr-secondary);
-    margin-bottom: 2px;
-}
-
-.ps-deal-tagline {
-    display: block;
-    font-size: 0.78rem;
-    color: var(--clr-text-muted);
-}
-
-/* ── New layout in Details.css for the page ── */
+/* ─── Details page extras (dt- in DealHunt) ── */
 .dt-new-layout {
     padding-top: 80px;
     min-height: 100vh;
 }
 
 .dt-page-wrapper {
-    max-width: 860px;
+    max-width: 880px;
     margin: 0 auto;
     padding: 3rem 1.5rem 5rem;
     display: flex;
     flex-direction: column;
-    gap: 3rem;
+    gap: 2.5rem;
 }
 
-/* Hero section */
 .dt-hero-section {
     display: flex;
     align-items: flex-start;
@@ -958,86 +871,10 @@
     flex-wrap: wrap;
 }
 
-.dt-hero-text {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    flex: 1;
-}
+.dt-hero-text { display: flex; flex-direction: column; gap: .9rem; flex: 1; }
 
-.dt-game-title {
-    font-size: 3rem;
-    font-weight: 900;
-    color: #fff;
-    letter-spacing: -0.03em;
-    line-height: 1.1;
-    margin: 0;
-    text-shadow: 0 2px 20px rgba(0,0,0,0.5);
-}
+.dt-purchase-hero { width: 100%; }
 
-.dt-hero-badges {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-}
-
-.dt-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 5px 13px;
-    border-radius: 20px;
-    font-size: 0.78rem;
-    font-weight: 600;
-}
-
-.dt-age-badge {
-    background: var(--clr-primary);
-    border: 1px solid var(--clr-primary);
-    color: var(--clr-primary);
-}
-
-.dt-recommend-badge {
-    background: var(--clr-primary);
-    border: 1px solid var(--clr-primary);
-    color: var(--clr-primary);
-}
-
-.dt-release-badge {
-    background: var(--clr-warning-dim);
-    border: 1px solid var(--clr-warning-dim);
-    color: var(--clr-primary);
-}
-
-.dt-steam-ext-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 8px 16px;
-    border-radius: 10px;
-    font-size: 0.8rem;
-    color: var(--clr-text-muted);
-    border: 1px solid rgba(255,255,255,0.07);
-    background: rgba(255,255,255,0.03);
-    text-decoration: none;
-    transition: all 0.2s;
-    white-space: nowrap;
-    align-self: flex-start;
-}
-
-.dt-steam-ext-link:hover {
-    color: var(--clr-secondary);
-    border-color: var(--clr-secondary-dim);
-    background: var(--clr-secondary-dim);
-}
-
-/* Purchase hero – full width */
-.dt-purchase-hero {
-    width: 100%;
-}
-
-/* Details grid */
 .dt-details-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1045,56 +882,37 @@
 }
 
 .dt-detail-card {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 18px;
-    padding: 1.5rem;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 1.4rem;
 }
 
 .dt-detail-heading {
-    font-size: 0.75rem;
+    font-size: .7rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--clr-primary);
-    margin: 0 0 1rem;
+    color: var(--text-dim);
+    margin: 0 0 .9rem;
     display: flex;
     align-items: center;
     gap: 7px;
 }
 
-.dt-detail-heading i { color: var(--clr-secondary); }
-
-.dt-tags-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-}
-
-.dt-tag {
-    padding: 4px 11px;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    background: var(--clr-secondary-dim);
-    border: 1px solid var(--clr-secondary-dim);
-    color: var(--clr-primary);
-    transition: background 0.2s;
-}
-
-.dt-tag:hover { background: var(--clr-secondary-dim); }
+.dt-detail-heading i { color: var(--amber); }
 
 .dt-languages-text {
-    font-size: 0.83rem;
-    color: var(--clr-text-muted);
+    font-size: .82rem;
+    color: var(--text-muted);
     line-height: 1.7;
     margin: 0;
 }
 
-.dt-languages-text strong { color: var(--clr-text-muted); }
+.dt-languages-text strong { color: var(--text); }
 
-/* Skeleton */
+/* Old dh-skeleton */
 .dt-skeleton {
-    max-width: 860px;
+    max-width: 880px;
     margin: 0 auto;
     padding: 3rem 1.5rem;
     display: grid;
@@ -1104,75 +922,46 @@
     align-items: start;
 }
 
-.dt-sk-hero-area  { grid-area: hero; display: flex; flex-direction: column; gap: 12px; }
+.dt-sk-hero-area     { grid-area: hero;     display: flex; flex-direction: column; gap: 12px; }
 .dt-sk-purchase-area { grid-area: purchase; }
-.dt-sk-info-area  { grid-area: info; display: flex; flex-direction: column; gap: 12px; }
+.dt-sk-info-area     { grid-area: info;     display: flex; flex-direction: column; gap: 12px; }
 
 .dt-sk-pulse {
-    border-radius: 10px;
+    border-radius: var(--r);
     background: linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 75%);
     background-size: 200% 100%;
     animation: ps-shimmer 1.5s infinite;
 }
 
-.dt-sk-title  { height: 60px; width: 70%; }
+.dt-sk-title  { height: 58px; width: 70%; }
 .dt-sk-sub    { height: 22px; width: 50%; }
-.dt-sk-badges { height: 32px; width: 80%; }
+.dt-sk-badges { height: 30px; width: 80%; }
 
 @keyframes ps-shimmer {
     0%   { background-position: 200% 0; }
     100% { background-position: -200% 0; }
 }
 
-/* Error/fail */
-.dt-failed-msg {
-    max-width: 500px;
-    margin: 6rem auto;
-    text-align: center;
-    color: var(--clr-text-muted);
+/* ─── Responsive ── */
+@media (max-width: 640px) {
+    .purchase-mode-toggle { grid-template-columns: 1fr; }
+    .dh-info-grid         { grid-template-columns: 1fr; }
+    .dh-step span         { display: none; }
+    .dh-active-actions    { flex-direction: column; }
 }
 
-.dt-failed-msg > i {
-    font-size: 3.5rem;
-    color: var(--clr-primary);
-    display: block;
-    margin-bottom: 1.5rem;
-    filter: drop-shadow(0 0 20px var(--clr-primary));
-}
-
-.dt-failed-msg h2 { color: var(--clr-text-muted); margin-bottom: .5rem; }
-.dt-failed-msg p  { font-size: .9rem; margin-bottom: 2rem; }
-
-.dt-back-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    border-radius: 12px;
-    background: rgba(255,255,255,0.06);
-    color: var(--clr-text-muted);
-    text-decoration: none;
-    border: 1px solid rgba(255,255,255,0.1);
-    transition: all 0.2s;
-    font-weight: 600;
-}
-
-.dt-back-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
-
-/* ── Responsive ── */
 @media (max-width: 700px) {
-    .dt-game-title { font-size: 2rem; }
-    .dt-page-wrapper { padding: 2rem 1rem 4rem; gap: 2rem; }
-    .dt-details-grid { grid-template-columns: 1fr; }
-    .dt-skeleton { grid-template-columns: 1fr; grid-template-areas: "hero" "purchase" "info"; }
-    .ps-mode-selector { grid-template-columns: 1fr; }
-    .ps-price-value { font-size: 2rem; }
+    .dt-details-grid   { grid-template-columns: 1fr; }
+    .dt-skeleton       { grid-template-columns: 1fr; grid-template-areas: "hero" "purchase" "info"; }
+    .ps-panels-container { grid-template-columns: 1fr; }
+    .ps-price-value    { font-size: 2rem; }
 }
 
 @media (max-width: 480px) {
     .dt-new-layout { padding-top: 65px; }
-    .dt-game-title { font-size: 1.6rem; }
-    .ps-panel { padding: 20px; }
+    .dt-page-wrapper { padding: 2rem 1rem 4rem; gap: 2rem; }
+    .ps-panel { padding: 18px; }
     .dt-hero-section { flex-direction: column; }
+    .dh-info-grid { grid-template-columns: 1fr; }
+    .pmt-btn { padding: 11px 13px; }
 }
-

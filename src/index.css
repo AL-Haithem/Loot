@@ -1,173 +1,279 @@
-/* ════════════════════════════════════════════════
-   HNK Store — Global Design Tokens
-   Palette: "Ocean Slate"
-   Base: #0f172a (Dark Slate) | Primary: #0ea5e9 (Sea Blue) | Accent: #f59e0b (Amber)
-   ════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   HNK Store — Global Design System
+   Theme: "Obsidian & Ice"
+   Background: #0a0a0f (Near-Black Obsidian)
+   Surface:    #111118 (Carbon) / #1c1c27 (Graphite)
+   Primary:    #38bdf8 (Ice Blue)
+   Success:    #22c55e (Emerald)
+   Error:      #ef4444 (Soft Red)
+   Text:       #f4f4f5 (Zinc 100) / #a1a1aa (Zinc 400)
+   ══════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
 
 :root {
-    /* ── Foundation (Comfortable Slate) ── */
-    --clr-bg:          #0f172a;   /* Slate 900 */
-    --clr-surface:     #1e293b;   /* Slate 800 */
-    --clr-surface2:    #334155;   /* Slate 700 - hovers/elevated */
-    --clr-border:      rgba(14, 165, 233, 0.15); /* Subtle blue borders */
-    --clr-border2:     rgba(14, 165, 233, 0.3);
+    /* ── Core Backgrounds ── */
+    --bg:           #0a0a0f;
+    --bg-raised:    #111118;
+    --bg-elevated:  #16161f;
+    --surface:      #1c1c27;
+    --surface-2:    #252535;
+    --surface-3:    #2e2e42;
 
-    /* ── Action: Primary (Sea Blue) ── */
-    --clr-primary:     #0ea5e9;   
-    --clr-primary-dim: rgba(14, 165, 233, 0.15);
-    --clr-primary-glow:0 0 15px rgba(14, 165, 233, 0.4);
+    /* ── Borders ── */
+    --border:       rgba(255, 255, 255, 0.07);
+    --border-2:     rgba(255, 255, 255, 0.12);
+    --border-focus: rgba(56, 189, 248, 0.5);
 
-    /* ── Action: Secondary/Accent (Amber/Yellow) ── */
-    --clr-secondary:   #f59e0b;   
-    --clr-secondary-dim:rgba(245, 158, 11, 0.15);
-    --clr-secondary-glow:0 0 15px rgba(245, 158, 11, 0.4);
+    /* ── Ice Blue (Primary) ── */
+    --blue:         #38bdf8;
+    --blue-dark:    #0284c7;
+    --blue-dim:     rgba(56, 189, 248, 0.1);
+    --blue-glow:    0 0 20px rgba(56, 189, 248, 0.25);
 
-    /* ── Accent & Highlights ── */
-    --clr-accent:      #f59e0b;   
-    --clr-accent-dim:  rgba(245, 158, 11, 0.15);
+    /* ── Emerald (Success / Buy) ── */
+    --green:        #22c55e;
+    --green-dark:   #16a34a;
+    --green-dim:    rgba(34, 197, 94, 0.12);
+    --green-glow:   0 0 20px rgba(34, 197, 94, 0.3);
 
-    /* ── Text (Comfortable off-white) ── */
-    --clr-text:        #f8fafc;   /* Slate 50 */
-    --clr-text-muted:  #94a3b8;   /* Slate 400 */
-    --clr-text-dim:    #475569;   /* Slate 600 */
+    /* ── Red (Error / Delete) ── */
+    --red:          #ef4444;
+    --red-dark:     #dc2626;
+    --red-dim:      rgba(239, 68, 68, 0.12);
 
-    /* ── Functional / Status Colors ── */
-    --clr-success:     #10b981;   /* Emerald Green - Buy/Success */
-    --clr-success-dim: rgba(16, 185, 129, 0.15);
-    --clr-error:       #ef4444;   /* Red - Delete/Error */
-    --clr-error-dim:   rgba(239, 68, 68, 0.15);
-    --clr-warning:     #f59e0b;   /* Amber */
-    --clr-warning-dim: rgba(245, 158, 11, 0.15);
+    /* ── Amber (highlight/deal) ── */
+    --amber:        #f59e0b;
+    --amber-dark:   #d97706;
+    --amber-dim:    rgba(245, 158, 11, 0.12);
+
+    /* ── Text ── */
+    --text:         #f4f4f5;
+    --text-muted:   #a1a1aa;
+    --text-dim:     #52525b;
 
     /* ── Radii ── */
-    --radius-sm:  8px;
-    --radius:     12px;
-    --radius-lg:  16px;
-    --radius-xl:  24px;
+    --r-sm:  6px;
+    --r:     10px;
+    --r-lg:  16px;
+    --r-xl:  22px;
 
     /* ── Shadows ── */
-    --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-    --shadow-glow: var(--clr-primary-glow);
+    --shadow:       0 4px 24px rgba(0, 0, 0, 0.5);
+    --shadow-lg:    0 10px 50px rgba(0, 0, 0, 0.65);
 
-    /* ── Legacy aliases (Mapped dynamically across all CSS) ── */
-    --bg-main:           var(--clr-bg);
-    --accent-primary:    var(--clr-primary);
-    --accent-secondary:  var(--clr-secondary);
-    --text-primary:      var(--clr-text);
-    --text-secondary:    var(--clr-text-muted);
-    --card-bg:           var(--clr-surface);
-    --border-color:      var(--clr-border);
-    --glow-primary:      var(--clr-primary-glow);
-    --glow-secondary:    var(--clr-secondary-glow);
+    /* ── Legacy aliases (for backward compat with old CSS files) ── */
+    --bg-main:           var(--bg);
+    --clr-bg:            var(--bg);
+    --clr-primary:       var(--blue);
+    --clr-primary-dim:   var(--blue-dim);
+    --clr-primary-glow:  var(--blue-glow);
+    --clr-secondary:     var(--amber);
+    --clr-secondary-dim: var(--amber-dim);
+    --clr-secondary-glow:0 0 20px rgba(245, 158, 11, 0.25);
+    --clr-surface:       var(--surface);
+    --clr-border:        var(--border);
+    --clr-text:          var(--text);
+    --clr-text-muted:    var(--text-muted);
+    --clr-success:       var(--green);
+    --clr-success-dim:   var(--green-dim);
+    --clr-error:         var(--red);
+    --clr-error-dim:     var(--red-dim);
+    --clr-warning:       var(--amber);
+    --clr-warning-dim:   var(--amber-dim);
+    --accent-primary:    var(--blue);
+    --accent-secondary:  var(--amber);
+    --text-primary:      var(--text);
+    --text-secondary:    var(--text-muted);
+    --card-bg:           var(--surface);
+    --border-color:      var(--border);
+    --glow-primary:      var(--blue-glow);
+    --glow-secondary:    0 0 20px rgba(245, 158, 11, 0.25);
 
-    /* ── dt- aliases ── */
-    --dt-bg:         var(--clr-bg);
-    --dt-surface:    var(--clr-surface);
-    --dt-surface2:   var(--clr-surface2);
-    --dt-border:     var(--clr-border);
-    --dt-border2:    var(--clr-border2);
-    
-    --dt-gold:       var(--clr-secondary); /* Remapped Gold to Amber */
-    --dt-gold-dim:   var(--clr-secondary-dim);
-    --dt-gold-glow:  var(--clr-secondary-glow);
-    
-    --dt-purple:     var(--clr-primary);   /* Remapped Purple to Primary Blue */
-    --dt-purple-dim: var(--clr-primary-dim);
-    
-    --dt-green:      var(--clr-success);
-    --dt-red:        var(--clr-error);
-    
-    --dt-text:       var(--clr-text);
-    --dt-muted:      var(--clr-text-muted);
-    
-    --dt-radius-sm:  var(--radius-sm);
-    --dt-radius:     var(--radius);
-    --dt-radius-lg:  var(--radius-lg);
+    /* ── dt-* aliases (Details page) ── */
+    --dt-bg:         var(--bg);
+    --dt-surface:    var(--surface);
+    --dt-surface2:   var(--surface-2);
+    --dt-border:     var(--border);
+    --dt-border2:    var(--border-2);
+    --dt-gold:       var(--amber);
+    --dt-gold-dim:   var(--amber-dim);
+    --dt-gold-glow:  0 0 20px rgba(245, 158, 11, 0.25);
+    --dt-purple:     var(--blue);
+    --dt-purple-dim: var(--blue-dim);
+    --dt-green:      var(--green);
+    --dt-red:        var(--red);
+    --dt-text:       var(--text);
+    --dt-muted:      var(--text-muted);
+    --dt-radius-sm:  var(--r-sm);
+    --dt-radius:     var(--r);
+    --dt-radius-lg:  var(--r-lg);
+
+    /* ── Legacy radius ── */
+    --radius-sm:     var(--r-sm);
+    --radius:        var(--r);
+    --radius-lg:     var(--r-lg);
+    --radius-xl:     var(--r-xl);
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
 
 body {
-    font-family: 'Outfit', 'Inter', sans-serif;
-    background-color: var(--bg-main);
-    color: var(--text-primary);
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
     overflow-x: hidden;
     min-height: 100vh;
+    line-height: 1.6;
 }
 
-/* ─── Shared Button Styles ─── */
-.auth-btn-group {
-    display: flex;
-    gap: 12px;
+/* ─────────────────────────────────────────────────
+   GLOBAL BUTTON SYSTEM
+   ───────────────────────────────────────────────── */
+
+/* Shared base */
+.btn-base {
+    display: inline-flex;
     align-items: center;
-}
-
-.auth-btn-small {
-    height: 42px !important;
-    padding: 0 24px !important;
-    font-size: 0.95rem !important;
-    min-width: 125px;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    border-radius: var(--radius-sm) !important;
-    font-weight: 600 !important;
-    transition: all 0.3s ease;
+    justify-content: center;
+    gap: 8px;
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--r);
     cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    white-space: nowrap;
 }
 
-/* Primary Button -> Sea Blue */
+/* Ice Blue — Primary action (Add to Cart, Sign In, etc.) */
 .auth-btn-primary {
-    background: var(--clr-primary) !important;
-    color: #ffffff !important; 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--blue) !important;
+    color: #ffffff !important;
     border: none !important;
-    box-shadow: 0 4px 12px var(--clr-primary-dim) !important;
+    border-radius: var(--r) !important;
+    font-weight: 600 !important;
+    font-family: 'Space Grotesk', 'Inter', sans-serif !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.01em;
 }
 
 .auth-btn-primary:hover {
-    box-shadow: 0 6px 16px var(--clr-primary-glow) !important;
-    transform: translateY(-2px);
-    background: #0284c7 !important; /* Slightly darker/more intense blue */
+    background: var(--blue-dark) !important;
+    transform: translateY(-1px);
+    box-shadow: var(--blue-glow) !important;
 }
 
-/* Secondary Button -> Amber Outlined */
+/* Ghost — Outlined secondary */
 .auth-btn-outline {
-    background: rgba(30, 41, 59, 0.6) !important;
-    border: 1px solid var(--clr-secondary) !important;
-    color: var(--clr-secondary) !important;
-    backdrop-filter: blur(10px) !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: transparent !important;
+    color: var(--text-muted) !important;
+    border: 1px solid var(--border-2) !important;
+    border-radius: var(--r) !important;
+    font-weight: 600 !important;
+    font-family: 'Space Grotesk', 'Inter', sans-serif !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
 }
 
 .auth-btn-outline:hover {
-    background: var(--clr-secondary-dim) !important;
-    box-shadow: 0 4px 15px var(--clr-secondary-glow) !important;
-    transform: translateY(-2px);
+    background: var(--surface) !important;
+    color: var(--text) !important;
+    border-color: var(--border-2) !important;
+    transform: translateY(-1px);
 }
 
-/* Success Button -> Emerald Green (Buy) */
+/* Shared size modifier */
+.auth-btn-small {
+    height: 38px !important;
+    padding: 0 18px !important;
+    font-size: 0.875rem !important;
+    border-radius: var(--r) !important;
+}
+
+.auth-btn-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Emerald — Success / Buy action */
 .btn-success {
-    background: var(--clr-success) !important;
+    background: var(--green) !important;
     color: #ffffff !important;
     border: none !important;
-    box-shadow: 0 4px 12px var(--clr-success-dim) !important;
+    border-radius: var(--r) !important;
+    font-weight: 700 !important;
     cursor: pointer;
-}
-.btn-success:hover {
-    background: #059669 !important;
-    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4) !important;
-    transform: translateY(-2px);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: 'Space Grotesk', 'Inter', sans-serif !important;
 }
 
-/* Danger Button -> Red (Delete) */
+.btn-success:hover {
+    background: var(--green-dark) !important;
+    transform: translateY(-2px);
+    box-shadow: var(--green-glow) !important;
+}
+
+/* Red — Danger / Delete */
 .btn-danger {
-    background: var(--clr-error) !important;
+    background: var(--red) !important;
     color: #ffffff !important;
     border: none !important;
-    box-shadow: 0 4px 12px var(--clr-error-dim) !important;
+    border-radius: var(--r) !important;
+    font-weight: 700 !important;
     cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: 'Space Grotesk', 'Inter', sans-serif !important;
 }
+
 .btn-danger:hover {
-    background: #dc2626 !important;
-    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4) !important;
+    background: var(--red-dark) !important;
     transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35) !important;
+}
+
+/* ─────────────────────────────────────────────────
+   SCROLLBAR
+   ───────────────────────────────────────────────── */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: var(--surface-3);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-dim);
 }
