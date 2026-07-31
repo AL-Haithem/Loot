@@ -97,9 +97,9 @@
     top: 0; left: 0; right: 0; bottom: 0;
     width: 100vw; height: 100vh;
     background-size: cover;
-    background-position: center top;
-    filter: blur(15px) brightness(0.4) saturate(1.2);
-    transform: scale(1.05);
+    background-position: center 10%;
+    filter: blur(8px) brightness(0.6) saturate(1.2);
+    transform: scale(1.02);
     z-index: 0;
     pointer-events: none;
     will-change: transform;
@@ -110,7 +110,7 @@
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    background: linear-gradient(to bottom, rgba(8, 11, 20, 0.4) 0%, var(--dt-bg) 80%);
+    background: linear-gradient(to bottom, rgba(8, 11, 20, 0.2) 0%, rgba(8, 11, 20, 0.7) 50%, var(--dt-bg) 100%);
 }
 
 /* ─── Sticky Header ─────────────────────────── */

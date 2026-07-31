@@ -123,7 +123,7 @@ export default function DetailsPage() {
         return () => { alive = false }
     }, [appId])
 
-    const bg         = game?.background_raw || game?.background
+    const bg = game?.background_raw || game?.background || "https://store.akamai.steamstatic.com/images/storepagebackground/app/413150?t=1754692865"
     const releaseStr = game?.release_date?.date || "Unknown"
     const isComingSoon = game?.release_date?.coming_soon
 
