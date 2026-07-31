@@ -30,10 +30,17 @@ function Platforms({ platforms }) {
 /* ─── Skeleton ──────────────────────────── */
 function PageSkeleton() {
     return (
-        <div className="dt-purchase-focused-wrapper">
-            <div className="dt-sk-pulse" style={{ height: 60, width: "50%", marginBottom: 16, borderRadius: 12 }} />
-            <div className="dt-sk-pulse" style={{ height: 32, width: "70%", marginBottom: 32, borderRadius: 8 }} />
-            <div className="dt-sk-pulse" style={{ height: 420, borderRadius: 20 }} />
+        <div className="dt-hero-layout">
+            <div className="dt-hero-left">
+                <div className="dt-sk-pulse" style={{ height: 24, width: "30%", borderRadius: 8, marginBottom: 16 }} />
+                <div className="dt-sk-pulse" style={{ height: 80, width: "85%", borderRadius: 12, marginBottom: 24 }} />
+                <div className="dt-sk-pulse" style={{ height: 20, width: "60%", borderRadius: 8, marginBottom: 16 }} />
+                <div className="dt-sk-pulse" style={{ height: 20, width: "50%", borderRadius: 8, marginBottom: 40 }} />
+                <div className="dt-sk-pulse" style={{ height: 48, width: "40%", borderRadius: 12 }} />
+            </div>
+            <div className="dt-hero-right">
+                <div className="dt-sk-pulse" style={{ height: 520, borderRadius: 20 }} />
+            </div>
         </div>
     )
 }
@@ -110,7 +117,7 @@ export default function DetailsPage() {
                 </div>
             </header>
 
-            <main className="dt-main dt-new-layout">
+            <main className="dt-main">
                 {loading ? (
                     <PageSkeleton />
                 ) : failed || !game ? (
@@ -118,51 +125,75 @@ export default function DetailsPage() {
                         <i className="fas fa-exclamation-triangle" />
                         <h2>Game not found</h2>
                         <p>The game might not exist or the server is unreachable.</p>
-                        <Link to="/games" className="dt-back-btn"><i className="fas fa-arrow-left" /> Back to Store</Link>
+                        <Link to="/games" className="dt-back-btn">
+                            <i className="fas fa-arrow-left" /> Back to Store
+                        </Link>
                     </div>
                 ) : (
-                    <div className="dt-purchase-focused-wrapper">
+                    <div className="dt-hero-layout">
 
-                        {/* ══ HERO: Title + Badges ══ */}
-                        <section className="dt-hero-section">
+                        {/* ══ LEFT: Game Info Hero ══ */}
+                        <div className="dt-hero-left">
+
+                            {/* Decorative label */}
+                            <div className="dt-hero-label">
+                                <i className="fab fa-steam" /> Steam Game
+                            </div>
+
+                            {/* Game title — big & premium */}
                             <h1 className="dt-game-title">{game.name}</h1>
 
-                            <div className="dt-hero-badges">
-                                <Platforms platforms={game.platforms} />
+                            {/* Age restriction if applicable */}
+                            {game.required_age > 0 && (
+                                <div className="dt-age-warning">
+                                    <i className="fas fa-user-shield" />
+                                    <span>Rated <strong>{game.required_age}+</strong> — Mature content</span>
+                                </div>
+                            )}
 
-                                {/* Required Age — show badge only if > 0 */}
-                                {game.required_age > 0 && (
-                                    <span className="dt-badge dt-age-badge">
-                                        <i className="fas fa-user-shield" /> {game.required_age}+
-                                    </span>
+                            {/* Meta info */}
+                            <div className="dt-meta-grid">
+                                {game.release_date && (
+                                    <div className="dt-meta-item">
+                                        <i className="fas fa-calendar-alt" />
+                                        <div>
+                                            <span className="dt-meta-label">Release Date</span>
+                                            <span className="dt-meta-value">
+                                                {isComingSoon ? "Coming Soon" : releaseStr}
+                                            </span>
+                                        </div>
+                                    </div>
                                 )}
-
                                 {game.recommendations?.total > 0 && (
-                                    <span className="dt-badge dt-recommend-badge">
+                                    <div className="dt-meta-item dt-meta-positive">
                                         <i className="fas fa-thumbs-up" />
-                                        {game.recommendations.total.toLocaleString()} Recommended
-                                    </span>
+                                        <div>
+                                            <span className="dt-meta-label">Recommendations</span>
+                                            <span className="dt-meta-value">
+                                                {game.recommendations.total.toLocaleString()}
+                                            </span>
+                                        </div>
+                                    </div>
                                 )}
-
-                                <span className="dt-badge dt-release-badge">
-                                    <i className="fas fa-calendar" />
-                                    {isComingSoon ? "Coming Soon" : releaseStr}
-                                </span>
-
-                                <a
-                                    href={`https://store.steampowered.com/app/${appId}`}
-                                    target="_blank" rel="noreferrer"
-                                    className="dt-steam-ext-link"
-                                >
-                                    <i className="fab fa-steam" /> View on Steam
-                                </a>
                             </div>
-                        </section>
 
-                        {/* ══ PURCHASE — full width, the star of the page ══ */}
-                        <section className="dt-purchase-section">
+                            {/* Platforms */}
+                            <Platforms platforms={game.platforms} />
+
+                            {/* Steam link */}
+                            <a
+                                href={`https://store.steampowered.com/app/${appId}`}
+                                target="_blank" rel="noreferrer"
+                                className="dt-steam-ext-link"
+                            >
+                                <i className="fab fa-steam" /> View on Steam
+                            </a>
+                        </div>
+
+                        {/* ══ RIGHT: Purchase Panels ══ */}
+                        <div className="dt-hero-right">
                             <PurchaseSection game={gameForPurchase} priceLoading={loading} />
-                        </section>
+                        </div>
 
                     </div>
                 )}
