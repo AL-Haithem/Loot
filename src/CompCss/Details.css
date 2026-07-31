@@ -920,7 +920,7 @@
 
 /* ── Expandable Box ── */
 .dt-expand-content {
-    max-height: 140px;
+    max-height: 90px;
     overflow: hidden;
     position: relative;
     transition: max-height 0.4s ease;
@@ -932,7 +932,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 60px;
+    height: 40px;
     background: linear-gradient(to top, rgba(16, 20, 31, 0.95), transparent);
     pointer-events: none;
     opacity: 1;
@@ -940,7 +940,7 @@
 }
 
 .dt-expand-content.expanded {
-    max-height: 1000px;
+    max-height: 2000px;
 }
 
 .dt-expand-content.expanded::after {
@@ -973,8 +973,8 @@
 
 /* ── 3-Column Layout ── */
 .dt-wide {
-    max-width: 1800px;
-    width: 96%;
+    max-width: none !important;
+    width: 95% !important;
     margin: 0 auto;
     padding: 3rem 0 5rem;
 }
@@ -984,6 +984,7 @@
     grid-template-columns: 320px 1fr 320px;
     gap: 32px;
     align-items: start;
+    width: 100%;
 }
 
 .dt-side-column {

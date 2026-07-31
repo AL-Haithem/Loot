@@ -36,7 +36,7 @@ function ExpandableBox({ title, icon, children }) {
     useLayoutEffect(() => {
         const checkHeight = () => {
             if (contentRef.current) {
-                if (contentRef.current.scrollHeight > 160) {
+                if (contentRef.current.scrollHeight > 100) {
                     setNeedsExpand(true)
                 } else {
                     setNeedsExpand(false)
