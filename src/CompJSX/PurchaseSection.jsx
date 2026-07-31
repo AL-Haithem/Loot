@@ -240,9 +240,10 @@ export default function PurchaseSection({ game }) {
 
             {/* ── INSTANT DELIVERY panel ── */}
             <div 
-                className={`ps-panel ps-panel-instant ${mode === "instant" ? "active" : ""}`}
+                className={`ps-panel ps-panel-instant ${mode === "instant" ? "active" : "unselected"}`}
                 onClick={() => setMode("instant")}
             >
+                {mode === "instant" && <div className="ps-check-mark"><i className="fas fa-check-circle" /></div>}
                 <div className="ps-panel-header">
                     <div className="ps-mode-icon ps-icon-instant"><i className="fas fa-bolt" /></div>
                     <div className="ps-mode-text">
@@ -304,9 +305,10 @@ export default function PurchaseSection({ game }) {
 
             {/* ── DEAL HUNT panel ── */}
             <div 
-                className={`ps-panel ps-panel-deal ${mode === "deal" ? "active" : ""}`}
+                className={`ps-panel ps-panel-deal ${mode === "deal" ? "active" : "unselected"}`}
                 onClick={() => setMode("deal")}
             >
+                {mode === "deal" && <div className="ps-check-mark"><i className="fas fa-check-circle" /></div>}
                 <div className="ps-panel-header">
                     <div className="ps-mode-icon ps-icon-deal"><i className="fas fa-satellite-dish" /></div>
                     <div className="ps-mode-text">

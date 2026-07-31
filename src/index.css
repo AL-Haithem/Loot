@@ -1,15 +1,79 @@
-
+/* ════════════════════════════════════════════════
+   HNK Store — Global Design Tokens
+   Palette: #19180A · #3F220F · #772014 · #AF4319 · #E71D36
+   ════════════════════════════════════════════════ */
 
 :root {
-    --bg-main: #060913;
-    --accent-primary: #00f0ff;
-    --accent-secondary: #ff0055;
-    --text-primary: #ffffff;
-    --text-secondary: #94a3b8;
-    --card-bg: rgba(13, 17, 30, 0.65);
-    --border-color: rgba(255, 255, 255, 0.08);
-    --glow-primary: 0 0 25px rgba(0, 240, 255, 0.6);
-    --glow-secondary: 0 0 25px rgba(255, 0, 85, 0.6);
+    /* ── Brand Palette ── */
+    --clr-bg:          #19180A;   /* deepest dark (page background) */
+    --clr-surface:     #2a1e0d;   /* card / panel backgrounds */
+    --clr-surface2:    #3F220F;   /* elevated surfaces, modals */
+    --clr-border:      rgba(231,29,54,0.15);
+    --clr-border2:     rgba(231,29,54,0.30);
+
+    /* ── Brand accent colours ── */
+    --clr-primary:     #E71D36;   /* main CTA, selected state, active */
+    --clr-primary-dim: rgba(231,29,54,0.12);
+    --clr-primary-glow:0 0 30px rgba(231,29,54,0.45);
+
+    --clr-secondary:   #AF4319;   /* hover, secondary buttons */
+    --clr-secondary-dim:rgba(175,67,25,0.15);
+
+    --clr-accent:      #772014;   /* links, decorative highlights */
+    --clr-accent-dim:  rgba(119,32,20,0.2);
+
+    /* ── Text ── */
+    --clr-text:        #F5EFE6;   /* primary text on dark */
+    --clr-text-muted:  #A08060;   /* secondary/muted text */
+    --clr-text-dim:    #6B5040;   /* disabled / placeholder */
+
+    /* ── Status (keep functional greens/reds readable) ── */
+    --clr-success:     #34D399;
+    --clr-success-dim: rgba(52,211,153,0.12);
+    --clr-error:       #F87171;
+    --clr-error-dim:   rgba(248,113,113,0.12);
+    --clr-warning:     #FBBF24;
+    --clr-warning-dim: rgba(251,191,36,0.12);
+
+    /* ── Radii ── */
+    --radius-sm:  8px;
+    --radius:     14px;
+    --radius-lg:  20px;
+    --radius-xl:  28px;
+
+    /* ── Shadows ── */
+    --shadow-card: 0 4px 24px rgba(0,0,0,0.5);
+    --shadow-glow: 0 0 30px rgba(231,29,54,0.35);
+
+    /* ── Legacy aliases (so old variable names still work) ── */
+    --bg-main:           var(--clr-bg);
+    --accent-primary:    var(--clr-primary);
+    --accent-secondary:  var(--clr-secondary);
+    --text-primary:      var(--clr-text);
+    --text-secondary:    var(--clr-text-muted);
+    --card-bg:           var(--clr-surface);
+    --border-color:      var(--clr-border);
+    --glow-primary:      var(--clr-primary-glow);
+    --glow-secondary:    0 0 25px rgba(175,67,25,0.6);
+
+    /* ── dt- aliases (used by Details.css, DealHunt.css etc.) ── */
+    --dt-bg:         var(--clr-bg);
+    --dt-surface:    var(--clr-surface);
+    --dt-surface2:   var(--clr-surface2);
+    --dt-border:     var(--clr-border);
+    --dt-border2:    var(--clr-border2);
+    --dt-gold:       var(--clr-secondary);   
+    --dt-gold-dim:   var(--clr-secondary-dim);
+    --dt-gold-glow:  var(--shadow-glow);
+    --dt-purple:     var(--clr-primary);               
+    --dt-purple-dim: var(--clr-primary-dim);
+    --dt-green:      var(--clr-success);
+    --dt-red:        var(--clr-primary);
+    --dt-text:       var(--clr-text);
+    --dt-muted:      var(--clr-text-muted);
+    --dt-radius-sm:  var(--radius-sm);
+    --dt-radius:     var(--radius);
+    --dt-radius-lg:  var(--radius-lg);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,7 +87,6 @@ body {
 }
 
 /* Auth Shared Buttons */
-
 .auth-btn-group {
     display: flex;
     gap: 12px;
@@ -43,14 +106,15 @@ body {
 }
 
 .auth-btn-primary {
-    background: linear-gradient(135deg, #6366f1, #d946ef) !important;
+    background: var(--clr-primary) !important;
     color: #ffffff !important;
     border: 2px solid transparent !important;
-    box-shadow: 0 8px 20px rgba(217, 70, 239, 0.3) !important;
+    box-shadow: 0 8px 20px rgba(231, 29, 54, 0.3) !important;
 }
 
 .auth-btn-primary:hover {
-    box-shadow: 0 10px 25px rgba(217, 70, 239, 0.5) !important;
+    box-shadow: 0 10px 25px rgba(231, 29, 54, 0.5) !important;
+    background: var(--clr-secondary) !important;
     color: #fff !important;
 }
 
@@ -62,7 +126,7 @@ body {
 }
 
 .auth-btn-outline:hover {
-    border-color: rgba(255, 255, 255, 0.4) !important;
+    border-color: var(--clr-secondary) !important;
     background: rgba(255, 255, 255, 0.1) !important;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4) !important;
 }
