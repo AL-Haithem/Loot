@@ -53,7 +53,7 @@
 
 .main-logo {
     width: 180px;
-    filter: drop-shadow(0 0 20px rgba(0, 240, 255, 0.4));
+    filter: drop-shadow(0 0 20px var(--clr-primary-dim));
 }
 
 .bounce-anim {
@@ -71,7 +71,7 @@
 }
 
 .accent-text {
-    background: linear-gradient(to right, var(--accent-primary), #0066ff);
+    background: linear-gradient(to right, var(--accent-primary), var(--clr-secondary));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -107,10 +107,10 @@
 }
 
 .btn-primary {
-    background: linear-gradient(45deg, var(--accent-primary), #00aaff);
+    background: linear-gradient(45deg, var(--accent-primary), var(--clr-secondary));
     color: #000;
     border: 2px solid transparent;
-    box-shadow: 0 10px 25px rgba(0, 240, 255, 0.3);
+    box-shadow: 0 10px 25px var(--clr-primary-dim);
 }
 
 .btn-primary:hover {
@@ -120,15 +120,15 @@
 }
 
 .btn-outline {
-    background: rgba(0, 240, 255, 0.03);
-    border: 2px solid rgba(0, 240, 255, 0.5);
+    background: var(--clr-primary-dim);
+    border: 2px solid var(--clr-primary-dim);
     color: var(--text-primary);
     backdrop-filter: blur(10px);
 }
 
 .btn-outline:hover {
     border-color: var(--accent-secondary);
-    background: rgba(255, 0, 85, 0.1);
+    background: var(--clr-primary-dim);
     box-shadow: var(--glow-secondary);
     transform: translateY(-5px);
 }
@@ -201,7 +201,7 @@
 .cyber-card:hover {
     transform: translateY(-12px);
     border-color: var(--accent-primary);
-    background: rgba(20, 25, 40, 0.85);
+    background: var(--clr-primary);
 }
 
 .service-card:hover {

@@ -7,7 +7,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 14px 5%;
-    background: rgba(8, 11, 20, 0.9);
+    background: var(--clr-primary);
     border-bottom: 1px solid rgba(255,255,255,.08);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
@@ -28,7 +28,7 @@
     align-items: center;
     gap: 8px;
     text-decoration: none;
-    color: #7c8fac;
+    color: var(--clr-text-muted);
     font-size: .9rem;
     font-weight: 600;
     padding: 8px 16px;
@@ -40,9 +40,9 @@
 }
 
 .gp-header .dt-back:hover {
-    color: #f0b429;
-    border-color: rgba(240,180,41,.35);
-    background: rgba(240,180,41,.1);
+    color: var(--clr-secondary);
+    border-color: var(--clr-secondary-dim);
+    background: var(--clr-secondary-dim);
 }
 
 .gp-header .dt-header-brand {
@@ -50,7 +50,7 @@
     align-items: center;
     gap: 10px;
     text-decoration: none;
-    color: #f0f4ff;
+    color: var(--clr-text-muted);
     font-size: 1.1rem;
     font-weight: 800;
     letter-spacing: -.3px;
@@ -59,7 +59,7 @@
 
 .gp-header .dt-header-brand img {
     height: 32px;
-    filter: drop-shadow(0 0 8px rgba(240,180,41,.4));
+    filter: drop-shadow(0 0 8px var(--clr-secondary-dim));
 }
 
 .gp-header-right {
@@ -85,23 +85,23 @@
 }
 
 .gp-search-wrapper:focus-within {
-    border-color: rgba(240,180,41,.4);
-    box-shadow: 0 0 0 3px rgba(240,180,41,.1);
+    border-color: var(--clr-secondary-dim);
+    box-shadow: 0 0 0 3px var(--clr-secondary-dim);
 }
 
-.gp-search-wrapper i { color: #7c8fac; font-size: .9rem; flex-shrink: 0; }
+.gp-search-wrapper i { color: var(--clr-text-muted); font-size: .9rem; flex-shrink: 0; }
 
 .gp-search {
     background: none;
     border: none;
     outline: none;
-    color: #f0f4ff;
+    color: var(--clr-text-muted);
     font-size: .9rem;
     font-family: 'Outfit', sans-serif;
     width: 100%;
 }
 
-.gp-search::placeholder { color: #7c8fac; }
+.gp-search::placeholder { color: var(--clr-text-muted); }
 
 /* Account link */
 .gp-header .dt-header-account {
@@ -109,14 +109,14 @@
     align-items: center;
     gap: 7px;
     text-decoration: none;
-    color: #7c8fac;
+    color: var(--clr-text-muted);
     font-size: .88rem;
     font-weight: 600;
     transition: color .2s;
     white-space: nowrap;
 }
 
-.gp-header .dt-header-account:hover { color: #f0f4ff; }
+.gp-header .dt-header-account:hover { color: var(--clr-text-muted); }
 
 /* Cart icon */
 .gp-header .dt-header-cart {
@@ -128,16 +128,16 @@
     height: 40px;
     border-radius: 8px;
     border: 1px solid rgba(255,255,255,.08);
-    color: #7c8fac;
+    color: var(--clr-text-muted);
     font-size: 1.05rem;
     transition: all .2s;
     flex-shrink: 0;
 }
 
 .gp-header .dt-header-cart:hover {
-    color: #f0b429;
-    border-color: rgba(240,180,41,.35);
-    background: rgba(240,180,41,.1);
+    color: var(--clr-secondary);
+    border-color: var(--clr-secondary-dim);
+    background: var(--clr-secondary-dim);
 }
 
 .gp-header .dt-cart-badge {
@@ -148,7 +148,7 @@
     height: 18px;
     padding: 0 5px;
     border-radius: 99px;
-    background: #f0b429;
+    background: var(--clr-secondary);
     color: #000;
     font-size: 11px;
     font-weight: 800;
@@ -167,7 +167,7 @@
     border-radius: 8px;
     border: 1px solid rgba(255,255,255,.08);
     background: transparent;
-    color: #7c8fac;
+    color: var(--clr-text-muted);
     font-size: 1rem;
     cursor: pointer;
     transition: all .2s;
@@ -175,7 +175,7 @@
 }
 
 .gp-menu-btn:hover {
-    color: #f0f4ff;
+    color: var(--clr-text-muted);
     border-color: rgba(255,255,255,.18);
     background: rgba(255,255,255,.05);
 }
@@ -197,7 +197,7 @@
     grid-template-columns: 1fr 2fr 1fr;
     align-items: center;
     padding: 15px 5%;
-    background: #0a0f16;
+    background: var(--clr-primary);
     /* Opaque background */
     position: sticky;
     top: 0;
@@ -277,10 +277,10 @@
 
     border-radius: 10px;
 
-    background: rgba(43, 255, 142, 0.10);
-    border: 1px solid rgba(43, 255, 142, 0.35);
+    background: var(--clr-primary);
+    border: 1px solid var(--clr-primary);
 
-    color: #2bff8e;
+    color: var(--clr-primary);
 
     font-size: 16px;
 
@@ -291,18 +291,18 @@
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 
-    box-shadow: 0 0 0 rgba(43, 255, 142, 0);
+    box-shadow: 0 0 0 var(--clr-primary);
 }
 
 .cart-btn:hover {
     transform: translateY(-3px) scale(1.07);
 
-    background: rgba(43, 255, 142, 0.18);
-    border-color: rgba(43, 255, 142, 0.65);
+    background: var(--clr-primary);
+    border-color: var(--clr-primary);
 
     box-shadow:
-        0 10px 25px rgba(43, 255, 142, 0.25),
-        0 0 18px rgba(43, 255, 142, 0.45);
+        0 10px 25px var(--clr-primary),
+        0 0 18px var(--clr-primary);
 }
 
 .cart-btn:active {
@@ -353,7 +353,7 @@
     width: 260px;
     border-color: var(--accent-primary);
     outline: none;
-    background: rgba(0, 240, 255, 0.05);
+    background: var(--clr-primary-dim);
     box-shadow: var(--glow-primary);
 }
 
@@ -473,7 +473,7 @@
 }
 
 .nav-item.active {
-    background: linear-gradient(90deg, rgba(0, 240, 255, 0.15), transparent);
+    background: linear-gradient(90deg, var(--clr-primary-dim), transparent);
     color: var(--accent-primary);
     border-right: 3px solid var(--accent-primary);
     border-radius: 12px 0 0 12px;
@@ -490,7 +490,7 @@
 }
 
 .close-btn:hover {
-    color: #ff4b2b;
+    color: var(--clr-primary);
 }
 
 /* Filter Bar */
@@ -549,7 +549,7 @@
 
 .game-card {
     position: relative;
-    background: #141928;
+    background: var(--clr-primary);
     border-radius: 20px;
     overflow: hidden;
     transition: transform 0.3s ease, border-color 0.3s ease;
@@ -602,7 +602,7 @@
     padding: 18px;
     position: relative;
     z-index: 2;
-    background: #141928;
+    background: var(--clr-primary);
     display: flex;
     flex: 1;
     flex-direction: column;
@@ -619,8 +619,8 @@
     -webkit-line-clamp: 2;
     line-clamp: 2;
     margin-bottom: 12px;
-    color: #f8fbff;
-    -webkit-text-fill-color: #f8fbff;
+    color: var(--clr-primary);
+    -webkit-text-fill-color: var(--clr-primary);
     transition: color 0.3s ease;
     line-height: 1.35;
 }
@@ -652,7 +652,7 @@
     color: var(--accent-primary);
     font-size: 18px;
     font-weight: 800;
-    text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+    text-shadow: 0 0 10px var(--clr-primary-dim);
     white-space: nowrap;
 }
 
@@ -669,7 +669,7 @@
     justify-content: center;
     min-width: 72px;
     height: 36px;
-    background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+    background: linear-gradient(135deg, var(--clr-primary) 0%, var(--clr-primary) 100%);
     color: white;
     text-decoration: none;
     padding: 0 14px;
@@ -678,22 +678,22 @@
     font-weight: 700;
     transition: all 0.3s ease;
     border: none;
-    box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
+    box-shadow: 0 4px 15px var(--clr-primary);
 }
 
 .buy-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 114, 255, 0.5);
+    box-shadow: 0 6px 20px var(--clr-primary);
 }
 
 .buy-btn.steam-btn {
-    background: linear-gradient(135deg, #1b2838 0%, #2a475e 100%);
+    background: linear-gradient(135deg, var(--clr-primary) 0%, var(--clr-primary) 100%);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .buy-btn.steam-btn:hover {
-    background: linear-gradient(135deg, #2a475e 0%, #66c0f4 100%);
+    background: linear-gradient(135deg, var(--clr-primary) 0%, var(--clr-primary) 100%);
 }
 
 /* Load More Button */

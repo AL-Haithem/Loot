@@ -3,13 +3,13 @@
 
 /* ---- Variables (inherits from index.css + extends for admin) ---- */
 :root {
-  --adm-accent:       #00f2fe;
-  --adm-accent-glow:  rgba(0, 242, 254, 0.35);
-  --adm-accent2:      #3b82f6;
-  --adm-danger:       #f87171;
-  --adm-success:      #10b981;
-  --adm-bg:           #030712;
-  --adm-card-bg:      rgba(17, 24, 39, 0.70);
+  --adm-accent:       var(--clr-primary);
+  --adm-accent-glow:  var(--clr-primary);
+  --adm-accent2:      var(--clr-primary);
+  --adm-danger:       var(--clr-primary);
+  --adm-success:      var(--clr-primary);
+  --adm-bg:           var(--clr-bg);
+  --adm-card-bg:      var(--clr-primary);
   --adm-glass-border: rgba(255, 255, 255, 0.09);
   --adm-glass-shadow: 0 8px 40px 0 rgba(0, 0, 0, 0.55);
   --adm-blur:         14px;
@@ -40,9 +40,9 @@
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 70% 60% at 70% 20%, rgba(0, 242, 254, 0.09) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 50% at 20% 80%, rgba(139, 92, 246, 0.07) 0%, transparent 50%),
-    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(59, 130, 246, 0.04) 0%, transparent 60%);
+    radial-gradient(ellipse 70% 60% at 70% 20%, var(--clr-primary) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 20% 80%, var(--clr-primary) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, var(--clr-primary) 0%, transparent 60%);
   animation: adminGlowPulse 12s ease-in-out infinite alternate;
 }
 
@@ -58,8 +58,8 @@
   z-index: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(0, 242, 254, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 242, 254, 0.025) 1px, transparent 1px);
+    linear-gradient(var(--clr-primary) 1px, transparent 1px),
+    linear-gradient(90deg, var(--clr-primary) 1px, transparent 1px);
   background-size: 60px 60px;
   mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 80%);
 }
@@ -75,7 +75,7 @@
 }
 .adm-particle:nth-child(1) { width: 3px; height: 3px; background: var(--adm-accent); left: 15%; top: 80%; animation-duration: 18s; animation-delay: 0s; }
 .adm-particle:nth-child(2) { width: 2px; height: 2px; background: var(--adm-accent2); left: 40%; top: 90%; animation-duration: 22s; animation-delay: 3s; }
-.adm-particle:nth-child(3) { width: 4px; height: 4px; background: rgba(139,92,246,0.8); left: 65%; top: 85%; animation-duration: 16s; animation-delay: 6s; }
+.adm-particle:nth-child(3) { width: 4px; height: 4px; background: var(--clr-primary); left: 65%; top: 85%; animation-duration: 16s; animation-delay: 6s; }
 .adm-particle:nth-child(4) { width: 2px; height: 2px; background: var(--adm-accent); left: 80%; top: 75%; animation-duration: 20s; animation-delay: 2s; }
 .adm-particle:nth-child(5) { width: 3px; height: 3px; background: var(--adm-accent2); left: 25%; top: 70%; animation-duration: 25s; animation-delay: 8s; }
 
@@ -98,7 +98,7 @@
   -webkit-backdrop-filter: blur(var(--adm-blur));
   border: 1px solid var(--adm-glass-border);
   border-radius: var(--adm-radius-lg);
-  box-shadow: var(--adm-glass-shadow), 0 0 0 1px rgba(0,242,254,0.04);
+  box-shadow: var(--adm-glass-shadow), 0 0 0 1px var(--clr-primary-dim);
   animation: cardSlideIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
@@ -134,17 +134,17 @@
   width: 64px;
   height: 64px;
   border-radius: 16px;
-  background: linear-gradient(135deg, rgba(0,242,254,0.15), rgba(59,130,246,0.1));
-  border: 1px solid rgba(0,242,254,0.25);
-  box-shadow: 0 0 24px rgba(0,242,254,0.15), inset 0 1px 0 rgba(255,255,255,0.08);
+  background: linear-gradient(135deg, var(--clr-primary-dim), var(--clr-primary));
+  border: 1px solid var(--clr-primary-dim);
+  box-shadow: 0 0 24px var(--clr-primary-dim), inset 0 1px 0 rgba(255,255,255,0.08);
   margin-bottom: 1.2rem;
   position: relative;
   animation: logoPulse 3s ease-in-out infinite;
 }
 
 @keyframes logoPulse {
-  0%, 100% { box-shadow: 0 0 24px rgba(0,242,254,0.15), inset 0 1px 0 rgba(255,255,255,0.08); }
-  50%       { box-shadow: 0 0 36px rgba(0,242,254,0.30), inset 0 1px 0 rgba(255,255,255,0.08); }
+  0%, 100% { box-shadow: 0 0 24px var(--clr-primary-dim), inset 0 1px 0 rgba(255,255,255,0.08); }
+  50%       { box-shadow: 0 0 36px var(--clr-primary-dim), inset 0 1px 0 rgba(255,255,255,0.08); }
 }
 
 .adm-logo-wrap i {
@@ -166,7 +166,7 @@
 
 .adm-card-header .adm-subtitle {
   font-size: 0.83rem;
-  color: #64748b;
+  color: var(--clr-text-muted);
   font-weight: 400;
   display: flex;
   align-items: center;
@@ -179,7 +179,7 @@
   height: 6px;
   border-radius: 50%;
   background: var(--adm-success);
-  box-shadow: 0 0 8px rgba(16,185,129,0.6);
+  box-shadow: 0 0 8px var(--clr-primary);
   display: inline-block;
   animation: dotBlink 2s ease-in-out infinite;
 }
@@ -212,7 +212,7 @@
 .adm-field label {
   font-size: 0.80rem;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--clr-text-muted);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -236,7 +236,7 @@
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--adm-glass-border);
   border-radius: var(--adm-radius-sm);
-  color: #f1f5f9;
+  color: var(--clr-primary);
   padding: 12px 44px 12px 14px;
   font-family: var(--adm-font-body);
   font-size: 0.875rem;
@@ -246,20 +246,20 @@
 }
 
 .adm-input::placeholder {
-  color: #374151;
+  color: var(--clr-surface);
   font-size: 0.83rem;
 }
 
 .adm-input:focus {
-  background: rgba(0, 242, 254, 0.04);
+  background: var(--clr-primary);
   border-color: var(--adm-accent);
-  box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.08), 0 0 12px rgba(0,242,254,0.06);
+  box-shadow: 0 0 0 3px var(--clr-primary), 0 0 12px var(--clr-primary-dim);
 }
 
 .adm-input.has-error {
   border-color: var(--adm-danger);
-  background: rgba(248, 113, 113, 0.04);
-  box-shadow: 0 0 0 3px rgba(248,113,113,0.07);
+  background: var(--clr-primary);
+  box-shadow: 0 0 0 3px var(--clr-primary);
 }
 
 /* ---- Input Icon ---- */
@@ -268,7 +268,7 @@
   right: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: #374151;
+  color: var(--clr-surface);
   font-size: 0.85rem;
   pointer-events: none;
   transition: color 0.3s ease;
@@ -286,7 +286,7 @@
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #374151;
+  color: var(--clr-surface);
   font-size: 0.85rem;
   cursor: pointer;
   padding: 0;
@@ -329,7 +329,7 @@
   width: 100%;
   padding: 13px 24px;
   background: linear-gradient(135deg, var(--adm-accent), var(--adm-accent2));
-  color: #030712;
+  color: var(--clr-bg);
   font-family: var(--adm-font-head);
   font-size: 0.95rem;
   font-weight: 700;
@@ -357,7 +357,7 @@
 
 .adm-submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px var(--adm-accent-glow), 0 4px 12px rgba(59,130,246,0.3);
+  box-shadow: 0 8px 24px var(--adm-accent-glow), 0 4px 12px var(--clr-primary);
 }
 
 .adm-submit-btn:hover::before {
@@ -378,8 +378,8 @@
 .adm-spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(3,7,18,0.3);
-  border-top-color: #030712;
+  border: 2px solid var(--clr-primary);
+  border-top-color: var(--clr-bg);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;
@@ -395,11 +395,11 @@
   align-items: flex-start;
   gap: 10px;
   padding: 11px 14px;
-  background: rgba(248, 113, 113, 0.08);
-  border: 1px solid rgba(248, 113, 113, 0.25);
+  background: var(--clr-primary);
+  border: 1px solid var(--clr-primary);
   border-radius: var(--adm-radius-sm);
   font-size: 0.82rem;
-  color: #fca5a5;
+  color: var(--clr-primary);
   animation: errorSlide 0.3s ease-out;
   line-height: 1.5;
 }
@@ -417,11 +417,11 @@
   align-items: center;
   gap: 10px;
   padding: 11px 14px;
-  background: rgba(16, 185, 129, 0.08);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: var(--clr-primary);
+  border: 1px solid var(--clr-primary);
   border-radius: var(--adm-radius-sm);
   font-size: 0.82rem;
-  color: #6ee7b7;
+  color: var(--clr-primary);
   animation: errorSlide 0.3s ease-out;
 }
 
@@ -440,21 +440,21 @@
   justify-content: center;
   gap: 8px;
   font-size: 0.76rem;
-  color: #374151;
+  color: var(--clr-surface);
 }
 
 .adm-footer-dot {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #1e293b;
+  background: var(--clr-surface);
 }
 
 .adm-shield-badge {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: #4b5563;
+  color: var(--clr-primary);
   font-size: 0.76rem;
 }
 
@@ -468,7 +468,7 @@
 .adm-rate-notice {
   text-align: center;
   font-size: 0.73rem;
-  color: #374151;
+  color: var(--clr-surface);
   margin-top: 0.5rem;
   display: flex;
   align-items: center;
@@ -478,7 +478,7 @@
 
 .adm-rate-notice i {
   font-size: 0.68rem;
-  color: #1e293b;
+  color: var(--clr-surface);
 }
 
 /* ---- Responsive ---- */

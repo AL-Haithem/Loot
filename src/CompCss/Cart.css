@@ -6,7 +6,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 18px 30px;
-    background: rgba(6, 9, 19, 0.97);
+    background: var(--clr-primary);
     border-bottom: 1px solid var(--border-color);
     position: sticky;
     top: 0;
@@ -38,7 +38,7 @@
 .header-title i { color: var(--accent-primary); }
 
 .cart-badge-header {
-    background: linear-gradient(135deg, var(--accent-primary), #00aaff);
+    background: linear-gradient(135deg, var(--accent-primary), var(--clr-secondary));
     color: #000;
     font-size: 0.75rem;
     font-weight: 800;
@@ -93,7 +93,7 @@
     gap: 10px;
     margin-top: 10px;
     padding: 14px 36px;
-    background: linear-gradient(135deg, var(--accent-primary), #00aaff);
+    background: linear-gradient(135deg, var(--accent-primary), var(--clr-secondary));
     color: #000;
     font-weight: 700;
     border-radius: 12px;
@@ -138,7 +138,7 @@
 
 .clear-all-btn {
     background: transparent;
-    border: 1px solid rgba(255, 0, 85, 0.3);
+    border: 1px solid var(--clr-primary-dim);
     color: var(--accent-secondary);
     padding: 7px 16px;
     border-radius: 8px;
@@ -152,8 +152,8 @@
 }
 
 .clear-all-btn:hover {
-    background: rgba(255, 0, 85, 0.1);
-    border-color: rgba(255, 0, 85, 0.6);
+    background: var(--clr-primary-dim);
+    border-color: var(--clr-primary-dim);
 }
 
 /* ── Cart Item Row ───────────────────────────────────── */
@@ -161,7 +161,7 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    background: rgba(13, 17, 30, 0.75);
+    background: var(--clr-primary);
     border: 1px solid var(--border-color);
     border-radius: 16px;
     padding: 14px 18px;
@@ -170,7 +170,7 @@
 }
 
 .cart-item:hover {
-    border-color: rgba(0, 240, 255, 0.22);
+    border-color: var(--clr-primary-dim);
     transform: translateX(3px);
 }
 
@@ -198,7 +198,7 @@
 .cart-item-price {
     font-size: 1.05rem;
     font-weight: 700;
-    color: #00d4aa;
+    color: var(--clr-secondary);
 }
 
 .unit-label {
@@ -232,7 +232,7 @@
 }
 
 .qty-btn:hover {
-    background: rgba(0, 240, 255, 0.12);
+    background: var(--clr-primary-dim);
     border-color: var(--accent-primary);
     color: var(--accent-primary);
 }
@@ -257,8 +257,8 @@
 
 /* Remove Button */
 .cart-item-remove {
-    background: rgba(255, 0, 85, 0.1);
-    border: 1px solid rgba(255, 0, 85, 0.25);
+    background: var(--clr-primary-dim);
+    border: 1px solid var(--clr-primary-dim);
     color: var(--accent-secondary);
     border-radius: 8px;
     width: 30px;
@@ -273,13 +273,13 @@
 }
 
 .cart-item-remove:hover {
-    background: rgba(255, 0, 85, 0.28);
-    border-color: rgba(255, 0, 85, 0.6);
+    background: var(--clr-primary-dim);
+    border-color: var(--clr-primary-dim);
 }
 
 /* ── Summary Card ────────────────────────────────────── */
 .cart-summary {
-    background: rgba(13, 17, 30, 0.85);
+    background: var(--clr-primary);
     border: 1px solid var(--border-color);
     border-radius: 20px;
     padding: 28px 26px;
@@ -322,7 +322,7 @@
     margin-top: 4px;
 }
 
-.summary-row.total span:last-child { color: #00d4aa; }
+.summary-row.total span:last-child { color: var(--clr-secondary); }
 
 /* ── Checkout Buttons ────────────────────────────────── */
 .checkout-btn {
@@ -345,15 +345,15 @@
 .checkout-btn:hover { opacity: 0.9; transform: translateY(-2px); }
 .checkout-btn:active { transform: translateY(0); }
 
-.whatsapp-btn { background: #25d366; color: #fff; }
+.whatsapp-btn { background: var(--clr-primary); color: #fff; }
 
 .clear-btn {
-    background: rgba(255, 0, 85, 0.12);
-    border: 1px solid rgba(255, 0, 85, 0.3);
+    background: var(--clr-primary-dim);
+    border: 1px solid var(--clr-primary-dim);
     color: var(--accent-secondary);
 }
 
-.clear-btn:hover { background: rgba(255, 0, 85, 0.22); }
+.clear-btn:hover { background: var(--clr-primary-dim); }
 
 /* ── Animations ──────────────────────────────────────── */
 @keyframes slideIn {
