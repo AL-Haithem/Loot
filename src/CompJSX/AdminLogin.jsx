@@ -130,7 +130,7 @@ export default function AdminLogin() {
           <div className="adm-logo-wrap" aria-hidden="true">
             <i className="fas fa-shield-halved" />
           </div>
-          <h1>لوحة التحكم</h1>
+          <h1>Admin Panel</h1>
           <p className="adm-subtitle">
             <span className="adm-subtitle-dot" />
             Admin Panel — Restricted Access
@@ -165,7 +165,7 @@ export default function AdminLogin() {
           <div className="adm-field">
             <label htmlFor="adm-email">
               <i className="fas fa-envelope" aria-hidden="true" />
-              البريد الإلكتروني
+              Email Address
             </label>
             <div className="adm-input-wrap">
               <input
@@ -202,7 +202,7 @@ export default function AdminLogin() {
           <div className="adm-field">
             <label htmlFor="adm-password">
               <i className="fas fa-lock" aria-hidden="true" />
-              كلمة المرور
+              Password
             </label>
             <div className="adm-input-wrap has-toggle">
               <input
@@ -223,7 +223,7 @@ export default function AdminLogin() {
                 id="adm-pw-toggle"
                 className="adm-pw-toggle"
                 onClick={() => setShowPw(v => !v)}
-                aria-label={showPw ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+                aria-label={showPw ? 'Hide Password' : 'Show Password'}
                 tabIndex={0}
                 disabled={loading}
               >
@@ -251,8 +251,8 @@ export default function AdminLogin() {
             aria-busy={loading}
           >
             {loading
-              ? <><span className="adm-spinner" aria-hidden="true" /> جارٍ التحقق...</>
-              : <><i className="fas fa-right-to-bracket" aria-hidden="true" /> دخول</>
+              ? <><span className="adm-spinner" aria-hidden="true" /> Verifying...</>
+              : <><i className="fas fa-right-to-bracket" aria-hidden="true" /> Login</>
             }
           </button>
 

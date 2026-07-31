@@ -199,9 +199,11 @@ export default function ClientAuth() {
           </div>
         )}
 
-        <div className={`auth-message ${message.isError ? 'error' : 'success'}`}>
-          {message.text}
-        </div>
+        {message.text && (
+          <div className={`auth-message ${message.isError ? 'error' : 'success'}`}>
+            {message.text}
+          </div>
+        )}
 
         {view === 'login' && (
           <form onSubmit={handleLogin}>
