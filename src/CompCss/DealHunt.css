@@ -626,3 +626,528 @@
     .dh-box-header { flex-direction: column; align-items: flex-start; }
     .pmt-btn { padding: 12px 14px; }
 }
+
+/* ═══════════════════════════════════════════════
+   NEW PURCHASE SECTION — ps-* namespace
+   Three modes: Instant · Deal · Store Price
+   ═══════════════════════════════════════════════ */
+
+/* ── Wrapper ── */
+.ps-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+}
+
+/* ── Mode selector cards ── */
+.ps-mode-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.ps-mode-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+    border-radius: 16px;
+    border: 1.5px solid rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.03);
+    color: #c4cde0;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+    font-family: 'Outfit', sans-serif;
+    backdrop-filter: blur(12px);
+}
+
+.ps-mode-card:hover {
+    border-color: rgba(0,242,254,0.3);
+    background: rgba(0,242,254,0.05);
+    transform: translateY(-2px);
+}
+
+.ps-mode-card.ps-mode-active {
+    border-color: rgba(0,242,254,0.6);
+    background: rgba(0,242,254,0.08);
+    box-shadow: 0 0 24px rgba(0,242,254,0.12), inset 0 1px 0 rgba(0,242,254,0.2);
+    color: #fff;
+}
+
+.ps-mode-card.ps-mode-active .ps-mode-title {
+    color: #00f2fe;
+}
+
+/* Icon bubble */
+.ps-mode-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    transition: transform 0.3s;
+}
+
+.ps-mode-card:hover .ps-mode-icon { transform: scale(1.1); }
+
+.ps-icon-instant {
+    background: rgba(0,242,254,0.12);
+    color: #00f2fe;
+}
+
+.ps-icon-deal {
+    background: rgba(167,139,250,0.12);
+    color: #a78bfa;
+}
+
+.ps-mode-text { display: flex; flex-direction: column; gap: 3px; }
+
+.ps-mode-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #e2e8f0;
+    transition: color 0.2s;
+}
+
+.ps-mode-sub {
+    font-size: 0.72rem;
+    color: #64748b;
+    line-height: 1.3;
+}
+
+/* ── Panel base ── */
+.ps-panel {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+/* ── Instant Delivery panel ── */
+.ps-panel-instant {
+    border-color: rgba(0,242,254,0.15);
+}
+
+/* Price display */
+.ps-price-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    position: relative;
+}
+
+.ps-price-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.ps-price-value {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+    line-height: 1;
+}
+
+.ps-discount-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: linear-gradient(135deg, #f0b429, #f59e0b);
+    color: #000;
+    font-size: 0.8rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+/* Feature checklist */
+.ps-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ps-features li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.88rem;
+    color: #94a3b8;
+}
+
+.ps-features li i {
+    color: #34d399;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+/* Action buttons */
+.ps-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ps-btn {
+    width: 100%;
+    padding: 15px 24px;
+    border-radius: 14px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+
+.ps-btn-primary {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    color: #030a15;
+    box-shadow: 0 4px 20px rgba(0,242,254,0.3);
+}
+
+.ps-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,242,254,0.45);
+}
+
+.ps-btn-primary:active { transform: translateY(0); }
+
+.ps-btn-secondary {
+    background: rgba(255,255,255,0.06);
+    color: #c4cde0;
+    border: 1.5px solid rgba(255,255,255,0.12);
+}
+
+.ps-btn-secondary:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.2);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+/* Disclaimer */
+.ps-disclaimer {
+    font-size: 0.75rem;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.ps-disclaimer i { color: #34d399; flex-shrink: 0; }
+
+.ps-unavailable {
+    font-size: 0.85rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1px dashed rgba(255,255,255,0.08);
+    margin: 0;
+}
+
+/* ── Deal Hunt panel ── */
+.ps-panel-deal {
+    border-color: rgba(167,139,250,0.2);
+}
+
+.ps-deal-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.ps-deal-header > i {
+    font-size: 2rem;
+    color: #a78bfa;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 10px rgba(167,139,250,0.5));
+}
+
+.ps-deal-title {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #a78bfa;
+    margin-bottom: 2px;
+}
+
+.ps-deal-tagline {
+    display: block;
+    font-size: 0.78rem;
+    color: #64748b;
+}
+
+/* ── New layout in Details.css for the page ── */
+.dt-new-layout {
+    padding-top: 80px;
+    min-height: 100vh;
+}
+
+.dt-page-wrapper {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+/* Hero section */
+.dt-hero-section {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.dt-hero-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1;
+}
+
+.dt-game-title {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin: 0;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+}
+
+.dt-hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.dt-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 13px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.dt-age-badge {
+    background: rgba(248,113,113,0.12);
+    border: 1px solid rgba(248,113,113,0.3);
+    color: #f87171;
+}
+
+.dt-recommend-badge {
+    background: rgba(52,211,153,0.12);
+    border: 1px solid rgba(52,211,153,0.3);
+    color: #34d399;
+}
+
+.dt-release-badge {
+    background: rgba(251,191,36,0.1);
+    border: 1px solid rgba(251,191,36,0.25);
+    color: #fbbf24;
+}
+
+.dt-steam-ext-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    color: #64748b;
+    border: 1px solid rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.03);
+    text-decoration: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+    align-self: flex-start;
+}
+
+.dt-steam-ext-link:hover {
+    color: #a78bfa;
+    border-color: rgba(167,139,250,0.3);
+    background: rgba(167,139,250,0.06);
+}
+
+/* Purchase hero – full width */
+.dt-purchase-hero {
+    width: 100%;
+}
+
+/* Details grid */
+.dt-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.dt-detail-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    padding: 1.5rem;
+}
+
+.dt-detail-heading {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #475569;
+    margin: 0 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.dt-detail-heading i { color: #f0b429; }
+
+.dt-tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.dt-tag {
+    padding: 4px 11px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: rgba(167,139,250,0.1);
+    border: 1px solid rgba(167,139,250,0.18);
+    color: #c4b5fd;
+    transition: background 0.2s;
+}
+
+.dt-tag:hover { background: rgba(167,139,250,0.2); }
+
+.dt-languages-text {
+    font-size: 0.83rem;
+    color: #64748b;
+    line-height: 1.7;
+    margin: 0;
+}
+
+.dt-languages-text strong { color: #94a3b8; }
+
+/* Skeleton */
+.dt-skeleton {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+    display: grid;
+    grid-template-areas: "hero purchase" "info purchase";
+    grid-template-columns: 1fr 420px;
+    gap: 2rem;
+    align-items: start;
+}
+
+.dt-sk-hero-area  { grid-area: hero; display: flex; flex-direction: column; gap: 12px; }
+.dt-sk-purchase-area { grid-area: purchase; }
+.dt-sk-info-area  { grid-area: info; display: flex; flex-direction: column; gap: 12px; }
+
+.dt-sk-pulse {
+    border-radius: 10px;
+    background: linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 75%);
+    background-size: 200% 100%;
+    animation: ps-shimmer 1.5s infinite;
+}
+
+.dt-sk-title  { height: 60px; width: 70%; }
+.dt-sk-sub    { height: 22px; width: 50%; }
+.dt-sk-badges { height: 32px; width: 80%; }
+
+@keyframes ps-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Error/fail */
+.dt-failed-msg {
+    max-width: 500px;
+    margin: 6rem auto;
+    text-align: center;
+    color: #64748b;
+}
+
+.dt-failed-msg > i {
+    font-size: 3.5rem;
+    color: #f87171;
+    display: block;
+    margin-bottom: 1.5rem;
+    filter: drop-shadow(0 0 20px rgba(248,113,113,0.4));
+}
+
+.dt-failed-msg h2 { color: #e2e8f0; margin-bottom: .5rem; }
+.dt-failed-msg p  { font-size: .9rem; margin-bottom: 2rem; }
+
+.dt-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.06);
+    color: #e2e8f0;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.2s;
+    font-weight: 600;
+}
+
+.dt-back-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+    .dt-game-title { font-size: 2rem; }
+    .dt-page-wrapper { padding: 2rem 1rem 4rem; gap: 2rem; }
+    .dt-details-grid { grid-template-columns: 1fr; }
+    .dt-skeleton { grid-template-columns: 1fr; grid-template-areas: "hero" "purchase" "info"; }
+    .ps-mode-selector { grid-template-columns: 1fr; }
+    .ps-price-value { font-size: 2rem; }
+}
+
+@media (max-width: 480px) {
+    .dt-new-layout { padding-top: 65px; }
+    .dt-game-title { font-size: 1.6rem; }
+    .ps-panel { padding: 20px; }
+    .dt-hero-section { flex-direction: column; }
+}
+

@@ -7,7 +7,7 @@ import PurchaseSection from "./PurchaseSection.jsx"
 import { useCart } from "../CartContext.jsx"
 import { API_BASE } from "../api.js"
 
-/* ─── Platform Badges ────────────────────────── */
+/* ─── Platform Badges ─────────────────────── */
 function Platforms({ platforms }) {
     const icons = [
         { key: "windows", icon: "fab fa-windows", label: "Windows" },
@@ -27,23 +27,28 @@ function Platforms({ platforms }) {
     )
 }
 
-/* ─── Skeleton Loader ────────────────────────── */
-function DetailSkeleton() {
+/* ─── Skeleton ──────────────────────────── */
+function PageSkeleton() {
     return (
-        <div className="dt-skeleton-loader">
-            <div className="dt-sk-line" style={{ width: "40%", height: 40, marginBottom: 20 }} />
-            <div className="dt-sk-line" style={{ width: "80%", height: 20, marginBottom: 10 }} />
-            <div className="dt-sk-line" style={{ width: "60%", height: 20, marginBottom: 30 }} />
-            
-            <div className="dt-sk-grid">
-                <div className="dt-sk-box" style={{ height: 100 }} />
-                <div className="dt-sk-box" style={{ height: 100 }} />
+        <div className="dt-skeleton">
+            <div className="dt-sk-hero-area">
+                <div className="dt-sk-pulse dt-sk-title" />
+                <div className="dt-sk-pulse dt-sk-sub" />
+                <div className="dt-sk-pulse dt-sk-badges" />
+            </div>
+            <div className="dt-sk-purchase-area">
+                <div className="dt-sk-pulse" style={{ height: 220 }} />
+            </div>
+            <div className="dt-sk-info-area">
+                <div className="dt-sk-pulse" style={{ height: 80 }} />
+                <div className="dt-sk-pulse" style={{ height: 120 }} />
+                <div className="dt-sk-pulse" style={{ height: 80 }} />
             </div>
         </div>
     )
 }
 
-/* ─── Main Page ──────────────────────────────── */
+/* ─── Main Page ──────────────────────────── */
 export default function DetailsPage() {
     const { appId } = useParams()
     const { totalCount } = useCart()
@@ -60,11 +65,9 @@ export default function DetailsPage() {
         setFailed(false)
         setGame(null)
 
-        // Fetch full game details from our backend
         axios.get(`${API_BASE}/api/public/games/${appId}`)
             .then(res => {
                 if (!alive) return
-                // Assuming data is inside res.data.data or res.data
                 const gameData = res.data?.data || res.data
                 if (gameData && Object.keys(gameData).length > 0) {
                     setGame(gameData)
@@ -78,44 +81,37 @@ export default function DetailsPage() {
         return () => { alive = false }
     }, [appId])
 
-    const bg = game?.background_raw || game?.background
-
-    // Format Release Date
+    const bg         = game?.background_raw || game?.background
     const releaseStr = game?.release_date?.date || "Unknown"
     const isComingSoon = game?.release_date?.coming_soon
 
-    // Purchase game object compatibility
     const gameForPurchase = {
         ...(game ?? {}),
         steam_appid: Number(appId),
         head: game?.header_image || stateGame?.head,
         name: game?.name || stateGame?.name || `App ${appId}`,
         is_free: game?.is_free,
-        // Map price_overview directly for the purchase component if needed
-        price_overview: game?.price_overview
+        price_overview: game?.price_overview,
+        Price: game?.Price,
     }
 
     return (
         <div className="dt-root">
-            {/* Background Image */}
             {bg && <div className="dt-bg" style={{ backgroundImage: `url(${bg})` }} />}
             <div className="dt-bg-overlay" />
 
-            {/* Header */}
+            {/* ── Header ── */}
             <header className="dt-header">
                 <Link to="/games" className="dt-back">
                     <i className="fas fa-arrow-left" /> Store
                 </Link>
-
                 <Link to="/" className="dt-header-brand">
                     <img src={logo} alt="HNK Store" />
                     <span>HNK Store</span>
                 </Link>
-
                 <div className="dt-header-right">
                     <Link to="/login" className="dt-header-account">
-                        <i className="fas fa-user" />
-                        <span>Account</span>
+                        <i className="fas fa-user" /><span>Account</span>
                     </Link>
                     <Link to="/cart" className="dt-header-cart">
                         <i className="fas fa-shopping-bag" />
@@ -126,47 +122,68 @@ export default function DetailsPage() {
 
             <main className="dt-main dt-new-layout">
                 {loading ? (
-                    <DetailSkeleton />
+                    <PageSkeleton />
                 ) : failed || !game ? (
                     <div className="dt-failed-msg">
                         <i className="fas fa-exclamation-triangle" />
-                        <h2>Failed to load game details.</h2>
+                        <h2>Game not found</h2>
                         <p>The game might not exist or the server is unreachable.</p>
+                        <Link to="/games" className="dt-back-btn"><i className="fas fa-arrow-left" /> Back to Store</Link>
                     </div>
                 ) : (
-                    <div className="dt-content-grid">
-                        
-                        {/* LEFT COLUMN: Game Information */}
-                        <div className="dt-info-column">
-                            <h1 className="dt-title">{game.name}</h1>
-                            
-                            <div className="dt-meta-row">
-                                <Platforms platforms={game.platforms} />
-                                
-                                {game.required_age > 0 && (
-                                    <span className="dt-badge dt-age-badge" title="Required Age">
-                                        <i className="fas fa-user-shield" /> {game.required_age}+
+                    <div className="dt-page-wrapper">
+
+                        {/* ══ TOP HERO: Title + Quick Info ══ */}
+                        <section className="dt-hero-section">
+                            <div className="dt-hero-text">
+                                <h1 className="dt-game-title">{game.name}</h1>
+
+                                <div className="dt-hero-badges">
+                                    <Platforms platforms={game.platforms} />
+
+                                    {game.required_age > 0 && (
+                                        <span className="dt-badge dt-age-badge">
+                                            <i className="fas fa-user-shield" /> {game.required_age}+
+                                        </span>
+                                    )}
+
+                                    {game.recommendations?.total > 0 && (
+                                        <span className="dt-badge dt-recommend-badge">
+                                            <i className="fas fa-thumbs-up" />
+                                            {game.recommendations.total.toLocaleString()} Recommended
+                                        </span>
+                                    )}
+
+                                    <span className="dt-badge dt-release-badge">
+                                        <i className="fas fa-calendar" />
+                                        {isComingSoon ? "Coming Soon" : releaseStr}
                                     </span>
-                                )}
-                                
-                                {game.recommendations?.total > 0 && (
-                                    <span className="dt-badge dt-recommend-badge" title="Recommendations">
-                                        <i className="fas fa-thumbs-up" /> {game.recommendations.total.toLocaleString()}
-                                    </span>
-                                )}
+                                </div>
                             </div>
 
-                            <div className="dt-info-box">
-                                <h3><i className="fas fa-calendar-alt" /> Release Date</h3>
-                                <p className="dt-release-date">
-                                    {isComingSoon ? <span className="dt-coming-soon">Coming Soon</span> : null}
-                                    {releaseStr}
-                                </p>
-                            </div>
+                            {/* Steam link subtle */}
+                            <a
+                                href={`https://store.steampowered.com/app/${appId}`}
+                                target="_blank" rel="noreferrer"
+                                className="dt-steam-ext-link"
+                            >
+                                <i className="fab fa-steam" /> View on Steam
+                            </a>
+                        </section>
+
+                        {/* ══ PURCHASE — HERO OF THE PAGE ══ */}
+                        <section className="dt-purchase-hero">
+                            <PurchaseSection game={gameForPurchase} priceLoading={loading} />
+                        </section>
+
+                        {/* ══ DETAILS GRID: Categories + Languages ══ */}
+                        <section className="dt-details-grid">
 
                             {game.categories && game.categories.length > 0 && (
-                                <div className="dt-info-box">
-                                    <h3><i className="fas fa-tags" /> Categories</h3>
+                                <div className="dt-detail-card">
+                                    <h3 className="dt-detail-heading">
+                                        <i className="fas fa-tags" /> Categories
+                                    </h3>
                                     <div className="dt-tags-list">
                                         {game.categories.map(c => (
                                             <span key={c.id} className="dt-tag">{c.description}</span>
@@ -176,20 +193,18 @@ export default function DetailsPage() {
                             )}
 
                             {game.supported_languages && (
-                                <div className="dt-info-box dt-languages">
-                                    <h3><i className="fas fa-language" /> Supported Languages</h3>
-                                    <p dangerouslySetInnerHTML={{ __html: game.supported_languages }} />
+                                <div className="dt-detail-card">
+                                    <h3 className="dt-detail-heading">
+                                        <i className="fas fa-language" /> Supported Languages
+                                    </h3>
+                                    <p
+                                        className="dt-languages-text"
+                                        dangerouslySetInnerHTML={{ __html: game.supported_languages }}
+                                    />
                                 </div>
                             )}
 
-                        </div>
-
-                        {/* RIGHT COLUMN: Purchase Component */}
-                        <div className="dt-purchase-column">
-                            <div className="dt-purchase-sticky">
-                                <PurchaseSection game={gameForPurchase} priceLoading={loading} />
-                            </div>
-                        </div>
+                        </section>
 
                     </div>
                 )}

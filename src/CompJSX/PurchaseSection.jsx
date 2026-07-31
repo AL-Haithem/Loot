@@ -11,20 +11,20 @@ function fmt(priceObj) {
     }).format(priceObj.final / 100)
 }
 
-const SERVICE_FEE = 1.0   // $1 – shown in UI, not charged yet
+const SERVICE_FEE = 1.0
 const EXPIRY_HRS  = 48
-const WINDOW_HRS  = 24    // window to complete payment after offer is found
+const WINDOW_HRS  = 24
 
 /* ─── Status Badge ──────────────────────────── */
 function StatusBadge({ status }) {
     if (!status) return null
     const map = {
-        searching:  { label: "Searching…",    cls: "dh-status dh-searching",  icon: "fas fa-radar" },
-        found:      { label: "Offer Found!",   cls: "dh-status dh-found",      icon: "fas fa-check-circle" },
-        failed:     { label: "Not Found",      cls: "dh-status dh-failed",     icon: "fas fa-times-circle" },
-        completed:  { label: "Completed",      cls: "dh-status dh-completed",  icon: "fas fa-trophy" },
-        expired:    { label: "Expired",        cls: "dh-status dh-expired",    icon: "fas fa-clock" },
-        awaiting:   { label: "Awaiting Payment", cls: "dh-status dh-found",   icon: "fas fa-credit-card" },
+        searching:  { label: "Searching…",       cls: "dh-status dh-searching",  icon: "fas fa-radar" },
+        found:      { label: "Offer Found!",      cls: "dh-status dh-found",      icon: "fas fa-check-circle" },
+        failed:     { label: "Not Found",         cls: "dh-status dh-failed",     icon: "fas fa-times-circle" },
+        completed:  { label: "Completed",         cls: "dh-status dh-completed",  icon: "fas fa-trophy" },
+        expired:    { label: "Expired",           cls: "dh-status dh-expired",    icon: "fas fa-clock" },
+        awaiting:   { label: "Awaiting Payment",  cls: "dh-status dh-found",      icon: "fas fa-credit-card" },
     }
     const m = map[status] || { label: status, cls: "dh-status", icon: "fas fa-circle" }
     return (
@@ -35,12 +35,12 @@ function StatusBadge({ status }) {
     )
 }
 
-/* ─── Deal Hunt Request Card (after creation) ─ */
+/* ─── Deal Hunt Active ──────────────────────── */
 function DealHuntActive({ request, priceText, onPayNow, onCancel }) {
     const { status, gamePrice, serviceFee, remaining } = request
-    const canPay  = status === "found" || status === "awaiting"
-    const isDone  = status === "completed" || status === "expired"
-    const isFail  = status === "failed"
+    const canPay = status === "found" || status === "awaiting"
+    const isDone = status === "completed" || status === "expired"
+    const isFail = status === "failed"
 
     return (
         <div className="dh-active-card">
@@ -51,27 +51,20 @@ function DealHuntActive({ request, priceText, onPayNow, onCancel }) {
                 <StatusBadge status={status} />
             </div>
 
-            {/* Progress steps */}
             <div className="dh-steps">
                 {[
-                    { key: "searching", icon: "fas fa-search",        label: "Searching" },
-                    { key: "found",     icon: "fas fa-tag",            label: "Offer Found" },
-                    { key: "awaiting",  icon: "fas fa-credit-card",    label: "Pay Now" },
-                    { key: "completed", icon: "fas fa-check-circle",   label: "Delivered" },
+                    { key: "searching", icon: "fas fa-search",      label: "Searching" },
+                    { key: "found",     icon: "fas fa-tag",          label: "Offer Found" },
+                    { key: "awaiting",  icon: "fas fa-credit-card",  label: "Pay Now" },
+                    { key: "completed", icon: "fas fa-check-circle", label: "Delivered" },
                 ].map((step, i) => {
                     const order = ["searching", "found", "awaiting", "completed"]
                     const curIdx = order.indexOf(status)
-                    const stepIdx = i
-                    const done    = stepIdx < curIdx
-                    const active  = step.key === status || (status === "found" && step.key === "found")
+                    const done   = i < curIdx
+                    const active = step.key === status
                     return (
-                        <div
-                            key={step.key}
-                            className={`dh-step ${active ? "active" : ""} ${done ? "done" : ""} ${isFail && step.key === "searching" ? "failed-step" : ""}`}
-                        >
-                            <div className="dh-step-dot">
-                                <i className={step.icon} />
-                            </div>
+                        <div key={step.key} className={`dh-step ${active ? "active" : ""} ${done ? "done" : ""} ${isFail && step.key === "searching" ? "failed-step" : ""}`}>
+                            <div className="dh-step-dot"><i className={step.icon} /></div>
                             <span>{step.label}</span>
                             {i < 3 && <div className={`dh-step-line ${done ? "done" : ""}`} />}
                         </div>
@@ -79,45 +72,28 @@ function DealHuntActive({ request, priceText, onPayNow, onCancel }) {
                 })}
             </div>
 
-            {/* Payment breakdown */}
             <div className="dh-breakdown">
-                <div className="dh-breakdown-row">
-                    <span><i className="fas fa-gamepad" /> Game Price</span>
-                    <strong>{gamePrice}</strong>
-                </div>
-                <div className="dh-breakdown-row">
-                    <span><i className="fas fa-wrench" /> Service Fee</span>
-                    <strong className="dh-fee">${serviceFee.toFixed(2)}</strong>
-                </div>
-                <div className="dh-breakdown-row total-row">
-                    <span><i className="fas fa-receipt" /> Total Paid</span>
-                    <strong className="dh-total">${(serviceFee).toFixed(2)} <small>(service fee charged)</small></strong>
-                </div>
+                <div className="dh-breakdown-row"><span><i className="fas fa-gamepad" /> Game Price</span><strong>{gamePrice}</strong></div>
+                <div className="dh-breakdown-row"><span><i className="fas fa-wrench" /> Service Fee</span><strong className="dh-fee">${serviceFee.toFixed(2)}</strong></div>
+                <div className="dh-breakdown-row total-row"><span><i className="fas fa-receipt" /> Total Paid</span><strong className="dh-total">${serviceFee.toFixed(2)} <small>(service fee charged)</small></strong></div>
                 {canPay && remaining > 0 && (
-                    <div className="dh-breakdown-row remaining-row">
-                        <span><i className="fas fa-money-bill-wave" /> Remaining Balance</span>
-                        <strong className="dh-remaining">${remaining.toFixed(2)}</strong>
-                    </div>
+                    <div className="dh-breakdown-row remaining-row"><span><i className="fas fa-money-bill-wave" /> Remaining Balance</span><strong className="dh-remaining">${remaining.toFixed(2)}</strong></div>
                 )}
             </div>
 
-            {/* Refund notice for failed */}
             {isFail && (
                 <div className="dh-notice dh-notice-refund">
                     <i className="fas fa-rotate-left" />
-                    <span>Game price will be refunded within 24–48 hours. Service fee may apply per policy.</span>
+                    <span>Game price will be refunded within 24–48 hours.</span>
                 </div>
             )}
-
-            {/* Expiry window for found */}
             {canPay && (
                 <div className="dh-notice dh-notice-warn">
                     <i className="fas fa-clock" />
-                    <span>Complete your payment within <strong>{WINDOW_HRS} hours</strong> or the offer will expire.</span>
+                    <span>Complete payment within <strong>{WINDOW_HRS} hours</strong> or the offer will expire.</span>
                 </div>
             )}
 
-            {/* Actions */}
             {!isDone && (
                 <div className="dh-active-actions">
                     {canPay && (
@@ -136,20 +112,20 @@ function DealHuntActive({ request, priceText, onPayNow, onCancel }) {
             {status === "completed" && (
                 <div className="dh-success-msg">
                     <i className="fas fa-trophy" />
-                    <span>Your game has been delivered! Check your email for delivery details.</span>
+                    <span>Your game has been delivered! Check your email for details.</span>
                 </div>
             )}
         </div>
     )
 }
 
-/* ─── Deal Hunt Form (before creation) ─────── */
+/* ─── Deal Hunt Form ────────────────────────── */
 function DealHuntForm({ game, priceText, priceObj, onConfirm }) {
     const [email, setEmail]       = useState("")
     const [agreed, setAgreed]     = useState(false)
     const [emailErr, setEmailErr] = useState("")
 
-    const gamePrice  = priceObj?.final ? priceObj.final / 100 : 0
+    const gamePrice   = priceObj?.final ? priceObj.final / 100 : 0
     const totalCharge = SERVICE_FEE
 
     function validate() {
@@ -169,225 +145,197 @@ function DealHuntForm({ game, priceText, priceObj, onConfirm }) {
 
     return (
         <form className="dh-form" onSubmit={handleSubmit}>
-            {/* Info rows */}
             <div className="dh-info-grid">
                 <div className="dh-info-item">
                     <i className="fas fa-tag" />
-                    <div>
-                        <span>Expected Price</span>
-                        <strong>{priceText}</strong>
-                    </div>
+                    <div><span>Expected Price</span><strong>{priceText}</strong></div>
                 </div>
                 <div className="dh-info-item">
                     <i className="fas fa-clock" />
-                    <div>
-                        <span>Search Window</span>
-                        <strong>Up to {EXPIRY_HRS} hours</strong>
-                    </div>
+                    <div><span>Search Window</span><strong>Up to {EXPIRY_HRS} hours</strong></div>
                 </div>
                 <div className="dh-info-item">
                     <i className="fas fa-wrench" />
-                    <div>
-                        <span>Service Fee</span>
-                        <strong>${SERVICE_FEE.toFixed(2)}</strong>
-                    </div>
+                    <div><span>Service Fee</span><strong>${SERVICE_FEE.toFixed(2)}</strong></div>
                 </div>
                 <div className="dh-info-item dh-info-refund">
                     <i className="fas fa-rotate-left" />
-                    <div>
-                        <span>No Offer?</span>
-                        <strong>Full Refund</strong>
-                    </div>
+                    <div><span>No Offer?</span><strong>Full Refund</strong></div>
                 </div>
             </div>
 
-            {/* Payment preview */}
             <div className="dh-cost-preview">
-                <div className="dh-cost-row">
-                    <span>Game Price</span>
-                    <span>{priceText}</span>
-                </div>
-                <div className="dh-cost-row">
-                    <span>Service Fee (due now)</span>
-                    <span className="dh-fee">${SERVICE_FEE.toFixed(2)}</span>
-                </div>
-                <div className="dh-cost-row dh-cost-total">
-                    <span>Charged Today</span>
-                    <span>${totalCharge.toFixed(2)}</span>
-                </div>
-                <p className="dh-cost-note">
-                    Remaining game price is charged only after an offer is found and you confirm.
-                </p>
+                <div className="dh-cost-row"><span>Game Price</span><span>{priceText}</span></div>
+                <div className="dh-cost-row"><span>Service Fee (due now)</span><span className="dh-fee">${SERVICE_FEE.toFixed(2)}</span></div>
+                <div className="dh-cost-row dh-cost-total"><span>Charged Today</span><span>${totalCharge.toFixed(2)}</span></div>
+                <p className="dh-cost-note">Remaining game price is charged only after an offer is found and you confirm.</p>
             </div>
 
-            {/* Email */}
             <div className="dh-field">
-                <label htmlFor="dh-email">
-                    <i className="fas fa-envelope" /> Notification Email
-                </label>
+                <label htmlFor="dh-email"><i className="fas fa-envelope" /> Notification Email</label>
                 <input
-                    id="dh-email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    id="dh-email" type="email" placeholder="you@example.com"
+                    value={email} onChange={e => setEmail(e.target.value)}
                     className={emailErr ? "dh-input error" : "dh-input"}
                     autoComplete="email"
                 />
                 {emailErr && <span className="dh-input-err">{emailErr}</span>}
             </div>
 
-            {/* Terms */}
             <label className="dh-checkbox">
-                <input
-                    type="checkbox"
-                    checked={agreed}
-                    onChange={e => setAgreed(e.target.checked)}
-                />
+                <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} />
                 <span>
                     I understand the service fee (${SERVICE_FEE.toFixed(2)}) is charged upfront.
                     The game price is charged only when an offer is found.
-                    Service fee may not be refunded if a successful offer was found and declined.
                 </span>
             </label>
 
-            <button
-                type="submit"
-                className="dh-btn dh-btn-primary"
-                disabled={!agreed}
-            >
-                <i className="fas fa-satellite-dish" />
-                Create Deal Hunt — ${totalCharge.toFixed(2)} Now
+            <button type="submit" className="dh-btn dh-btn-primary" disabled={!agreed}>
+                <i className="fas fa-satellite-dish" /> Create Deal Hunt — ${totalCharge.toFixed(2)} Now
             </button>
         </form>
     )
 }
 
-/* ─── Purchase Mode Toggle ──────────────────── */
-function ModeToggle({ mode, onChange }) {
-    return (
-        <div className="purchase-mode-toggle">
-            <button
-                type="button"
-                className={`pmt-btn ${mode === "instant" ? "pmt-active" : ""}`}
-                onClick={() => onChange("instant")}
-            >
-                <i className="fas fa-bolt" />
-                <div>
-                    <span className="pmt-label">Instant Delivery</span>
-                    <span className="pmt-sub">Fixed price · Pay &amp; receive now</span>
-                </div>
-            </button>
-            <button
-                type="button"
-                className={`pmt-btn ${mode === "deal" ? "pmt-active" : ""}`}
-                onClick={() => onChange("deal")}
-            >
-                <i className="fas fa-satellite-dish" />
-                <div>
-                    <span className="pmt-label">Deal Hunt</span>
-                    <span className="pmt-sub">Best price search · Up to {EXPIRY_HRS}h</span>
-                </div>
-            </button>
-        </div>
-    )
-}
-
-/* ─── Main PurchaseSection ──────────────────── */
+/* ══════════════════════════════════════════════
+   MAIN PURCHASE SECTION
+   ══════════════════════════════════════════════ */
 export default function PurchaseSection({ game }) {
     const { addToCart } = useCart()
-    const [mode, setMode]         = useState("instant")
-    const [dhRequest, setDhRequest] = useState(null)   // null | { status, email, serviceFee, gamePrice, remaining }
+    const [mode, setMode]           = useState("instant")
+    const [dhRequest, setDhRequest] = useState(null)
 
-    const priceObj  = game?.Price?.US
+    const priceObj  = game?.Price?.US || game?.price_overview
     const priceText = fmt(priceObj) || "Unavailable"
     const isFree    = game?.is_free
     const hasBuyable = !isFree && priceObj?.final > 0
 
-    /* Simulate creating a Deal Hunt request (pure UI mock) */
     function handleDHCreate({ email, gamePrice, serviceFee }) {
         setDhRequest({
             status:     "searching",
             email,
             gamePrice:  fmt(priceObj) || `$${gamePrice.toFixed(2)}`,
             serviceFee,
-            remaining:  gamePrice,   // full game price remains after service fee
+            remaining:  gamePrice,
         })
     }
 
-    /* Simulate "Pay Now" (UI only) */
     function handlePayNow() {
         setDhRequest(prev => ({ ...prev, status: "completed" }))
     }
 
-    /* Cancel request */
     function handleCancel() {
         setDhRequest(null)
         setMode("instant")
     }
 
-    /* Add to normal cart */
     function handleAddToCart() {
         addToCart(game)
     }
 
     return (
-        <div className="purchase-section-wrapper">
+        <div className="ps-wrapper">
 
-            {/* Mode toggle */}
-            <ModeToggle mode={mode} onChange={m => { setMode(m); setDhRequest(null) }} />
+            {/* ── 3-Option Mode Selector ── */}
+            <div className="ps-mode-selector">
+                <button
+                    type="button"
+                    className={`ps-mode-card ${mode === "instant" ? "ps-mode-active" : ""}`}
+                    onClick={() => { setMode("instant"); setDhRequest(null) }}
+                >
+                    <div className="ps-mode-icon ps-icon-instant">
+                        <i className="fas fa-bolt" />
+                    </div>
+                    <div className="ps-mode-text">
+                        <span className="ps-mode-title">Instant Delivery</span>
+                        <span className="ps-mode-sub">Fixed price · Pay &amp; receive now</span>
+                    </div>
+                </button>
 
-            {/* ── INSTANT DELIVERY ── */}
+                <button
+                    type="button"
+                    className={`ps-mode-card ${mode === "deal" ? "ps-mode-active" : ""}`}
+                    onClick={() => { setMode("deal"); setDhRequest(null) }}
+                >
+                    <div className="ps-mode-icon ps-icon-deal">
+                        <i className="fas fa-satellite-dish" />
+                    </div>
+                    <div className="ps-mode-text">
+                        <span className="ps-mode-title">Deal Hunt</span>
+                        <span className="ps-mode-sub">Best price search · Up to {EXPIRY_HRS}h</span>
+                    </div>
+                </button>
+            </div>
+
+            {/* ── INSTANT DELIVERY panel ── */}
             {mode === "instant" && (
-                <div className="purchase-box instant-box">
-                    <div className="final-price-wrapper">
-                        <span className="label">
+                <div className="ps-panel ps-panel-instant">
+                    {/* Price display */}
+                    <div className="ps-price-block">
+                        <span className="ps-price-label">
                             {isFree ? "Free to Play" : "Store Price"}
                         </span>
-                        <div id="finalPrice">
+                        <div className="ps-price-value">
                             {isFree ? "Free" : priceText}
                         </div>
+                        {priceObj?.discount_percent > 0 && (
+                            <span className="ps-discount-badge">-{priceObj.discount_percent}%</span>
+                        )}
                     </div>
 
-                    <div className="instant-features">
-                        <span><i className="fas fa-check" /> Fixed price guaranteed</span>
-                        <span><i className="fas fa-check" /> Instant delivery</span>
-                        <span><i className="fas fa-check" /> No waiting period</span>
-                    </div>
+                    {/* Feature checklist */}
+                    <ul className="ps-features">
+                        <li><i className="fas fa-check-circle" /> Fixed price guaranteed</li>
+                        <li><i className="fas fa-check-circle" /> Instant delivery</li>
+                        <li><i className="fas fa-check-circle" /> No waiting period</li>
+                        <li><i className="fas fa-check-circle" /> Secure transaction</li>
+                    </ul>
 
-                    {hasBuyable && (
-                        <div className="buy-actions">
+                    {/* Action buttons */}
+                    {hasBuyable ? (
+                        <div className="ps-actions">
                             <button
-                                className="buy-button cart"
+                                id="btn-buy-now"
+                                className="ps-btn ps-btn-primary"
+                                type="button"
+                                onClick={handleAddToCart}
+                            >
+                                <i className="fas fa-credit-card" /> Buy Now
+                            </button>
+                            <button
+                                id="btn-add-cart"
+                                className="ps-btn ps-btn-secondary"
                                 type="button"
                                 onClick={handleAddToCart}
                             >
                                 <i className="fas fa-cart-plus" /> Add to Cart
                             </button>
                         </div>
-                    )}
-                    {!hasBuyable && !isFree && (
-                        <p className="dh-unavail">
+                    ) : isFree ? (
+                        <button id="btn-free-play" className="ps-btn ps-btn-primary" type="button">
+                            <i className="fas fa-play" /> Play Free
+                        </button>
+                    ) : (
+                        <p className="ps-unavailable">
                             <i className="fas fa-info-circle" /> Price unavailable — try Deal Hunt
                         </p>
                     )}
 
-                    <p className="disclaimer">
-                        Prices include store commission. Delivery is fast and secure.
+                    <p className="ps-disclaimer">
+                        <i className="fas fa-shield-halved" /> Prices include store commission. Delivery is fast and secure.
                     </p>
                 </div>
             )}
 
-            {/* ── DEAL HUNT ── */}
+            {/* ── DEAL HUNT panel ── */}
             {mode === "deal" && (
-                <div className="purchase-box deal-hunt-box">
-                    <div className="dh-box-header">
-                        <span className="dh-box-title">
-                            <i className="fas fa-satellite-dish" /> Deal Hunt
-                        </span>
-                        <span className="dh-box-tagline">
-                            We search · You save
-                        </span>
+                <div className="ps-panel ps-panel-deal">
+                    <div className="ps-deal-header">
+                        <i className="fas fa-satellite-dish" />
+                        <div>
+                            <span className="ps-deal-title">Deal Hunt</span>
+                            <span className="ps-deal-tagline">We search for the best available price</span>
+                        </div>
                     </div>
 
                     {!dhRequest ? (
@@ -406,8 +354,8 @@ export default function PurchaseSection({ game }) {
                         />
                     )}
 
-                    <p className="disclaimer">
-                        Service fee charged upfront. Game price due only after a successful offer.
+                    <p className="ps-disclaimer">
+                        <i className="fas fa-shield-halved" /> Service fee charged upfront. Game price due only after a successful offer.
                     </p>
                 </div>
             )}
