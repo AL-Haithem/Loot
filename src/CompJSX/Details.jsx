@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Link, useLocation, useParams } from "react-router"
 import axios from "axios"
 import logo from "../assets/imgs/logo.png"
@@ -27,22 +27,58 @@ function Platforms({ platforms }) {
     )
 }
 
+/* ─── Expandable Box ──────────────────────── */
+function ExpandableBox({ title, icon, children }) {
+    const [expanded, setExpanded] = useState(false)
+    const contentRef = useRef(null)
+    const [needsExpand, setNeedsExpand] = useState(false)
+
+    useEffect(() => {
+        if (contentRef.current) {
+            // If the content is taller than ~150px, it needs an expand button
+            if (contentRef.current.scrollHeight > 160) {
+                setNeedsExpand(true)
+            }
+        }
+    }, [children])
+
+    return (
+        <div className="dt-detail-card">
+            <h3 className="dt-detail-heading">
+                <i className={icon} /> {title}
+            </h3>
+            <div 
+                className={`dt-expand-content ${expanded ? "expanded" : ""}`} 
+                ref={contentRef}
+            >
+                {children}
+            </div>
+            {needsExpand && (
+                <button 
+                    className="dt-expand-btn" 
+                    onClick={() => setExpanded(!expanded)}
+                >
+                    {expanded ? "Show Less" : "Show More"} <i className={`fas fa-chevron-${expanded ? "up" : "down"}`} />
+                </button>
+            )}
+        </div>
+    )
+}
+
 /* ─── Skeleton ──────────────────────────── */
 function PageSkeleton() {
     return (
         <div className="dt-skeleton">
             <div className="dt-sk-hero-area">
                 <div className="dt-sk-pulse dt-sk-title" />
-                <div className="dt-sk-pulse dt-sk-sub" />
                 <div className="dt-sk-pulse dt-sk-badges" />
             </div>
             <div className="dt-sk-purchase-area">
-                <div className="dt-sk-pulse" style={{ height: 220 }} />
+                <div className="dt-sk-pulse" style={{ height: 260 }} />
             </div>
             <div className="dt-sk-info-area">
-                <div className="dt-sk-pulse" style={{ height: 80 }} />
                 <div className="dt-sk-pulse" style={{ height: 120 }} />
-                <div className="dt-sk-pulse" style={{ height: 80 }} />
+                <div className="dt-sk-pulse" style={{ height: 120 }} />
             </div>
         </div>
     )
@@ -158,50 +194,43 @@ export default function DetailsPage() {
                                         <i className="fas fa-calendar" />
                                         {isComingSoon ? "Coming Soon" : releaseStr}
                                     </span>
+                                    
+                                    <a
+                                        href={`https://store.steampowered.com/app/${appId}`}
+                                        target="_blank" rel="noreferrer"
+                                        className="dt-steam-ext-link"
+                                    >
+                                        <i className="fab fa-steam" /> View on Steam
+                                    </a>
                                 </div>
                             </div>
-
-                            {/* Steam link subtle */}
-                            <a
-                                href={`https://store.steampowered.com/app/${appId}`}
-                                target="_blank" rel="noreferrer"
-                                className="dt-steam-ext-link"
-                            >
-                                <i className="fab fa-steam" /> View on Steam
-                            </a>
                         </section>
 
-                        {/* ══ PURCHASE — HERO OF THE PAGE ══ */}
+                        {/* ══ PURCHASE — BOTH PANELS VISIBLE ══ */}
                         <section className="dt-purchase-hero">
                             <PurchaseSection game={gameForPurchase} priceLoading={loading} />
                         </section>
 
-                        {/* ══ DETAILS GRID: Categories + Languages ══ */}
+                        {/* ══ DETAILS GRID: Categories + Languages (Side by side) ══ */}
                         <section className="dt-details-grid">
 
                             {game.categories && game.categories.length > 0 && (
-                                <div className="dt-detail-card">
-                                    <h3 className="dt-detail-heading">
-                                        <i className="fas fa-tags" /> Categories
-                                    </h3>
+                                <ExpandableBox title="Categories" icon="fas fa-tags">
                                     <div className="dt-tags-list">
                                         {game.categories.map(c => (
                                             <span key={c.id} className="dt-tag">{c.description}</span>
                                         ))}
                                     </div>
-                                </div>
+                                </ExpandableBox>
                             )}
 
                             {game.supported_languages && (
-                                <div className="dt-detail-card">
-                                    <h3 className="dt-detail-heading">
-                                        <i className="fas fa-language" /> Supported Languages
-                                    </h3>
+                                <ExpandableBox title="Supported Languages" icon="fas fa-language">
                                     <p
                                         className="dt-languages-text"
                                         dangerouslySetInnerHTML={{ __html: game.supported_languages }}
                                     />
-                                </div>
+                                </ExpandableBox>
                             )}
 
                         </section>

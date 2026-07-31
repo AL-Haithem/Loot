@@ -96,9 +96,9 @@
     position: fixed;
     inset: 0;
     background-size: cover;
-    background-position: center;
-    filter: blur(80px) brightness(0.14) saturate(1.6);
-    transform: scale(1.1);
+    background-position: center top;
+    filter: blur(15px) brightness(0.25) saturate(1.2);
+    transform: scale(1.05);
     z-index: 0;
     will-change: transform;
 }
@@ -107,10 +107,7 @@
     position: fixed;
     inset: 0;
     z-index: 0;
-    background:
-        linear-gradient(to bottom, var(--dt-bg) 0%, transparent 30%, transparent 70%, var(--dt-bg) 100%),
-        radial-gradient(ellipse at 20% 10%, rgba(240,180,41,.06) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 90%, rgba(167,139,250,.05) 0%, transparent 50%);
+    background: linear-gradient(to bottom, rgba(8, 11, 20, 0.4) 0%, var(--dt-bg) 80%);
 }
 
 /* ─── Sticky Header ─────────────────────────── */
@@ -918,3 +915,55 @@
     .dt-info-box { padding: .8rem 1rem; }
 }
 
+/* ── Expandable Box ── */
+.dt-expand-content {
+    max-height: 140px;
+    overflow: hidden;
+    position: relative;
+    transition: max-height 0.4s ease;
+}
+
+.dt-expand-content::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(to top, rgba(16, 20, 31, 0.95), transparent);
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+.dt-expand-content.expanded {
+    max-height: 1000px;
+}
+
+.dt-expand-content.expanded::after {
+    opacity: 0;
+}
+
+.dt-expand-btn {
+    width: 100%;
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1px dashed rgba(255,255,255,0.1);
+    color: var(--dt-muted);
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.dt-expand-btn:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    border-color: rgba(255,255,255,0.3);
+}

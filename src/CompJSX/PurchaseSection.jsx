@@ -139,6 +139,7 @@ function DealHuntForm({ game, priceText, priceObj, onConfirm }) {
 
     function handleSubmit(e) {
         e.preventDefault()
+        e.stopPropagation()
         if (!validate()) return
         onConfirm({ email, gamePrice, serviceFee: SERVICE_FEE })
     }
@@ -224,141 +225,112 @@ export default function PurchaseSection({ game }) {
         setDhRequest(prev => ({ ...prev, status: "completed" }))
     }
 
-    function handleCancel() {
+    function handleCancel(e) {
+        e.stopPropagation()
         setDhRequest(null)
-        setMode("instant")
     }
 
-    function handleAddToCart() {
+    function handleAddToCart(e) {
+        e.stopPropagation()
         addToCart(game)
     }
 
     return (
-        <div className="ps-wrapper">
+        <div className="ps-panels-container">
 
-            {/* ── 3-Option Mode Selector ── */}
-            <div className="ps-mode-selector">
-                <button
-                    type="button"
-                    className={`ps-mode-card ${mode === "instant" ? "ps-mode-active" : ""}`}
-                    onClick={() => { setMode("instant"); setDhRequest(null) }}
-                >
-                    <div className="ps-mode-icon ps-icon-instant">
-                        <i className="fas fa-bolt" />
-                    </div>
+            {/* ── INSTANT DELIVERY panel ── */}
+            <div 
+                className={`ps-panel ps-panel-instant ${mode === "instant" ? "active" : ""}`}
+                onClick={() => setMode("instant")}
+            >
+                <div className="ps-panel-header">
+                    <div className="ps-mode-icon ps-icon-instant"><i className="fas fa-bolt" /></div>
                     <div className="ps-mode-text">
                         <span className="ps-mode-title">Instant Delivery</span>
-                        <span className="ps-mode-sub">Fixed price · Pay &amp; receive now</span>
+                        <span className="ps-mode-sub">Fixed price · Pay & receive now</span>
                     </div>
-                </button>
+                </div>
 
-                <button
-                    type="button"
-                    className={`ps-mode-card ${mode === "deal" ? "ps-mode-active" : ""}`}
-                    onClick={() => { setMode("deal"); setDhRequest(null) }}
-                >
-                    <div className="ps-mode-icon ps-icon-deal">
-                        <i className="fas fa-satellite-dish" />
+                <div className="ps-price-block">
+                    <span className="ps-price-label">
+                        {isFree ? "Free to Play" : "Store Price"}
+                    </span>
+                    <div className="ps-price-value">
+                        {isFree ? "Free" : priceText}
                     </div>
+                    {priceObj?.discount_percent > 0 && (
+                        <span className="ps-discount-badge">-{priceObj.discount_percent}%</span>
+                    )}
+                </div>
+
+                <ul className="ps-features">
+                    <li><i className="fas fa-check-circle" /> Fixed price guaranteed</li>
+                    <li><i className="fas fa-check-circle" /> Instant delivery</li>
+                    <li><i className="fas fa-check-circle" /> No waiting period</li>
+                    <li><i className="fas fa-check-circle" /> Secure transaction</li>
+                </ul>
+
+                <div className="ps-spacer" />
+
+                {hasBuyable ? (
+                    <div className="ps-actions">
+                        <button
+                            id="btn-buy-now"
+                            className="ps-btn ps-btn-primary"
+                            type="button"
+                            onClick={handleAddToCart}
+                        >
+                            <i className="fas fa-credit-card" /> Buy Now
+                        </button>
+                        <button
+                            id="btn-add-cart"
+                            className="ps-btn ps-btn-secondary"
+                            type="button"
+                            onClick={handleAddToCart}
+                        >
+                            <i className="fas fa-cart-plus" /> Add to Cart
+                        </button>
+                    </div>
+                ) : isFree ? (
+                    <button id="btn-free-play" className="ps-btn ps-btn-primary" type="button">
+                        <i className="fas fa-play" /> Play Free
+                    </button>
+                ) : (
+                    <p className="ps-unavailable">
+                        <i className="fas fa-info-circle" /> Price unavailable — try Deal Hunt
+                    </p>
+                )}
+            </div>
+
+            {/* ── DEAL HUNT panel ── */}
+            <div 
+                className={`ps-panel ps-panel-deal ${mode === "deal" ? "active" : ""}`}
+                onClick={() => setMode("deal")}
+            >
+                <div className="ps-panel-header">
+                    <div className="ps-mode-icon ps-icon-deal"><i className="fas fa-satellite-dish" /></div>
                     <div className="ps-mode-text">
                         <span className="ps-mode-title">Deal Hunt</span>
                         <span className="ps-mode-sub">Best price search · Up to {EXPIRY_HRS}h</span>
                     </div>
-                </button>
+                </div>
+
+                {!dhRequest ? (
+                    <DealHuntForm
+                        game={game}
+                        priceText={priceText}
+                        priceObj={priceObj}
+                        onConfirm={handleDHCreate}
+                    />
+                ) : (
+                    <DealHuntActive
+                        request={dhRequest}
+                        priceText={priceText}
+                        onPayNow={handlePayNow}
+                        onCancel={handleCancel}
+                    />
+                )}
             </div>
-
-            {/* ── INSTANT DELIVERY panel ── */}
-            {mode === "instant" && (
-                <div className="ps-panel ps-panel-instant">
-                    {/* Price display */}
-                    <div className="ps-price-block">
-                        <span className="ps-price-label">
-                            {isFree ? "Free to Play" : "Store Price"}
-                        </span>
-                        <div className="ps-price-value">
-                            {isFree ? "Free" : priceText}
-                        </div>
-                        {priceObj?.discount_percent > 0 && (
-                            <span className="ps-discount-badge">-{priceObj.discount_percent}%</span>
-                        )}
-                    </div>
-
-                    {/* Feature checklist */}
-                    <ul className="ps-features">
-                        <li><i className="fas fa-check-circle" /> Fixed price guaranteed</li>
-                        <li><i className="fas fa-check-circle" /> Instant delivery</li>
-                        <li><i className="fas fa-check-circle" /> No waiting period</li>
-                        <li><i className="fas fa-check-circle" /> Secure transaction</li>
-                    </ul>
-
-                    {/* Action buttons */}
-                    {hasBuyable ? (
-                        <div className="ps-actions">
-                            <button
-                                id="btn-buy-now"
-                                className="ps-btn ps-btn-primary"
-                                type="button"
-                                onClick={handleAddToCart}
-                            >
-                                <i className="fas fa-credit-card" /> Buy Now
-                            </button>
-                            <button
-                                id="btn-add-cart"
-                                className="ps-btn ps-btn-secondary"
-                                type="button"
-                                onClick={handleAddToCart}
-                            >
-                                <i className="fas fa-cart-plus" /> Add to Cart
-                            </button>
-                        </div>
-                    ) : isFree ? (
-                        <button id="btn-free-play" className="ps-btn ps-btn-primary" type="button">
-                            <i className="fas fa-play" /> Play Free
-                        </button>
-                    ) : (
-                        <p className="ps-unavailable">
-                            <i className="fas fa-info-circle" /> Price unavailable — try Deal Hunt
-                        </p>
-                    )}
-
-                    <p className="ps-disclaimer">
-                        <i className="fas fa-shield-halved" /> Prices include store commission. Delivery is fast and secure.
-                    </p>
-                </div>
-            )}
-
-            {/* ── DEAL HUNT panel ── */}
-            {mode === "deal" && (
-                <div className="ps-panel ps-panel-deal">
-                    <div className="ps-deal-header">
-                        <i className="fas fa-satellite-dish" />
-                        <div>
-                            <span className="ps-deal-title">Deal Hunt</span>
-                            <span className="ps-deal-tagline">We search for the best available price</span>
-                        </div>
-                    </div>
-
-                    {!dhRequest ? (
-                        <DealHuntForm
-                            game={game}
-                            priceText={priceText}
-                            priceObj={priceObj}
-                            onConfirm={handleDHCreate}
-                        />
-                    ) : (
-                        <DealHuntActive
-                            request={dhRequest}
-                            priceText={priceText}
-                            onPayNow={handlePayNow}
-                            onCancel={handleCancel}
-                        />
-                    )}
-
-                    <p className="ps-disclaimer">
-                        <i className="fas fa-shield-halved" /> Service fee charged upfront. Game price due only after a successful offer.
-                    </p>
-                </div>
-            )}
 
         </div>
     )
