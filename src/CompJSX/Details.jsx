@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useLayoutEffect } from "react"
 import { Link, useLocation, useParams } from "react-router"
 import axios from "axios"
 import logo from "../assets/imgs/logo.png"
@@ -30,16 +30,24 @@ function Platforms({ platforms }) {
 /* ─── Expandable Box ──────────────────────── */
 function ExpandableBox({ title, icon, children }) {
     const [expanded, setExpanded] = useState(false)
-    const contentRef = useRef(null)
     const [needsExpand, setNeedsExpand] = useState(false)
+    const contentRef = useRef(null)
 
-    useEffect(() => {
-        if (contentRef.current) {
-            // If the content is taller than ~150px, it needs an expand button
-            if (contentRef.current.scrollHeight > 160) {
-                setNeedsExpand(true)
+    useLayoutEffect(() => {
+        const checkHeight = () => {
+            if (contentRef.current) {
+                if (contentRef.current.scrollHeight > 160) {
+                    setNeedsExpand(true)
+                } else {
+                    setNeedsExpand(false)
+                }
             }
         }
+        
+        checkHeight()
+        // Wait for images or slow renders
+        const timer = setTimeout(checkHeight, 100)
+        return () => clearTimeout(timer)
     }, [children])
 
     return (
@@ -73,12 +81,10 @@ function PageSkeleton() {
                 <div className="dt-sk-pulse dt-sk-title" />
                 <div className="dt-sk-pulse dt-sk-badges" />
             </div>
-            <div className="dt-sk-purchase-area">
-                <div className="dt-sk-pulse" style={{ height: 260 }} />
-            </div>
-            <div className="dt-sk-info-area">
-                <div className="dt-sk-pulse" style={{ height: 120 }} />
-                <div className="dt-sk-pulse" style={{ height: 120 }} />
+            <div className="dt-sk-main-area">
+                <div className="dt-sk-pulse" style={{ height: 300 }} />
+                <div className="dt-sk-pulse" style={{ height: 300 }} />
+                <div className="dt-sk-pulse" style={{ height: 300 }} />
             </div>
         </div>
     )
@@ -133,7 +139,7 @@ export default function DetailsPage() {
 
     return (
         <div className="dt-root">
-            {bg && <div className="dt-bg" style={{ backgroundImage: `url(${bg})` }} />}
+            {bg && <div className="dt-bg" style={{ backgroundImage: `url("${bg}")` }} />}
             <div className="dt-bg-overlay" />
 
             {/* ── Header ── */}
@@ -167,7 +173,7 @@ export default function DetailsPage() {
                         <Link to="/games" className="dt-back-btn"><i className="fas fa-arrow-left" /> Back to Store</Link>
                     </div>
                 ) : (
-                    <div className="dt-page-wrapper">
+                    <div className="dt-page-wrapper dt-wide">
 
                         {/* ══ TOP HERO: Title + Quick Info ══ */}
                         <section className="dt-hero-section">
@@ -206,32 +212,38 @@ export default function DetailsPage() {
                             </div>
                         </section>
 
-                        {/* ══ PURCHASE — BOTH PANELS VISIBLE ══ */}
-                        <section className="dt-purchase-hero">
-                            <PurchaseSection game={gameForPurchase} priceLoading={loading} />
-                        </section>
+                        {/* ══ 3-COLUMN MAIN LAYOUT ══ */}
+                        <section className="dt-three-col-layout">
+                            
+                            {/* LEFT COLUMN: Categories */}
+                            <div className="dt-side-column">
+                                {game.categories && game.categories.length > 0 && (
+                                    <ExpandableBox title="Categories" icon="fas fa-tags">
+                                        <div className="dt-tags-list">
+                                            {game.categories.map(c => (
+                                                <span key={c.id} className="dt-tag">{c.description}</span>
+                                            ))}
+                                        </div>
+                                    </ExpandableBox>
+                                )}
+                            </div>
 
-                        {/* ══ DETAILS GRID: Categories + Languages (Side by side) ══ */}
-                        <section className="dt-details-grid">
+                            {/* CENTER COLUMN: Purchase Hero (Instant + Deal Hunt) */}
+                            <div className="dt-center-column">
+                                <PurchaseSection game={gameForPurchase} priceLoading={loading} />
+                            </div>
 
-                            {game.categories && game.categories.length > 0 && (
-                                <ExpandableBox title="Categories" icon="fas fa-tags">
-                                    <div className="dt-tags-list">
-                                        {game.categories.map(c => (
-                                            <span key={c.id} className="dt-tag">{c.description}</span>
-                                        ))}
-                                    </div>
-                                </ExpandableBox>
-                            )}
-
-                            {game.supported_languages && (
-                                <ExpandableBox title="Supported Languages" icon="fas fa-language">
-                                    <p
-                                        className="dt-languages-text"
-                                        dangerouslySetInnerHTML={{ __html: game.supported_languages }}
-                                    />
-                                </ExpandableBox>
-                            )}
+                            {/* RIGHT COLUMN: Languages */}
+                            <div className="dt-side-column">
+                                {game.supported_languages && (
+                                    <ExpandableBox title="Languages" icon="fas fa-language">
+                                        <p
+                                            className="dt-languages-text"
+                                            dangerouslySetInnerHTML={{ __html: game.supported_languages }}
+                                        />
+                                    </ExpandableBox>
+                                )}
+                            </div>
 
                         </section>
 
