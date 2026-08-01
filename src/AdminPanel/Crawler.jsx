@@ -494,13 +494,13 @@ export default function Crawler({ isActive, metrics }) {
   const handleStart = useCallback(() => {
     if (isRunning) {
       setIsRunning(false)
-      fetch(`${API_BASE}/api/siri0/games/stop`, {
+      fetch(`${API_BASE}/api/vv/adm/dashboard/crawler/stop`, {
         method: 'POST', credentials: 'include', headers: csrfHeader(),
       }).catch(() => {})
       return
     }
     setIsRunning(true)
-    fetch(`${API_BASE}/api/siri0/games/start`, {
+    fetch(`${API_BASE}/api/vv/adm/dashboard/crawler/start`, {
       method: 'POST', credentials: 'include',
       headers: { 'Content-Type': 'application/json', ...csrfHeader() },
       body: JSON.stringify({ mode: crawlerMode }),
