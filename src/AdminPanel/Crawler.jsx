@@ -502,10 +502,9 @@ export default function Crawler({ isActive, metrics }) {
     setIsRunning(true)
     fetch(`${API_BASE}/api/vv/adm/dashboard/crawler/start`, {
       method: 'POST', credentials: 'include',
-      headers: { 'Content-Type': 'application/json', ...csrfHeader() },
-      body: JSON.stringify({ mode: crawlerMode }),
+      headers: csrfHeader(),
     }).catch(() => setIsRunning(false))
-  }, [crawlerMode, isRunning])
+  }, [isRunning])
 
   const anyRunning = fetcher.RefreshRunning || syncResume.SyncRunning || gamesWorker.WorkerRunning
 
