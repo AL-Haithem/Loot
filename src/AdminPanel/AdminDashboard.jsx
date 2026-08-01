@@ -78,32 +78,61 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (!authChecked || authFailed) return;
 
-    let sse;
+    const abortController = new AbortController();
     setSseStatus('connecting');
-    
-    try {
-      sse = new EventSource(`${API_BASE}/api/vv/adm/dashboard`, { withCredentials: true });
-      
-      sse.onopen = () => setSseStatus('connected');
-      
-      sse.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          setSystemMetrics(data);
-        } catch (e) {
-          console.error('SSE Parse Error:', e);
+
+    const connectSSE = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/api/vv/adm/dashboard`, {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'X-CSRF-Token': csrfStore.get() ?? ''
+          },
+          signal: abortController.signal
+        });
+
+        if (!response.ok) throw new Error('SSE connection failed');
+
+        setSseStatus('connected');
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          buffer += decoder.decode(value, { stream: true });
+          const parts = buffer.split('\n\n');
+          buffer = parts.pop();
+
+          for (const part of parts) {
+            if (part.startsWith('data:')) {
+              const dataStr = part.replace(/^data:\s*/, '');
+              try {
+                if (dataStr.trim() !== '') {
+                  const data = JSON.parse(dataStr);
+                  setSystemMetrics(data);
+                }
+              } catch (e) {
+                console.error('SSE Parse Error:', e);
+              }
+            }
+          }
         }
-      };
-      
-      sse.onerror = (_err) => {
-        setSseStatus('error');
-      };
-    } catch {
-      setSseStatus('error');
-    }
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error('SSE Error:', err);
+          setSseStatus('error');
+        }
+      }
+    };
+
+    connectSSE();
 
     return () => {
-      if (sse) sse.close();
+      abortController.abort();
     };
   }, [authChecked, authFailed]);
 
