@@ -185,15 +185,26 @@ function SyncCard({ sync }) {
         </div>
       </div>
 
-      {/* stats grid – 7 cells */}
-      <div className="cw-sync-grid cw-sync-grid-7">
-        {cells.map(({ icon, label, val, color }) => (
-          <div key={label} className="cw-sync-cell">
-            <i className={`fas ${icon}`} style={{ color }} />
-            <span className="cw-sync-val" style={{ color }}>{val.toLocaleString()}</span>
-            <span className="cw-sync-lbl">{label}</span>
-          </div>
-        ))}
+      {/* stats grid – 2 rows */}
+      <div className="cw-sync-grid-rows">
+        <div className="cw-sync-grid cw-sync-grid-4">
+          {cells.slice(0, 4).map(({ icon, label, val, color }) => (
+            <div key={label} className="cw-sync-cell">
+              <i className={`fas ${icon}`} style={{ color }} />
+              <span className="cw-sync-val" style={{ color }}>{val.toLocaleString()}</span>
+              <span className="cw-sync-lbl">{label}</span>
+            </div>
+          ))}
+        </div>
+        <div className="cw-sync-grid cw-sync-grid-3">
+          {cells.slice(4).map(({ icon, label, val, color }) => (
+            <div key={label} className="cw-sync-cell">
+              <i className={`fas ${icon}`} style={{ color }} />
+              <span className="cw-sync-val" style={{ color }}>{val.toLocaleString()}</span>
+              <span className="cw-sync-lbl">{label}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
@@ -445,11 +456,15 @@ export default function Crawler({ isActive, metrics }) {
       setSyncResume(prev => ({ ...prev, ...nar.SyncResume }))
     }
 
+    /* Update isRunning from KEEP_ALIVE */
+    if (nar.KEEP_ALIVE !== undefined) {
+      setIsRunning(nar.KEEP_ALIVE)
+    }
+
     /* GamesWorker */
     if (nar.GamesWorker) {
       const gw = nar.GamesWorker
       setGamesWorker(prev => ({ ...prev, ...gw }))
-      if (gw.WorkerRunning !== undefined) setIsRunning(gw.WorkerRunning)
       if (gw.Logs && Array.isArray(gw.Logs) && gw.Logs.length > 0) {
         setSysLogs(prev => {
           const newEntries = gw.Logs.map(logItem => {

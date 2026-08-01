@@ -625,8 +625,10 @@
 
 #adminApp .cw-processed-line { display: flex; justify-content: space-between; font-size: .7rem; color: var(--text-dim); }
 
-#adminApp .cw-sync-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: .4rem; }
-#adminApp .cw-sync-grid.cw-sync-grid-7 { grid-template-columns: repeat(7, 1fr); }
+#adminApp .cw-sync-grid-rows { display: flex; flex-direction: column; gap: .4rem; }
+#adminApp .cw-sync-grid { display: grid; gap: .4rem; }
+#adminApp .cw-sync-grid.cw-sync-grid-4 { grid-template-columns: repeat(4, 1fr); }
+#adminApp .cw-sync-grid.cw-sync-grid-3 { grid-template-columns: repeat(3, 1fr); }
 
 #adminApp .cw-sync-cell {
   display: flex; flex-direction: column; align-items: center; gap: 3px;
@@ -944,7 +946,7 @@
    ══════════════════════════════════════ */
 @media (max-width: 1100px) {
   #adminApp .cw-top-row { grid-template-columns: 1fr 1fr; }
-  #adminApp .cw-sync-grid, #adminApp .cw-sync-grid-7 { grid-template-columns: repeat(4,1fr); }
+  #adminApp .cw-sync-grid.cw-sync-grid-4, #adminApp .cw-sync-grid.cw-sync-grid-3 { grid-template-columns: repeat(2,1fr); }
   #adminApp .cw-refresh-grid { grid-template-columns: repeat(2,1fr); }
 }
 
@@ -979,12 +981,12 @@
 @media (max-width: 700px) {
   #adminApp .cw-worker-chips { flex-wrap: wrap; }
   #adminApp .cw-refresh-grid { grid-template-columns: 1fr 1fr; }
-  #adminApp .cw-sync-grid, #adminApp .cw-sync-grid-7 { grid-template-columns: repeat(2,1fr); }
+  #adminApp .cw-sync-grid.cw-sync-grid-4, #adminApp .cw-sync-grid.cw-sync-grid-3 { grid-template-columns: repeat(2,1fr); }
   #adminApp .cw-type-breakdown { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
-  #adminApp .cw-sync-grid, #adminApp .cw-sync-grid-7 { grid-template-columns: 1fr; }
+  #adminApp .cw-sync-grid.cw-sync-grid-4, #adminApp .cw-sync-grid.cw-sync-grid-3 { grid-template-columns: 1fr; }
   #adminApp .cw-refresh-grid { grid-template-columns: 1fr; }
 }
 
