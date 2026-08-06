@@ -5,6 +5,7 @@ const navItems = [
   { id: 'dashboard', icon: 'fas fa-chart-pie',    label: 'Dashboard' },
   { id: 'system',    icon: 'fas fa-microchip',    label: 'System' },
   { id: 'crawler',   icon: 'fas fa-robot',        label: 'Data Crawler' },
+  { id: 'games-filters', icon: 'fas fa-filter',   label: 'Games Filters' },
   { id: 'cache',     icon: 'fas fa-server',       label: 'Cache Memory' },
   { id: 'settings',  icon: 'fas fa-sliders-h',    label: 'Settings' },
   { id: 'data',      icon: 'fas fa-database',     label: 'Data Management' },

@@ -12,6 +12,7 @@ import { ToastProvider } from './Toast.jsx'
 import Sidebar      from './Sidebar.jsx'
 import Dashboard    from './Dashboard.jsx'
 import Crawler      from './Crawler.jsx'
+import GamesFilters from './GamesFilters.jsx'
 import CacheStats   from './CacheStats.jsx'
 import SystemStats  from './SystemStats.jsx'
 import Settings     from './Settings.jsx'
@@ -184,6 +185,7 @@ export default function AdminDashboard() {
           {activeSection === 'dashboard' && <Dashboard isActive={true} />}
           {activeSection === 'system' && <SystemStats isActive={true} metrics={systemMetrics} connectionStatus={sseStatus} />}
           {activeSection === 'crawler' && <Crawler isActive={true} metrics={systemMetrics} />}
+          {activeSection === 'games-filters' && <GamesFilters isActive={true} metrics={systemMetrics} />}
           {activeSection === 'cache' && <CacheStats isActive={true} metrics={systemMetrics} />}
           {activeSection === 'settings' && <Settings isActive={true} metrics={systemMetrics} />}
           {activeSection === 'data' && <DataManager isActive={true} metrics={systemMetrics} />}
