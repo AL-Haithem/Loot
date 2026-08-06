@@ -997,18 +997,37 @@
 @keyframes sectionIn  { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes pulse      { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
 @keyframes slideDown  { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
-/* Filters Refresh Grid */
-#adminApp .ff-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .6rem; margin-top: 1rem; }
-#adminApp .ff-card { background: var(--clr-surface2); border: 1px solid var(--clr-border); border-radius: var(--radius-sm); padding: .8rem; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-#adminApp .ff-card.large { font-size: 1.4rem; font-weight: 600; }
-#adminApp .ff-card.span-2 { grid-column: span 2; }
-#adminApp .ff-card.span-4 { grid-column: span 4; }
-#adminApp .ff-card .icon { margin-bottom: .4rem; font-size: 1.2rem; color: var(--clr-primary); }
-#adminApp .ff-val { font-size: 1.1rem; font-weight: 600; color: var(--clr-text); }
-#adminApp .ff-lbl { font-size: 0.75rem; color: var(--clr-text-muted); margin-top: .2rem; }
-#adminApp .ff-logs-container { max-height: 150px; overflow-y: auto; text-align: left; background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: var(--radius-sm); width: 100%; font-family: monospace; font-size: 0.8rem; }
-#adminApp .ff-log-line { color: var(--clr-text-muted); margin-bottom: 4px; display: flex; align-items: flex-start; }
-#adminApp .ff-log-line .dot { display: inline-block; width: 6px; height: 6px; background: var(--clr-primary); border-radius: 50%; margin-right: 6px; margin-top: 4px; flex-shrink: 0; }
-#adminApp .ff-log-empty { color: var(--clr-text-dim); font-style: italic; }
-@media (max-width: 1100px) { #adminApp .ff-grid { grid-template-columns: repeat(2, 1fr); } #adminApp .ff-card.span-4 { grid-column: span 2; } }
-@media (max-width: 700px) { #adminApp .ff-grid { grid-template-columns: 1fr; } #adminApp .ff-card.span-2, #adminApp .ff-card.span-4 { grid-column: span 1; } }
+/* --- GAMES FILTERS SECTION --- */
+#adminApp #games-filters { padding: 1rem; }
+#adminApp .gf-status-indicator { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+#adminApp .gf-pulse-dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
+#adminApp .gf-pulse-dot.online { background-color: var(--clr-success); color: var(--clr-success); }
+#adminApp .gf-pulse-dot.offline { background-color: var(--clr-error); color: var(--clr-error); }
+#adminApp .gf-status-text { font-size: 0.9rem; font-weight: 600; color: var(--clr-text); }
+#adminApp .gf-content { display: flex; flex-direction: column; gap: 2rem; margin-top: 2rem; }
+#adminApp .gf-group-title { font-size: 1.1rem; color: var(--clr-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+#adminApp .gf-stats-grid, #adminApp .gf-filters-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+#adminApp .gf-stat-card, #adminApp .gf-filter-card { background: var(--clr-surface2); border: 1px solid var(--clr-border); border-radius: var(--radius-sm); padding: 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+#adminApp .gf-stat-label, #adminApp .gf-f-lbl { font-size: 0.8rem; color: var(--clr-text-muted); margin-bottom: 0.5rem; }
+#adminApp .gf-stat-value, #adminApp .gf-f-val { font-size: 1.2rem; font-weight: 600; color: var(--clr-text); }
+#adminApp .gf-stat-value.primary { color: var(--clr-primary); font-size: 1.4rem; }
+#adminApp .gf-filter-card .icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+#adminApp .gf-terminals-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+#adminApp .gf-terminal { background: #0a0a0a; border: 1px solid var(--clr-border); border-radius: var(--radius-sm); display: flex; flex-direction: column; overflow: hidden; }
+#adminApp .gf-terminal-head { background: #1a1a1a; padding: 0.6rem 1rem; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--clr-border); }
+#adminApp .gf-terminal-body { padding: 1rem; height: 300px; overflow-y: auto; font-family: monospace; font-size: 0.85rem; }
+#adminApp .gf-log-line { margin-bottom: 6px; display: flex; gap: 8px; }
+#adminApp .gf-log-time { color: #888; flex-shrink: 0; }
+#adminApp .gf-log-msg { color: #d4d4d4; }
+#adminApp .gf-terminal-empty { color: #666; font-style: italic; }
+#adminApp .gf-log-msg.error-msg { color: #f87171; }
+#adminApp .success-msg { color: #34d399; }
+
+@media (max-width: 1024px) {
+  #adminApp .gf-stats-grid, #adminApp .gf-filters-grid { grid-template-columns: repeat(2, 1fr); }
+  #adminApp .gf-terminals-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  #adminApp .gf-stats-grid, #adminApp .gf-filters-grid { grid-template-columns: 1fr; }
+}
