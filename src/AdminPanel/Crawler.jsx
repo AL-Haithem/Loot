@@ -504,19 +504,25 @@ export default function Crawler({ isActive, metrics }) {
   }, [metrics])
 
   const handleStart = useCallback(() => {
+    const token = csrfStore.get() ?? ''
+    const headers = { 
+      'X-CSRF-Token': token,
+      'Content-Type': 'application/json'
+    }
+    const body = JSON.stringify({ mode: crawlerMode, csrfToken: token })
+
     if (isRunning) {
       setIsRunning(false)
       fetch(`${API_BASE}/api/vv/adm/dashboard/crawler/stop`, {
-        method: 'POST', credentials: 'include', headers: csrfHeader(),
+        method: 'POST', credentials: 'include', headers, body
       }).catch(() => {})
       return
     }
     setIsRunning(true)
     fetch(`${API_BASE}/api/vv/adm/dashboard/crawler/start`, {
-      method: 'POST', credentials: 'include',
-      headers: csrfHeader(),
+      method: 'POST', credentials: 'include', headers, body
     }).catch(() => setIsRunning(false))
-  }, [isRunning])
+  }, [isRunning, crawlerMode])
 
   const anyRunning = fetcher.RefreshRunning || syncResume.SyncRunning || gamesWorker.WorkerRunning
 

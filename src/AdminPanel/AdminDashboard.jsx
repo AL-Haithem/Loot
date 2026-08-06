@@ -23,21 +23,11 @@ import NotFound     from '../NotFound.jsx'
 // Admin panel CSS (copied from Temp)
 import '../CompCss/admin.css'
 
-// ─── Auth guard ───────────────────────────────────────────────────────────────
-async function revalidateSession() {
-  // The backend /api/auth/csrf endpoint:
-  // - Requires a valid JWT cookie (Protection middleware)
-  // - Returns { csrfToken } on success, or 401/403 on failure
-  const res = await fetch(`${API_BASE}/api/auth/csrf`, {
-    credentials: 'include',
-  })
-  if (!res.ok) throw new Error('Not authenticated')
-  const data = await res.json()
-  return data.csrfToken ?? null
-}
+import { useClientAuth } from '../ClientAuthContext.jsx'
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function AdminDashboard() {
+  const { isLoading, isAuthenticated } = useClientAuth()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [authChecked, setAuthChecked] = useState(false)
@@ -56,24 +46,14 @@ export default function AdminDashboard() {
 
   // ── Session guard on mount ──────────────────────────────────────────────────
   useEffect(() => {
-    // If CSRF token is already in memory (same tab, logged in), skip the network check
-    if (csrfStore.isSet()) {
-      setAuthChecked(true)
-      return
-    }
+    if (isLoading) return // Wait for the global ClientAuthProvider to finish
 
-    // Token missing (page reload) → ask the server
-    revalidateSession()
-      .then((token) => {
-        if (token) csrfStore.set(token)
-        setAuthChecked(true)
-      })
-      .catch(() => {
-        // Not authenticated → pretend route doesn't exist
-        csrfStore.clear()
-        setAuthFailed(true)
-      })
-  }, [navigate])
+    if (csrfStore.isSet() || isAuthenticated) {
+      setAuthChecked(true)
+    } else {
+      setAuthFailed(true)
+    }
+  }, [isLoading, isAuthenticated])
 
   // ── Global SSE Connection ───────────────────────────────────────────────────
   useEffect(() => {
