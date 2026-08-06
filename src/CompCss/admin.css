@@ -997,3 +997,18 @@
 @keyframes sectionIn  { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes pulse      { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
 @keyframes slideDown  { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+/* Filters Refresh Grid */
+#adminApp .ff-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .6rem; margin-top: 1rem; }
+#adminApp .ff-card { background: var(--clr-surface2); border: 1px solid var(--clr-border); border-radius: var(--radius-sm); padding: .8rem; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+#adminApp .ff-card.large { font-size: 1.4rem; font-weight: 600; }
+#adminApp .ff-card.span-2 { grid-column: span 2; }
+#adminApp .ff-card.span-4 { grid-column: span 4; }
+#adminApp .ff-card .icon { margin-bottom: .4rem; font-size: 1.2rem; color: var(--clr-primary); }
+#adminApp .ff-val { font-size: 1.1rem; font-weight: 600; color: var(--clr-text); }
+#adminApp .ff-lbl { font-size: 0.75rem; color: var(--clr-text-muted); margin-top: .2rem; }
+#adminApp .ff-logs-container { max-height: 150px; overflow-y: auto; text-align: left; background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: var(--radius-sm); width: 100%; font-family: monospace; font-size: 0.8rem; }
+#adminApp .ff-log-line { color: var(--clr-text-muted); margin-bottom: 4px; display: flex; align-items: flex-start; }
+#adminApp .ff-log-line .dot { display: inline-block; width: 6px; height: 6px; background: var(--clr-primary); border-radius: 50%; margin-right: 6px; margin-top: 4px; flex-shrink: 0; }
+#adminApp .ff-log-empty { color: var(--clr-text-dim); font-style: italic; }
+@media (max-width: 1100px) { #adminApp .ff-grid { grid-template-columns: repeat(2, 1fr); } #adminApp .ff-card.span-4 { grid-column: span 2; } }
+@media (max-width: 700px) { #adminApp .ff-grid { grid-template-columns: 1fr; } #adminApp .ff-card.span-2, #adminApp .ff-card.span-4 { grid-column: span 1; } }

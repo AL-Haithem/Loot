@@ -304,7 +304,139 @@ function WorkerCard({ worker }) {
   )
 }
 
+/* ─── 5. FiltersRefresh card ───────────────────────────── */
+function FiltersCard({ filters }) {
+  const {
+    KEEP_ALIVE, Total, StartedAt, FinishedAt, Duration,
+    LastRun, NextRun, ExchangeUpdatedAt, Status,
+    Filters, Logs, LastError
+  } = filters
 
+  const formatDate = (ds) => ds ? new Date(ds).toLocaleString() : 'N/A'
+  
+  const formatDuration = (d) => {
+    if (!d) return '00:00'
+    const s = d > 1000000 ? Math.floor(d / 1000000000) : d
+    const m = Math.floor(s / 60).toString().padStart(2, '0')
+    const sec = (s % 60).toString().padStart(2, '0')
+    return `${m}:${sec}`
+  }
+
+  return (
+    <div className="cw-card filters-card" style={{ gridColumn: '1 / -1', marginTop: '1rem' }}>
+      <div className="cw-card-head">
+        <div className="cw-card-icon" style={{ background: 'rgba(52,211,153,0.1)', color: '#34d399' }}>
+          <i className="fas fa-filter" />
+        </div>
+        <div>
+          <div className="cw-card-title">Filters Refresh</div>
+          <div className="cw-card-sub">Store filters cache builder</div>
+        </div>
+        <span className={`cw-chip ${KEEP_ALIVE ? 'chip-running' : 'chip-idle'}`}>
+          <span className="cw-dot" />
+          {Status || (KEEP_ALIVE ? 'Running' : 'Idle')}
+        </span>
+      </div>
+
+      <div className="ff-grid">
+        {/* Row 1 */}
+        <div className="ff-card">
+          <i className="fas fa-heartbeat icon" style={{ color: KEEP_ALIVE ? 'var(--clr-success)' : 'var(--clr-error)' }} />
+          <div className="ff-val">{KEEP_ALIVE ? 'Alive' : 'Dead'}</div>
+          <div className="ff-lbl">Worker State</div>
+        </div>
+        <div className="ff-card">
+          <i className="fas fa-info-circle icon" style={{ color: Status === 'Idle' ? 'var(--clr-success)' : 'var(--clr-primary)' }} />
+          <div className="ff-val">{Status || 'Idle'}</div>
+          <div className="ff-lbl">Status</div>
+        </div>
+        <div className="ff-card large">
+          <i className="fas fa-barcode icon" />
+          <div className="ff-val">{Total.toLocaleString()}</div>
+          <div className="ff-lbl">Total Processed</div>
+        </div>
+        <div className="ff-card">
+          <i className="fas fa-stopwatch icon" />
+          <div className="ff-val">{formatDuration(Duration)}</div>
+          <div className="ff-lbl">Duration</div>
+        </div>
+
+        {/* Row 2 */}
+        <div className="ff-card span-2">
+          <i className="fas fa-play icon" />
+          <div className="ff-val">{formatDate(StartedAt)}</div>
+          <div className="ff-lbl">Started At</div>
+        </div>
+        <div className="ff-card span-2">
+          <i className="fas fa-stop icon" />
+          <div className="ff-val">{formatDate(FinishedAt)}</div>
+          <div className="ff-lbl">Finished At</div>
+        </div>
+
+        {/* Row 3 */}
+        <div className="ff-card span-2">
+          <i className="fas fa-history icon" />
+          <div className="ff-val">{formatDate(LastRun)}</div>
+          <div className="ff-lbl">Last Run</div>
+        </div>
+        <div className="ff-card span-2">
+          <i className="fas fa-calendar-alt icon" />
+          <div className="ff-val">{formatDate(NextRun)}</div>
+          <div className="ff-lbl">Next Run</div>
+        </div>
+
+        {/* Row 4 */}
+        <div className="ff-card">
+          <i className="fas fa-wallet icon" style={{color:'#f87171'}}/>
+          <div className="ff-val">{Filters?.cheapest?.toLocaleString() || 0}</div>
+          <div className="ff-lbl">Cheapest</div>
+        </div>
+        <div className="ff-card">
+          <i className="fas fa-star icon" style={{color:'#fbbf24'}}/>
+          <div className="ff-val">{Filters?.popularPaid?.toLocaleString() || 0}</div>
+          <div className="ff-lbl">Popular Paid</div>
+        </div>
+        <div className="ff-card">
+          <i className="fas fa-fire icon" style={{color:'#f97316'}}/>
+          <div className="ff-val">{Filters?.newest?.toLocaleString() || 0}</div>
+          <div className="ff-lbl">Newest Paid</div>
+        </div>
+        <div className="ff-card">
+          <i className="fas fa-gift icon" style={{color:'#34d399'}}/>
+          <div className="ff-val">{Filters?.popularFree?.toLocaleString() || 0}</div>
+          <div className="ff-lbl">Popular Free</div>
+        </div>
+
+        {/* Row 5 */}
+        <div className="ff-card span-4 log-area">
+          <div className="ff-lbl" style={{textAlign: 'left', marginBottom: '8px'}}><i className="fas fa-align-left icon"/> Logs</div>
+          <div className="ff-logs-container">
+            {Logs && Logs.length > 0 ? Logs.map((log, i) => (
+              <div key={i} className="ff-log-line">
+                <span className="dot"></span>{log}
+              </div>
+            )) : <div className="ff-log-empty">No logs available</div>}
+          </div>
+        </div>
+
+        {/* Row 6 */}
+        {LastError && (
+          <div className="ff-card span-4 error-area">
+            <i className="fas fa-exclamation-triangle icon" style={{color: 'var(--clr-error)'}} />
+            <div className="ff-val" style={{color: 'var(--clr-error)', fontSize: '0.9rem'}}>{LastError}</div>
+            <div className="ff-lbl">Last Error</div>
+          </div>
+        )}
+        <div className="ff-card span-4">
+          <i className="fas fa-exchange-alt icon" style={{color: '#a78bfa'}}/>
+          <div className="ff-val" style={{fontSize: '0.9rem'}}>{formatDate(ExchangeUpdatedAt)}</div>
+          <div className="ff-lbl">Exchange Updated At</div>
+        </div>
+
+      </div>
+    </div>
+  )
+}
 
 /* ─── 6. Control panel ──────────────────────────────── */
 function ControlPanel({ isRunning, crawlerMode, setCrawlerMode, onStart, statusMsg, appLogs, sysLogs, clearLogs }) {
@@ -423,6 +555,20 @@ const DEFAULT_WORKER = {
   ComingSoon:    0,
   LastAppsData:  [],
 }
+const DEFAULT_FILTERS = {
+  KEEP_ALIVE: false,
+  Total: 0,
+  StartedAt: null,
+  FinishedAt: null,
+  Duration: 0,
+  LastRun: null,
+  NextRun: null,
+  ExchangeUpdatedAt: null,
+  Status: "Idle",
+  Filters: { cheapest: 0, popularPaid: 0, newest: 0, popularFree: 0 },
+  Logs: [],
+  LastError: null
+}
 
 /* ─── Main export ───────────────────────────────────── */
 export default function Crawler({ isActive, metrics }) {
@@ -435,6 +581,7 @@ export default function Crawler({ isActive, metrics }) {
   const [fetcher,     setFetcher]     = useState(DEFAULT_FETCHER)
   const [syncResume,  setSyncResume]  = useState(DEFAULT_SYNC)
   const [gamesWorker, setGamesWorker] = useState(DEFAULT_WORKER)
+  const [filtersRef,  setFiltersRef]  = useState(DEFAULT_FILTERS)
 
   const csrfHeader = () => ({ 'X-CSRF-Token': csrfStore.get() ?? '' })
 
@@ -454,6 +601,11 @@ export default function Crawler({ isActive, metrics }) {
     /* SyncResume */
     if (nar.SyncResume) {
       setSyncResume(prev => ({ ...prev, ...nar.SyncResume }))
+    }
+
+    /* FiltersRefresh */
+    if (nar.FiltersRefresh) {
+      setFiltersRef(prev => ({ ...prev, ...nar.FiltersRefresh }))
     }
 
     /* Update isRunning from KEEP_ALIVE */
@@ -548,6 +700,8 @@ export default function Crawler({ isActive, metrics }) {
         <SyncCard    sync={syncResume} />
         <WorkerCard  worker={gamesWorker} />
       </div>
+
+      <FiltersCard filters={filtersRef} />
 
       {/* control panel + terminals */}
       <ControlPanel
