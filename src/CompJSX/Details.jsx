@@ -162,14 +162,20 @@ export default function DetailsPage() {
                             {/* Game title and age rating */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap', marginBottom: '15px' }}>
                                 <h1 className="dt-game-title" style={{ margin: 0 }}>{game.name}</h1>
-                                {age > 0 && (
+                                {age >= 0 && (
                                     <div className="dt-age-badge" style={{ 
                                         display: 'inline-flex', alignItems: 'center', gap: '6px', 
-                                        background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', 
+                                        background: age > 0 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)', 
+                                        color: age > 0 ? '#ef4444' : '#22c55e', 
                                         padding: '4px 10px', borderRadius: '6px', fontSize: '0.9rem', 
-                                        fontWeight: 'bold', border: '1px solid rgba(239, 68, 68, 0.3)'
+                                        fontWeight: 'bold', 
+                                        border: `1px solid ${age > 0 ? 'rgba(239, 68, 68, 0.3)' : 'rgba(34, 197, 94, 0.3)'}`
                                     }}>
-                                        <i className="fas fa-exclamation-triangle" /> {age}+ 
+                                        {age > 0 ? (
+                                            <><i className="fas fa-exclamation-triangle" /> {age}+</>
+                                        ) : (
+                                            <><i className="fas fa-child" /> All Ages</>
+                                        )}
                                     </div>
                                 )}
                             </div>

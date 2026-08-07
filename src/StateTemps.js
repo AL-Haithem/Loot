@@ -1,9 +1,8 @@
 export const FiltersObjs = [
-    { id: 1, active: true, filter: "popular", text: "Most Popular 🔥" },
-    { id: 2, active: false, filter: "paid", text: "Paid Games 💰" },
-    { id: 3, active: false, filter: "lowest", text: "Lowest Price 📉" },
-    { id: 4, active: false, filter: "free", text: "Free 🎁" },
-    { id: 5, active: false, filter: "recent", text: "Newest 🆕" },
+    { id: 1, active: true, filter: "recent", text: "Newest 🆕" },
+    { id: 2, active: false, filter: "lowest", text: "Lowest Price 📉" },
+    { id: 3, active: false, filter: "free", text: "Free 🎁" },
+    { id: 4, active: false, filter: "paid", text: "Popular 🔥" }
 ]
 
 export const NavBarObjs = [

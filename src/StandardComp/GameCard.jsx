@@ -12,11 +12,15 @@ export function steamAssetUrl(value) {
 }
 
 function formatReleaseDate(rel) {
-    if (rel?.coming_soon) return rel.date ? `Coming soon: ${rel.date}` : "Coming soon"
-    if (!rel?.date) return null
+    if (!rel) return null
+    if (typeof rel === "object") {
+        if (rel.coming_soon) return rel.date ? `Coming soon: ${rel.date}` : "Coming soon"
+        if (!rel.date) return null
+        rel = rel.date
+    }
 
-    const date = new Date(rel.date)
-    if (Number.isNaN(date.getTime())) return rel.date
+    const date = new Date(rel)
+    if (Number.isNaN(date.getTime())) return rel
 
     return date.toLocaleDateString("en-US", {
         year: "numeric",
@@ -26,12 +30,15 @@ function formatReleaseDate(rel) {
 }
 
 function formatPrice(price) {
-    if (!price?.final || price.final <= 0) return null
+    if (!price) return null
+    // If it's a number (cents), use it directly
+    const finalPrice = typeof price === "number" ? price : (price.US?.final || price.final)
+    if (!finalPrice || finalPrice <= 0) return null
 
     return new Intl.NumberFormat("en-US", {
         style: "currency",
-        currency: price.currency || "USD"
-    }).format(price.final / 100)
+        currency: price.currency || price.US?.currency || "USD"
+    }).format(finalPrice / 100)
 }
 
 export function GameCard({
@@ -48,18 +55,19 @@ export function GameCard({
     const finalId = steam_appid || appid
     const gameData = { steam_appid: finalId, appid: finalId, name, title, head, is_free, Price, rel, recs }
     const { addToCart } = useCart()
-    const reviews = recs?.total || 0
+    const reviews = typeof recs === "object" ? (recs?.total || 0) : (recs || 0)
     const gameName = name || title || "Untitled"
-    const usPrice = Price?.US
+    const finalPriceVal = typeof Price === "number" ? Price : (Price?.US?.final || Price?.final || 0)
     const releaseText = formatReleaseDate(rel)
-    const hasBuyablePrice = !is_free && !rel?.coming_soon && usPrice?.final > 0
+    const isComingSoon = typeof rel === "object" && rel?.coming_soon
+    const hasBuyablePrice = !is_free && !isComingSoon && finalPriceVal > 0
     const steamUrl = `${STEAM_APP_URL}/${finalId}`
     const detailsUrl = `/games/${finalId}`
-    const priceText = rel?.coming_soon
+    const priceText = isComingSoon
         ? releaseText
         : is_free
             ? "Free"
-            : formatPrice(usPrice) || "Unavailable"
+            : formatPrice(Price) || "Unavailable"
 
     return (
         <article className="game-card">

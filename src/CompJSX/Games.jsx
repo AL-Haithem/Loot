@@ -13,6 +13,8 @@ export default function GamesPage() {
     const [navFilter] = useState(NavBarObjs)
     const [isOpen, setIsOpen] = useState(false)
     const [gamesData, setGamesData] = useState([])
+    const [page, setPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(1)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState("")
     const activeFilter = filters.find(f => f.active)
@@ -21,6 +23,11 @@ export default function GamesPage() {
     function toggleMenu() {
         setIsOpen(prev => !prev)
     }
+
+    // Reset page to 1 when filter changes
+    useEffect(() => {
+        setPage(1)
+    }, [activeFilter?.id])
 
     useEffect(() => {
         let isMounted = true
@@ -31,13 +38,17 @@ export default function GamesPage() {
 
             try {
                 const res = await axios.get(`${API_BASE}/api/public/games`, {
-                    params: { page: 1, filter: activeFilter?.filter }
+                    params: { page, filter: activeFilter?.filter }
                 })
 
-                if (isMounted) setGamesData(res.data.data || [])
+                if (isMounted) {
+                    setGamesData(res.data.data || [])
+                    setTotalPages(res.data.pages || 1)
+                }
             } catch {
                 if (isMounted) {
                     setGamesData([])
+                    setTotalPages(1)
                     setError("Unable to load games")
                 }
             } finally {
@@ -50,7 +61,7 @@ export default function GamesPage() {
         return () => {
             isMounted = false
         }
-    }, [activeFilter?.id, activeFilter?.filter])
+    }, [activeFilter?.id, activeFilter?.filter, page])
 
     return (
         <>
@@ -151,7 +162,23 @@ export default function GamesPage() {
             </section>
 
             <div className="pagination-container">
-                <div className="pagination-controls"></div>
+                <div className="pagination-controls">
+                    <button 
+                        className="pg-btn" 
+                        disabled={page <= 1} 
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                    >
+                        <i className="fas fa-chevron-left" /> Prev
+                    </button>
+                    <span className="pg-info">Page {page} of {totalPages}</span>
+                    <button 
+                        className="pg-btn" 
+                        disabled={page >= totalPages} 
+                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    >
+                        Next <i className="fas fa-chevron-right" />
+                    </button>
+                </div>
             </div>
         </>
     )
