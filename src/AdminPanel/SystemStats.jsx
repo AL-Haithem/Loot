@@ -34,7 +34,7 @@ export default function SystemStats({ isActive, metrics, connectionStatus }) {
         <div className="dashboard-grid">
           {Object.entries(metrics).map(([key, value]) => {
             // Skip non-system metrics that belong to other sections
-            if (['Time', 'Cache', 'Crawler', 'Settings', 'Data', 'Logs'].includes(key)) return null;
+            if (['Time', 'Cache', 'Crawler', 'NewAppsRefresh', 'FiltersRefresh', 'Settings', 'Data', 'Logs'].includes(key)) return null;
 
             if (key === 'System') {
               const cpu = typeof value.CPU === 'number' ? value.CPU : 0;
