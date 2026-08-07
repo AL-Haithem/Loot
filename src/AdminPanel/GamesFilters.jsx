@@ -20,7 +20,7 @@ function formatDate(ms) {
   if (!ms) return 'N/A'
   const d = new Date(ms)
   if (isNaN(d.getTime())) return 'N/A'
-  return d.toLocaleString('ar-MA', {
+  return d.toLocaleString('en-GB', {
     year: 'numeric', month: 'short', day: 'numeric',
     hour: '2-digit', minute: '2-digit', second: '2-digit',
     hour12: false
