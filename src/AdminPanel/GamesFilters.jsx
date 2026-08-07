@@ -65,7 +65,8 @@ function useCountdown(targetMs) {
 
 /* ── Main Component ──────────────────────────────────── */
 export default function GamesFilters({ isActive, metrics }) {
-  const filters = metrics?.FiltersRefresh || DEFAULT_FILTERS
+  // The SSE key from the server is 'Filters' (not 'FiltersRefresh')
+  const filters = metrics?.Filters || DEFAULT_FILTERS
 
   const {
     KEEP_ALIVE, Total, StartedAt, FinishedAt, Duration,
