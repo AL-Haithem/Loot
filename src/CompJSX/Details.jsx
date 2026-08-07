@@ -8,13 +8,14 @@ import { useCart } from "../CartContext.jsx"
 import { API_BASE } from "../api.js"
 
 /* ─── Platform Badges ─────────────────────── */
-function Platforms({ platforms }) {
+function Platforms({ plt }) {
+    if (!plt) return null
     const icons = [
         { key: "windows", icon: "fab fa-windows", label: "Windows" },
         { key: "mac",     icon: "fab fa-apple",   label: "Mac"     },
         { key: "linux",   icon: "fab fa-linux",   label: "Linux"   },
     ]
-    const available = icons.filter(({ key }) => platforms?.[key])
+    const available = icons.filter(({ key }) => plt?.[key])
     if (!available.length) return null
     return (
         <div className="dt-platforms">
@@ -25,6 +26,18 @@ function Platforms({ platforms }) {
             ))}
         </div>
     )
+}
+
+/* ─── Release Date ────────────────────────── */
+function formatRelease(rel) {
+    if (!rel) return "Unknown"
+    // rel can be a timestamp (ms) or a date string
+    if (typeof rel === "number") {
+        return new Date(rel).toLocaleDateString("en-GB", {
+            year: "numeric", month: "short", day: "numeric"
+        })
+    }
+    return String(rel)
 }
 
 /* ─── Skeleton ──────────────────────────── */
@@ -65,6 +78,7 @@ export default function DetailsPage() {
         axios.get(`${API_BASE}/api/public/games/${appId}`)
             .then(res => {
                 if (!alive) return
+                // New API shape: { data: { price, discount, appid, name, rec, rel, bg, age, plt } }
                 const gameData = res.data?.data || res.data
                 if (gameData && Object.keys(gameData).length > 0) {
                     setGame(gameData)
@@ -78,19 +92,12 @@ export default function DetailsPage() {
         return () => { alive = false }
     }, [appId])
 
-    const bg = game?.background_raw || game?.background
-    const releaseStr = game?.release_date?.date || "Unknown"
-    const isComingSoon = game?.release_date?.coming_soon
-
-    const gameForPurchase = {
-        ...(game ?? {}),
-        steam_appid: Number(appId),
-        head: game?.header_image || stateGame?.head,
-        name: game?.name || stateGame?.name || `App ${appId}`,
-        is_free: game?.is_free,
-        price_overview: game?.price_overview,
-        Price: game?.Price,
-    }
+    // New API fields
+    const bg      = game?.bg
+    const relStr  = formatRelease(game?.rel)
+    const age     = game?.age || 0
+    const rec     = game?.rec || 0
+    const plt     = game?.plt
 
     return (
         <div className="dt-root">
@@ -140,37 +147,33 @@ export default function DetailsPage() {
                                 <i className="fab fa-steam" /> Steam Game
                             </div>
 
-                            {/* Game title — big & premium */}
+                            {/* Game title */}
                             <h1 className="dt-game-title">{game.name}</h1>
 
-                            {/* Age restriction if applicable */}
-                            {game.required_age > 0 && (
+                            {/* Age restriction */}
+                            {age > 0 && (
                                 <div className="dt-age-warning">
                                     <i className="fas fa-user-shield" />
-                                    <span>Rated <strong>{game.required_age}+</strong> — Mature content</span>
+                                    <span>Rated <strong>{age}+</strong> — Mature content</span>
                                 </div>
                             )}
 
                             {/* Meta info */}
                             <div className="dt-meta-grid">
-                                {game.release_date && (
-                                    <div className="dt-meta-item">
-                                        <i className="fas fa-calendar-alt" />
-                                        <div>
-                                            <span className="dt-meta-label">Release Date</span>
-                                            <span className="dt-meta-value">
-                                                {isComingSoon ? "Coming Soon" : releaseStr}
-                                            </span>
-                                        </div>
+                                <div className="dt-meta-item">
+                                    <i className="fas fa-calendar-alt" />
+                                    <div>
+                                        <span className="dt-meta-label">Release Date</span>
+                                        <span className="dt-meta-value">{relStr}</span>
                                     </div>
-                                )}
-                                {game.recommendations?.total > 0 && (
+                                </div>
+                                {rec > 0 && (
                                     <div className="dt-meta-item dt-meta-positive">
                                         <i className="fas fa-thumbs-up" />
                                         <div>
                                             <span className="dt-meta-label">Recommendations</span>
                                             <span className="dt-meta-value">
-                                                {game.recommendations.total.toLocaleString()}
+                                                {Number(rec).toLocaleString()}
                                             </span>
                                         </div>
                                     </div>
@@ -178,11 +181,11 @@ export default function DetailsPage() {
                             </div>
 
                             {/* Platforms */}
-                            <Platforms platforms={game.platforms} />
+                            <Platforms plt={plt} />
 
                             {/* Steam link */}
                             <a
-                                href={`https://store.steampowered.com/app/${appId}`}
+                                href={`https://store.steampowered.com/app/${game.appid || appId}`}
                                 target="_blank" rel="noreferrer"
                                 className="dt-steam-ext-link"
                             >
@@ -190,9 +193,9 @@ export default function DetailsPage() {
                             </a>
                         </div>
 
-                        {/* ══ RIGHT: Purchase Panels ══ */}
+                        {/* ══ RIGHT: Purchase Panel ══ */}
                         <div className="dt-hero-right">
-                            <PurchaseSection game={gameForPurchase} priceLoading={loading} />
+                            <PurchaseSection game={game} />
                         </div>
 
                     </div>

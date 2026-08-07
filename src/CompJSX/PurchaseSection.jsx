@@ -3,12 +3,13 @@ import { useCart } from "../CartContext.jsx"
 import "../CompCss/DealHunt.css"
 
 /* ─── Helpers ───────────────────────────────── */
-function fmt(priceObj) {
-    if (!priceObj?.final || priceObj.final <= 0) return null
-    return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: priceObj.currency || "USD",
-    }).format(priceObj.final / 100)
+// Formats a price in cents (e.g. 1999 -> $19.99)
+function fmt(priceCents, currency = 'USD') {
+    if (!priceCents || priceCents <= 0) return null
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency,
+    }).format(priceCents / 100)
 }
 
 const SERVICE_FEE = 1.0
@@ -125,7 +126,7 @@ function DealHuntForm({ game, priceText, priceObj, onConfirm }) {
     const [agreed, setAgreed]     = useState(false)
     const [emailErr, setEmailErr] = useState("")
 
-    const gamePrice   = priceObj?.final ? priceObj.final / 100 : 0
+    const gamePrice   = priceCents ? priceCents / 100 : 0
     const totalCharge = SERVICE_FEE
 
     function validate() {
@@ -206,16 +207,19 @@ export default function PurchaseSection({ game }) {
     const [mode, setMode]           = useState("instant")
     const [dhRequest, setDhRequest] = useState(null)
 
-    const priceObj  = game?.Price?.US || game?.price_overview
-    const priceText = fmt(priceObj) || "Unavailable"
-    const isFree    = game?.is_free
-    const hasBuyable = !isFree && priceObj?.final > 0
+    // New API: game.price is the final price in cents (price + profit)
+    // game.discount is the discount percent (0-100)
+    const priceCents = game?.price
+    const discount   = game?.discount || 0
+    const priceText  = fmt(priceCents) || 'Unavailable'
+    const isFree     = priceCents === 0
+    const hasBuyable = !isFree && priceCents > 0
 
     function handleDHCreate({ email, gamePrice, serviceFee }) {
         setDhRequest({
-            status:     "searching",
+            status:     'searching',
             email,
-            gamePrice:  fmt(priceObj) || `$${gamePrice.toFixed(2)}`,
+            gamePrice:  fmt(priceCents) || `$${gamePrice.toFixed(2)}`,
             serviceFee,
             remaining:  gamePrice,
         })
@@ -254,13 +258,13 @@ export default function PurchaseSection({ game }) {
 
                 <div className="ps-price-block">
                     <span className="ps-price-label">
-                        {isFree ? "Free to Play" : "Store Price"}
+                        {isFree ? 'Free to Play' : 'Store Price'}
                     </span>
                     <div className="ps-price-value">
-                        {isFree ? "Free" : priceText}
+                        {isFree ? 'Free' : priceText}
                     </div>
-                    {priceObj?.discount_percent > 0 && (
-                        <span className="ps-discount-badge">-{priceObj.discount_percent}%</span>
+                    {discount > 0 && (
+                        <span className="ps-discount-badge">-{discount}%</span>
                     )}
                 </div>
 
