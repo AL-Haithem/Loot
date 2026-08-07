@@ -30,14 +30,26 @@ function Platforms({ plt }) {
 
 /* ─── Release Date ────────────────────────── */
 function formatRelease(rel) {
-    if (!rel) return "Unknown"
-    // rel can be a timestamp (ms) or a date string
-    if (typeof rel === "number") {
-        return new Date(rel).toLocaleDateString("en-GB", {
+    if (!rel || rel === 0 || rel === "0") return "Unknown"
+    
+    // Attempt to parse the date, whether it's a timestamp or a date string
+    const dateObj = new Date(rel)
+    
+    // Check if it's a valid date
+    if (!isNaN(dateObj.getTime())) {
+        return dateObj.toLocaleDateString("en-GB", {
             year: "numeric", month: "short", day: "numeric"
         })
     }
+    
     return String(rel)
+}
+
+/* ─── Steam Asset URL Expander ────────────── */
+function expandSteamAssetUrl(url) {
+    if (!url) return null
+    if (url.startsWith("http")) return url // Already absolute
+    return `https://shared.akamai.steamstatic.com/${url}`
 }
 
 /* ─── Skeleton ──────────────────────────── */
@@ -93,7 +105,7 @@ export default function DetailsPage() {
     }, [appId])
 
     // New API fields
-    const bg      = game?.bg
+    const bg      = expandSteamAssetUrl(game?.bg)
     const relStr  = formatRelease(game?.rel)
     const age     = game?.age || 0
     const rec     = game?.rec || 0
@@ -147,16 +159,20 @@ export default function DetailsPage() {
                                 <i className="fab fa-steam" /> Steam Game
                             </div>
 
-                            {/* Game title */}
-                            <h1 className="dt-game-title">{game.name}</h1>
-
-                            {/* Age restriction */}
-                            {age > 0 && (
-                                <div className="dt-age-warning">
-                                    <i className="fas fa-user-shield" />
-                                    <span>Rated <strong>{age}+</strong> — Mature content</span>
-                                </div>
-                            )}
+                            {/* Game title and age rating */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap', marginBottom: '15px' }}>
+                                <h1 className="dt-game-title" style={{ margin: 0 }}>{game.name}</h1>
+                                {age > 0 && (
+                                    <div className="dt-age-badge" style={{ 
+                                        display: 'inline-flex', alignItems: 'center', gap: '6px', 
+                                        background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', 
+                                        padding: '4px 10px', borderRadius: '6px', fontSize: '0.9rem', 
+                                        fontWeight: 'bold', border: '1px solid rgba(239, 68, 68, 0.3)'
+                                    }}>
+                                        <i className="fas fa-exclamation-triangle" /> {age}+ 
+                                    </div>
+                                )}
+                            </div>
 
                             {/* Meta info */}
                             <div className="dt-meta-grid">
