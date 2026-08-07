@@ -121,7 +121,7 @@ function DealHuntActive({ request, priceText, onPayNow, onCancel }) {
 }
 
 /* ─── Deal Hunt Form ────────────────────────── */
-function DealHuntForm({ game, priceText, priceObj, onConfirm }) {
+function DealHuntForm({ game, priceText, priceCents, onConfirm }) {
     const [email, setEmail]       = useState("")
     const [agreed, setAgreed]     = useState(false)
     const [emailErr, setEmailErr] = useState("")
@@ -327,7 +327,7 @@ export default function PurchaseSection({ game }) {
                     <DealHuntForm
                         game={game}
                         priceText={priceText}
-                        priceObj={priceObj}
+                        priceCents={priceCents}
                         onConfirm={handleDHCreate}
                     />
                 ) : (
