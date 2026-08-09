@@ -305,7 +305,7 @@ function WorkerCard({ worker }) {
 }
 
 /* ─── Control Panel ─────────────────────────────────── */
-function ControlPanel({ isRunning, crawlerMode, setCrawlerMode, onStart, statusMsg, appLogs, sysLogs, clearLogs }) {
+function ControlPanel({ isRunning, isToggling, crawlerMode, setCrawlerMode, onStart, statusMsg, appLogs, sysLogs, clearLogs }) {
   return (
     <div className="cw-control-panel">
       <div className="cw-mode-picker">
@@ -331,11 +331,15 @@ function ControlPanel({ isRunning, crawlerMode, setCrawlerMode, onStart, statusM
 
       <div className="cw-actions">
         <button
-          className={`cw-start-btn ${isRunning ? 'stop' : 'start'}`}
+          className={`cw-start-btn ${isRunning ? 'stop' : 'start'} ${isToggling ? 'loading' : ''}`}
           onClick={onStart}
+          disabled={isToggling}
         >
-          <i className={`fas ${isRunning ? 'fa-stop' : 'fa-play'}`} />
-          {isRunning ? 'Stop Crawler' : 'Start Crawler'}
+          {isToggling ? (
+             <><i className="fas fa-spinner fa-spin" /> {isRunning ? 'Stopping...' : 'Starting...'}</>
+          ) : (
+             <><i className={`fas ${isRunning ? 'fa-stop' : 'fa-play'}`} /> {isRunning ? 'Stop Crawler' : 'Start Crawler'}</>
+          )}
         </button>
         <button className="cw-clear-btn" onClick={clearLogs} title="Clear logs">
           <i className="fas fa-broom" />
@@ -425,6 +429,7 @@ const DEFAULT_WORKER = {
 export default function Crawler({ isActive, metrics }) {
   const [crawlerMode, setCrawlerMode] = useState('both')
   const [isRunning,   setIsRunning]   = useState(false)
+  const [isToggling,  setIsToggling]  = useState(false)
   const [statusMsg,   setStatusMsg]   = useState('Ready to start…')
   const [appLogs,     setAppLogs]     = useState([])
   const [sysLogs,     setSysLogs]     = useState([])
@@ -503,7 +508,9 @@ export default function Crawler({ isActive, metrics }) {
     }
   }, [metrics])
 
-  const handleStart = useCallback(() => {
+  const handleStart = useCallback(async () => {
+    if (isToggling) return
+    setIsToggling(true)
     const token = csrfStore.get() ?? ''
     const headers = { 
       'X-CSRF-Token': token,
@@ -512,17 +519,29 @@ export default function Crawler({ isActive, metrics }) {
     const body = JSON.stringify({ mode: crawlerMode, csrfToken: token })
 
     if (isRunning) {
-      setIsRunning(false)
-      fetch(`${API_BASE}/api/vv/adm/dashboard/crawler/stop`, {
-        method: 'POST', credentials: 'include', headers, body
-      }).catch(() => {})
+      try {
+        await fetch(`${API_BASE}/api/vv/adm/dashboard/crawler/stop`, {
+          method: 'POST', credentials: 'include', headers, body
+        })
+        setIsRunning(false)
+      } catch (err) {}
+      finally {
+        setIsToggling(false)
+      }
       return
     }
-    setIsRunning(true)
-    fetch(`${API_BASE}/api/vv/adm/dashboard/crawler/start`, {
-      method: 'POST', credentials: 'include', headers, body
-    }).catch(() => setIsRunning(false))
-  }, [isRunning, crawlerMode])
+
+    try {
+      await fetch(`${API_BASE}/api/vv/adm/dashboard/crawler/start`, {
+        method: 'POST', credentials: 'include', headers, body
+      })
+      setIsRunning(true)
+    } catch (err) {
+      setIsRunning(false)
+    } finally {
+      setIsToggling(false)
+    }
+  }, [isRunning, crawlerMode, isToggling])
 
   const anyRunning = fetcher.RefreshRunning || syncResume.SyncRunning || gamesWorker.WorkerRunning
 
@@ -555,6 +574,7 @@ export default function Crawler({ isActive, metrics }) {
       {/* control panel + terminals */}
       <ControlPanel
         isRunning={isRunning}
+        isToggling={isToggling}
         crawlerMode={crawlerMode}
         setCrawlerMode={setCrawlerMode}
         onStart={handleStart}

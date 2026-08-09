@@ -93,35 +93,38 @@ export function GameCard({
                 {releaseText && !rel?.coming_soon && <div className="game-meta">Release date: {releaseText}</div>}
 
                 <div className="price-row">
-                    <div className="price-block">
-                        <span className="game-price">{priceText}</span>
-                        {discount > 0 && <span className="game-discount">-{discount}%</span>}
-                    </div>
+                    {huntPrice > 0 && (
+                        <Link to={detailsUrl} className="dh-mini-btn" title="Hunt this deal">
+                            <i className="fas fa-satellite-dish" /> Hunt Now with ${huntPrice.toFixed(2)}
+                        </Link>
+                    )}
 
                     <div className="game-actions">
-                        {huntPrice > 0 && (
-                            <Link to={detailsUrl} className="dh-mini-btn" title="Hunt this deal">
-                                <i className="fas fa-satellite-dish" /> ${huntPrice.toFixed(2)}
-                            </Link>
-                        )}
-                        {hasBuyablePrice && (
-                            <button
-                                className="cart-btn"
-                                type="button"
-                                title="Add to cart"
-                                onClick={() => addToCart(gameData)}
-                            >
-                                <i className="fas fa-cart-plus"></i>
-                            </button>
-                        )}
+                        <div className="price-block">
+                            <span className="game-price">{priceText}</span>
+                            {discount > 0 && <span className="game-discount">-{discount}%</span>}
+                        </div>
 
-                        {hasBuyablePrice ? (
-                            <Link to={detailsUrl} state={{ game: gameData }} className="buy-btn">Buy</Link>
-                        ) : (
-                            <a href={steamUrl} className="buy-btn steam-btn" target="_blank" rel="noreferrer">
-                                Steam
-                            </a>
-                        )}
+                        <div className="game-actions-right">
+                            {hasBuyablePrice && (
+                                <button
+                                    className="cart-btn"
+                                    type="button"
+                                    title="Add to cart"
+                                    onClick={() => addToCart(gameData)}
+                                >
+                                    <i className="fas fa-cart-plus"></i>
+                                </button>
+                            )}
+
+                            {hasBuyablePrice ? (
+                                <Link to={detailsUrl} state={{ game: gameData }} className="buy-btn">Buy</Link>
+                            ) : (
+                                <a href={steamUrl} className="buy-btn steam-btn" target="_blank" rel="noreferrer">
+                                    Steam
+                                </a>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

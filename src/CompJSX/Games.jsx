@@ -152,7 +152,7 @@ export default function GamesPage() {
 
                 {!isLoading && error && <p className="games-message">{error}</p>}
 
-                {!isLoading && !error && gamesData.map((game) => (
+                {!isLoading && !error && gamesData.slice(0, 24).map((game) => (
                     <GameCard key={game.steam_appid} {...game} />
                 ))}
 
