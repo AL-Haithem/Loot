@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import axios from "axios"
+import { Link } from "react-router"
 import logo from "../assets/imgs/logo.png"
 import "../CompCss/Games.css"
 import { FilterButton, NavButton } from "../StandardComp/Buttons.jsx"
@@ -7,6 +8,88 @@ import { GameCard } from "../StandardComp/GameCard.jsx"
 import { FiltersObjs, NavBarObjs } from "../StateTemps.js"
 import { API_BASE } from "../api.js"
 import { useCart } from "../CartContext.jsx"
+
+const MIN_CHECKOUT = 10 // $10 minimum
+
+function fmtPrice(val) {
+    if (!val && val !== 0) return "—"
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(val)
+}
+
+/* ─── Cart Sidebar ───────────────────────────── */
+function CartSidebar() {
+    const { cartItems, totalPrice, totalCount, removeFromCart } = useCart()
+    const canCheckout = totalPrice >= MIN_CHECKOUT
+    const progress = Math.min((totalPrice / MIN_CHECKOUT) * 100, 100)
+    const remaining = Math.max(MIN_CHECKOUT - totalPrice, 0)
+
+    return (
+        <aside className="gp-cart-panel">
+            <div className="gp-cart-box">
+                <div className="gp-cart-title">
+                    <i className="fas fa-shopping-bag" />
+                    Cart
+                    {totalCount > 0 && <span className="gp-cart-badge">{totalCount}</span>}
+                </div>
+
+                {cartItems.length === 0 ? (
+                    <div className="gp-cart-empty">
+                        <i className="fas fa-cart-shopping" />
+                        Your cart is empty
+                    </div>
+                ) : (
+                    <>
+                        <div className="gp-cart-items">
+                            {cartItems.map(item => {
+                                const id = item.steam_appid || item.appid
+                                const itemPrice = item.price ?? (item.Price?.US?.final ? item.Price.US.final / 100 : 0)
+                                return (
+                                    <div key={id} className="gp-cart-item">
+                                        <span className="gp-cart-item-name">{item.name || item.title || "Unknown"}</span>
+                                        <span className="gp-cart-item-price">{fmtPrice(itemPrice)}</span>
+                                        <button
+                                            className="gp-cart-item-remove"
+                                            title="Remove"
+                                            onClick={() => removeFromCart(id)}
+                                        >
+                                            <i className="fas fa-xmark" />
+                                        </button>
+                                    </div>
+                                )
+                            })}
+                        </div>
+
+                        <div className="gp-cart-totals">
+                            <div className="gp-cart-total-row">
+                                <span className="gp-cart-total-label">Total Added</span>
+                                <span className="gp-cart-total-value">{fmtPrice(totalPrice)}</span>
+                            </div>
+                        </div>
+
+                        {!canCheckout && (
+                            <div className="gp-cart-min-notice">
+                                <i className="fas fa-info-circle" />
+                                <div>
+                                    Add {fmtPrice(remaining)} more to checkout
+                                    <div className="gp-min-bar-track">
+                                        <div className="gp-min-bar-fill" style={{ width: `${progress}%` }} />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <Link to="/cart">
+                            <button className="gp-cart-checkout" disabled={!canCheckout}>
+                                <i className="fas fa-credit-card" />
+                                {canCheckout ? "Checkout" : `Min. ${fmtPrice(MIN_CHECKOUT)}`}
+                            </button>
+                        </Link>
+                    </>
+                )}
+            </div>
+        </aside>
+    )
+}
 
 export default function GamesPage() {
     const [filters, setFilters] = useState(FiltersObjs)
@@ -88,7 +171,7 @@ export default function GamesPage() {
                 </div>
             </div>
 
-            {/* ══ Header matching Details page style ══ */}
+            {/* ══ Header ══ */}
             <header className="gp-header">
                 <a href="/" className="dt-back">
                     <i className="fas fa-arrow-left" /> Home
@@ -136,50 +219,58 @@ export default function GamesPage() {
                 ))}
             </div>
 
-            <section className="games">
-                {isLoading && Array.from({ length: 12 }).map((_, index) => (
-                    <div key={index} className="game-card skeleton-card">
-                        <div className="skeleton-image"></div>
-                        <div className="game-info">
-                            <div className="skeleton-title"></div>
-                            <div className="price-row">
-                                <div className="skeleton-price"></div>
-                                <div className="skeleton-button"></div>
+            {/* ── Main layout with cart sidebar ── */}
+            <div className="gp-layout">
+                <div className="gp-main-content">
+                    <section className="games">
+                        {isLoading && Array.from({ length: 12 }).map((_, index) => (
+                            <div key={index} className="game-card skeleton-card">
+                                <div className="skeleton-image"></div>
+                                <div className="game-info">
+                                    <div className="skeleton-title"></div>
+                                    <div className="price-row">
+                                        <div className="skeleton-price"></div>
+                                        <div className="skeleton-button"></div>
+                                    </div>
+                                </div>
                             </div>
+                        ))}
+
+                        {!isLoading && error && <p className="games-message">{error}</p>}
+
+                        {!isLoading && !error && gamesData.slice(0, 24).map((game) => (
+                            <GameCard key={game.appid || game.steam_appid} {...game} />
+                        ))}
+
+                        {!isLoading && !error && gamesData.length === 0 && (
+                            <p className="games-message">No games to display</p>
+                        )}
+                    </section>
+
+                    <div className="pagination-container">
+                        <div className="pagination-controls">
+                            <button
+                                className="pg-btn"
+                                disabled={page <= 1}
+                                onClick={() => setPage(p => Math.max(1, p - 1))}
+                            >
+                                <i className="fas fa-chevron-left" /> Prev
+                            </button>
+                            <span className="pg-info">Page {page} of {totalPages}</span>
+                            <button
+                                className="pg-btn"
+                                disabled={page >= totalPages}
+                                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                            >
+                                Next <i className="fas fa-chevron-right" />
+                            </button>
                         </div>
                     </div>
-                ))}
-
-                {!isLoading && error && <p className="games-message">{error}</p>}
-
-                {!isLoading && !error && gamesData.slice(0, 24).map((game) => (
-                    <GameCard key={game.steam_appid} {...game} />
-                ))}
-
-                {!isLoading && !error && gamesData.length === 0 && (
-                    <p className="games-message">No games to display</p>
-                )}
-            </section>
-
-            <div className="pagination-container">
-                <div className="pagination-controls">
-                    <button 
-                        className="pg-btn" 
-                        disabled={page <= 1} 
-                        onClick={() => setPage(p => Math.max(1, p - 1))}
-                    >
-                        <i className="fas fa-chevron-left" /> Prev
-                    </button>
-                    <span className="pg-info">Page {page} of {totalPages}</span>
-                    <button 
-                        className="pg-btn" 
-                        disabled={page >= totalPages} 
-                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                    >
-                        Next <i className="fas fa-chevron-right" />
-                    </button>
                 </div>
+
+                <CartSidebar />
             </div>
         </>
     )
 }
+

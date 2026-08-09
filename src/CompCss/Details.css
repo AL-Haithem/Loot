@@ -20,9 +20,9 @@
     width: 100vw; height: 100vh;
     background-size: cover;
     background-position: center 15%;
-    filter: blur(4px) brightness(0.2) saturate(0.6);
-    transform: scale(1.04);
-    z-index: 0;
+    filter: blur(6px) brightness(0.25) saturate(0.7);
+    transform: scale(1.06);
+    z-index: -1;
     pointer-events: none;
     will-change: transform;
 }
@@ -32,12 +32,11 @@
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    /* Deep obsidian overlay — game art is barely visible */
     background: linear-gradient(
         180deg,
-        rgba(10, 10, 15, 0.60) 0%,
-        rgba(10, 10, 15, 0.80) 40%,
-        rgba(10, 10, 15, 0.97) 100%
+        rgba(10, 10, 15, 0.45) 0%,
+        rgba(10, 10, 15, 0.70) 40%,
+        rgba(10, 10, 15, 0.95) 100%
     );
 }
 
