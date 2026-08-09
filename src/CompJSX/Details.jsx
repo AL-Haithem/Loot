@@ -49,7 +49,7 @@ function formatRelease(rel) {
 function expandSteamAssetUrl(url) {
     if (!url) return null
     if (url.startsWith("http")) return url // Already absolute
-    return `https://shared.akamai.steamstatic.com/${url}`
+    return `https://store.akamai.steamstatic.com/${url.replace(/^\/+/, '')}`
 }
 
 /* ─── Skeleton ──────────────────────────── */

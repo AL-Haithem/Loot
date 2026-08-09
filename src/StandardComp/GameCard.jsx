@@ -3,7 +3,7 @@ import { Link } from "react-router"
 import { useCart } from "../CartContext.jsx"
 
 const STEAM_APP_URL = "https://store.steampowered.com/app"
-const STEAM_ASSET_BASE = "https://shared.akamai.steamstatic.com/"
+const STEAM_ASSET_BASE = "https://store.akamai.steamstatic.com/"
 
 export function steamAssetUrl(value) {
     if (!value || typeof value !== "string") return ""
@@ -29,15 +29,17 @@ function formatReleaseDate(rel) {
     })
 }
 
-function formatPrice(price) {
-    if (!price) return null
-    // If it's a number (cents), use it directly
-    const finalPrice = typeof price === "number" ? price : (price.US?.final || price.final)
+function formatPrice(priceVal, priceObj) {
+    if (priceVal === 0) return "Free"
+    if (!priceVal && (!priceObj || !priceObj.final)) return null
+
+    // Use priceVal (cents) if available, otherwise fallback to priceObj
+    const finalPrice = typeof priceVal === "number" ? priceVal : (priceObj.US?.final || priceObj.final)
     if (!finalPrice || finalPrice <= 0) return null
 
     return new Intl.NumberFormat("en-US", {
         style: "currency",
-        currency: price.currency || price.US?.currency || "USD"
+        currency: priceObj?.currency || priceObj?.US?.currency || "USD"
     }).format(finalPrice / 100)
 }
 
@@ -49,25 +51,29 @@ export function GameCard({
     head,
     is_free,
     Price,
+    price,
+    discount,
     rel,
     recs
 }) {
     const finalId = steam_appid || appid
-    const gameData = { steam_appid: finalId, appid: finalId, name, title, head, is_free, Price, rel, recs }
+    // Keep gameData compatible with the old cart format if possible
+    const gameData = { steam_appid: finalId, appid: finalId, name, title, head, is_free, Price, price, discount, rel, recs }
     const { addToCart } = useCart()
     const reviews = typeof recs === "object" ? (recs?.total || 0) : (recs || 0)
     const gameName = name || title || "Untitled"
-    const finalPriceVal = typeof Price === "number" ? Price : (Price?.US?.final || Price?.final || 0)
+    const finalPriceVal = typeof price === "number" ? price : (typeof Price === "number" ? Price : (Price?.US?.final || Price?.final || 0))
+    const isFreeGame = is_free !== undefined ? is_free : (finalPriceVal === 0)
     const releaseText = formatReleaseDate(rel)
     const isComingSoon = typeof rel === "object" && rel?.coming_soon
-    const hasBuyablePrice = !is_free && !isComingSoon && finalPriceVal > 0
+    const hasBuyablePrice = !isFreeGame && !isComingSoon && finalPriceVal > 0
     const steamUrl = `${STEAM_APP_URL}/${finalId}`
     const detailsUrl = `/games/${finalId}`
     const priceText = isComingSoon
         ? releaseText
-        : is_free
+        : isFreeGame
             ? "Free"
-            : formatPrice(Price) || "Unavailable"
+            : formatPrice(price, Price) || "Unavailable"
 
     return (
         <article className="game-card">
@@ -80,7 +86,10 @@ export function GameCard({
                 {releaseText && !rel?.coming_soon && <div className="game-meta">Release date: {releaseText}</div>}
 
                 <div className="price-row">
-                    <span className="game-price">{priceText}</span>
+                    <div className="price-block">
+                        <span className="game-price">{priceText}</span>
+                        {discount > 0 && <span className="game-discount">-{discount}%</span>}
+                    </div>
 
                     <div className="game-actions">
                         {hasBuyablePrice && (
