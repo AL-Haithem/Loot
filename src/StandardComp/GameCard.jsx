@@ -3,7 +3,7 @@ import { Link } from "react-router"
 import { useCart } from "../CartContext.jsx"
 
 const STEAM_APP_URL = "https://store.steampowered.com/app"
-const STEAM_ASSET_BASE = "https://store.akamai.steamstatic.com/"
+const STEAM_ASSET_BASE = "https://shared.akamai.steamstatic.com/"
 
 // Returns a full absolute URL or null (never an empty string)
 export function steamAssetUrl(value) {
