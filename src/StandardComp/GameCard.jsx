@@ -5,9 +5,10 @@ import { useCart } from "../CartContext.jsx"
 const STEAM_APP_URL = "https://store.steampowered.com/app"
 const STEAM_ASSET_BASE = "https://store.akamai.steamstatic.com/"
 
+// Returns a full absolute URL or null (never an empty string)
 export function steamAssetUrl(value) {
-    if (!value || typeof value !== "string") return ""
-    if (value.startsWith("https://")) return value
+    if (!value || typeof value !== "string") return null
+    if (value.startsWith("https://") || value.startsWith("http://")) return value
     return STEAM_ASSET_BASE + value.replace(/^\/+/, "")
 }
 
@@ -75,11 +76,16 @@ export function GameCard({
             ? "Free"
             : formatPrice(price, Price) || "Unavailable"
 
+    const imgSrc = steamAssetUrl(head)
+
     return (
         <article className="game-card">
             {reviews > 50000 && <div className="player-count">Popular</div>}
 
-            <img src={steamAssetUrl(head)} alt={gameName} loading="lazy" />
+            {imgSrc
+                ? <img src={imgSrc} alt={gameName} loading="lazy" />
+                : <div className="card-img-placeholder"><i className="fab fa-steam" /></div>
+            }
 
             <div className="game-info">
                 <h3 className="game-card-title">{gameName}</h3>
