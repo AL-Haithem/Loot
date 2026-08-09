@@ -34,14 +34,14 @@ function formatPrice(priceVal, priceObj) {
     if (priceVal === 0) return "Free"
     if (!priceVal && (!priceObj || !priceObj.final)) return null
 
-    // Use priceVal (cents) if available, otherwise fallback to priceObj
+    // Use priceVal if available, otherwise fallback to priceObj
     const finalPrice = typeof priceVal === "number" ? priceVal : (priceObj.US?.final || priceObj.final)
     if (!finalPrice || finalPrice <= 0) return null
 
     return new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: priceObj?.currency || priceObj?.US?.currency || "USD"
-    }).format(finalPrice / 100)
+    }).format(finalPrice)
 }
 
 export function GameCard({
@@ -54,12 +54,13 @@ export function GameCard({
     Price,
     price,
     discount,
+    huntPrice,
     rel,
     recs
 }) {
     const finalId = steam_appid || appid
     // Keep gameData compatible with the old cart format if possible
-    const gameData = { steam_appid: finalId, appid: finalId, name, title, head, is_free, Price, price, discount, rel, recs }
+    const gameData = { steam_appid: finalId, appid: finalId, name, title, head, is_free, Price, price, huntPrice, discount, rel, recs }
     const { addToCart } = useCart()
     const reviews = typeof recs === "object" ? (recs?.total || 0) : (recs || 0)
     const gameName = name || title || "Untitled"
@@ -98,6 +99,11 @@ export function GameCard({
                     </div>
 
                     <div className="game-actions">
+                        {huntPrice > 0 && (
+                            <Link to={detailsUrl} className="dh-mini-btn" title="Hunt this deal">
+                                <i className="fas fa-satellite-dish" /> ${huntPrice.toFixed(2)}
+                            </Link>
+                        )}
                         {hasBuyablePrice && (
                             <button
                                 className="cart-btn"

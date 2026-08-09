@@ -3,13 +3,14 @@ import { useCart } from "../CartContext.jsx"
 import "../CompCss/DealHunt.css"
 
 /* ─── Helpers ───────────────────────────────── */
-// Formats a price in cents (e.g. 1999 -> $19.99)
-function fmt(priceCents, currency = 'USD') {
-    if (!priceCents || priceCents <= 0) return null
+// Formats a price (already in correct currency units, not cents)
+function fmt(price, currency = 'USD') {
+    if (price === undefined || price === null || price < 0) return null
+    if (price === 0) return "Free"
     return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency,
-    }).format(priceCents / 100)
+    }).format(price)
 }
 
 const SERVICE_FEE = 1.0
@@ -121,12 +122,12 @@ function DealHuntActive({ request, priceText, onPayNow, onCancel }) {
 }
 
 /* ─── Deal Hunt Form ────────────────────────── */
-function DealHuntForm({ game, priceText, priceCents, onConfirm }) {
+function DealHuntForm({ game, priceText, huntPrice, onConfirm }) {
     const [email, setEmail]       = useState("")
     const [agreed, setAgreed]     = useState(false)
     const [emailErr, setEmailErr] = useState("")
 
-    const gamePrice   = priceCents ? priceCents / 100 : 0
+    const gamePrice   = huntPrice || 0
     const totalCharge = SERVICE_FEE
 
     function validate() {
@@ -210,8 +211,10 @@ export default function PurchaseSection({ game }) {
     // New API: game.price is the final price in cents (price + profit)
     // game.discount is the discount percent (0-100)
     const priceCents = game?.price
+    const huntPrice  = game?.huntPrice
     const discount   = game?.discount || 0
     const priceText  = fmt(priceCents) || 'Unavailable'
+    const huntText   = fmt(huntPrice) || 'Unavailable'
     const isFree     = priceCents === 0
     const hasBuyable = !isFree && priceCents > 0
 
@@ -251,7 +254,7 @@ export default function PurchaseSection({ game }) {
                 <div className="ps-panel-header">
                     <div className="ps-mode-icon ps-icon-instant"><i className="fas fa-bolt" /></div>
                     <div className="ps-mode-text">
-                        <span className="ps-mode-title">Instant Delivery</span>
+                        <span className="ps-mode-title">Instant Buy</span>
                         <span className="ps-mode-sub">Fixed price · Pay & receive now</span>
                     </div>
                 </div>
@@ -326,8 +329,8 @@ export default function PurchaseSection({ game }) {
                 {!dhRequest ? (
                     <DealHuntForm
                         game={game}
-                        priceText={priceText}
-                        priceCents={priceCents}
+                        priceText={huntText}
+                        huntPrice={huntPrice}
                         onConfirm={handleDHCreate}
                     />
                 ) : (
