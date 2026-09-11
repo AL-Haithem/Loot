@@ -100,6 +100,8 @@ export default function GamesPage() {
     const [totalPages, setTotalPages] = useState(1)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState("")
+    const [searchTerm, setSearchTerm] = useState("")
+    const [debouncedSearch, setDebouncedSearch] = useState("")
     const activeFilter = filters.find(f => f.active)
     const { totalCount } = useCart()
 
@@ -110,7 +112,15 @@ export default function GamesPage() {
     // Reset page to 1 when filter changes
     useEffect(() => {
         setPage(1)
-    }, [activeFilter?.id])
+    }, [activeFilter?.id, debouncedSearch])
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            setDebouncedSearch(searchTerm.trim())
+        }, 300)
+
+        return () => clearTimeout(timeoutId)
+    }, [searchTerm])
 
     useEffect(() => {
         let isMounted = true
@@ -121,7 +131,11 @@ export default function GamesPage() {
 
             try {
                 const res = await axios.get(`${API_BASE}/api/public/games`, {
-                    params: { page, filter: activeFilter?.filter }
+                    params: {
+                        page,
+                        filter: activeFilter?.filter,
+                        search: debouncedSearch || undefined
+                    }
                 })
 
                 if (isMounted) {
@@ -144,7 +158,7 @@ export default function GamesPage() {
         return () => {
             isMounted = false
         }
-    }, [activeFilter?.id, activeFilter?.filter, page])
+    }, [activeFilter?.id, activeFilter?.filter, debouncedSearch, page])
 
     return (
         <>
@@ -189,6 +203,9 @@ export default function GamesPage() {
                             type="text"
                             className="gp-search"
                             placeholder="Find your game..."
+                            value={searchTerm}
+                            onChange={(event) => setSearchTerm(event.target.value)}
+                            aria-label="Search games"
                         />
                     </div>
 
