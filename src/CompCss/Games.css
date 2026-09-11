@@ -985,3 +985,46 @@
 @media (max-width: 900px) {
     .gp-cart-panel { display: none; }
 }
+
+/* ─── Final responsive overrides ────────────────── */
+@media (max-width: 1450px) {
+    .games { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 1150px) {
+    .games { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 520px) {
+    .filter-bar {
+        padding: 18px 16px;
+        gap: 8px;
+    }
+
+    .filter-btn {
+        flex: 1 1 calc(50% - 8px);
+        min-width: 0;
+        padding: 9px 8px;
+    }
+
+    .games {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+        padding: 8px 16px 40px;
+    }
+
+    .game-card img,
+    .card-img-placeholder,
+    .skeleton-image {
+        height: auto;
+        aspect-ratio: 16 / 9;
+    }
+
+    .game-info {
+        padding: 14px;
+    }
+
+    .game-card-title {
+        font-size: .95rem;
+    }
+}
